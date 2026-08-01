@@ -1,0 +1,49 @@
+app: ghost
+description: Ghost — professional publishing platform and CMS
+icon: https://raw.githubusercontent.com/jekyo/templates/main/ghost/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your blog
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  ghost:
+    image: ghost:5
+    env:
+      url: https://${DOMAIN}
+      database__client: mysql
+      database__connection__host: mysql
+      database__connection__user: ghost
+      database__connection__password: ${MYSQL_PASSWORD}
+      database__connection__database: ghost
+    port: 2368
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/lib/ghost/content
+        subpath: ghost
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_USER: ghost
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ghost
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

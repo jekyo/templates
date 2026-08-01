@@ -1,8 +1,15 @@
-# Catalog index for `jekyo templates` / `jekyo init <name>`.
+# Catalog index for `jekyo templates` / `jekyo init <name>` and the
+# website catalog page.
 templates:
   - name: postgres
     description: PostgreSQL 16 with pgvector and persistent storage
+    category: databases
   - name: redis
     description: Redis 7 with append-only persistence
+    category: databases
+  - name: ghost
+    description: Ghost — professional publishing platform and CMS
+    category: cms
   - name: static-site
     description: Static site served by nginx, built from the ./public directory
+    category: web
