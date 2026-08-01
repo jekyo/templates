@@ -1,5 +1,4 @@
 # Catalog index for `jekyo templates` / `jekyo init <name>` and the website.
-# Many templates are converted from Coolify (Apache-2.0) — see README.
 templates:
   - name: "activepieces"
     description: "Open source no-code business automation."
