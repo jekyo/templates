@@ -1,5 +1,5 @@
 app: fileflows
-description: FileFlows — shrink your media files up to 90%, saving space and money
+description: FileFlows: shrink your media files up to 90%, saving space and money
 icon: https://raw.githubusercontent.com/jekyo/templates/main/fileflows/logo.svg
 inputs:
   DOMAIN:

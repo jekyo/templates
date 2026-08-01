@@ -1,5 +1,5 @@
 app: sure
-description: Sure — an all-in-one personal finance platform
+description: Sure: an all-in-one personal finance platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/sure/logo.png
 inputs:
   DOMAIN:

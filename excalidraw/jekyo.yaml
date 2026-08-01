@@ -1,5 +1,5 @@
 app: excalidraw
-description: Excalidraw — virtual whiteboard for sketching hand-drawn like diagrams
+description: Excalidraw: virtual whiteboard for sketching hand-drawn like diagrams
 icon: https://raw.githubusercontent.com/jekyo/templates/main/excalidraw/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: denokv
-description: Deno KV — the Denoland key-value database
+description: Deno KV: the Denoland key-value database
 icon: https://raw.githubusercontent.com/jekyo/templates/main/denokv/logo.svg
 inputs:
   DOMAIN:

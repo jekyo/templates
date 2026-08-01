@@ -1,5 +1,5 @@
 app: grimmory
-description: Grimmory is a self-hosted application for managing your entire book collection — organize, read, annotate, sync across devices, and share.
+description: Grimmory is a self-hosted application for managing your entire book collection: organize, read, annotate, sync across devices, and share.
 icon: https://raw.githubusercontent.com/jekyo/templates/main/grimmory/logo.svg
 inputs:
   DOMAIN:

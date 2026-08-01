@@ -1,5 +1,5 @@
 app: freshrss-with-postgresql
-description: FreshRSS — a free, self-hostable feed aggregator (PostgreSQL backend)
+description: FreshRSS: a free, self-hostable feed aggregator (PostgreSQL backend)
 icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss-with-postgresql/logo.png
 inputs:
   DOMAIN:

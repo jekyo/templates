@@ -1,5 +1,5 @@
 app: databasus
-description: Databasus — free, open source, self-hosted tool to backup PostgreSQL, MySQL, and MongoDB
+description: Databasus: free, open source, self-hosted tool to backup PostgreSQL, MySQL, and MongoDB
 icon: https://raw.githubusercontent.com/jekyo/templates/main/databasus/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: rustfs
-description: RustFS — high-performance distributed storage system built with Rust, compatible with Amazon S3 APIs
+description: RustFS: high-performance distributed storage system built with Rust, compatible with Amazon S3 APIs
 icon: https://raw.githubusercontent.com/jekyo/templates/main/rustfs/logo.png
 inputs:
   DOMAIN:

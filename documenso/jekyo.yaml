@@ -1,5 +1,5 @@
 app: documenso
-description: Documenso — document signing, finally open source
+description: Documenso: document signing, finally open source
 icon: https://raw.githubusercontent.com/jekyo/templates/main/documenso/logo.png
 inputs:
   DOMAIN:

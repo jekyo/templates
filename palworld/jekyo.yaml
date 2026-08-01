@@ -1,5 +1,5 @@
 app: palworld
-description: Palworld — dedicated game server for the multiplayer monster-catching survival game
+description: Palworld: dedicated game server for the multiplayer monster-catching survival game
 icon: https://raw.githubusercontent.com/jekyo/templates/main/palworld/logo.svg
 inputs:
   SERVER_NAME:

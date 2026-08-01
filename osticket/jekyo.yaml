@@ -1,5 +1,5 @@
 app: osticket
-description: osTicket — widely-used open source support ticket system
+description: osTicket: widely-used open source support ticket system
 icon: https://raw.githubusercontent.com/jekyo/templates/main/osticket/logo.png
 inputs:
   DOMAIN:

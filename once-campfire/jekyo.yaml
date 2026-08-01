@@ -1,5 +1,5 @@
 app: once-campfire
-description: Campfire — super simple group chat, without a subscription
+description: Campfire: super simple group chat, without a subscription
 icon: https://raw.githubusercontent.com/jekyo/templates/main/once-campfire/logo.png
 inputs:
   DOMAIN:

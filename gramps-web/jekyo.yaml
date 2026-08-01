@@ -1,5 +1,5 @@
 app: gramps-web
-description: Gramps Web — open source online genealogy system
+description: Gramps Web: open source online genealogy system
 icon: https://raw.githubusercontent.com/jekyo/templates/main/gramps-web/logo.svg
 inputs:
   DOMAIN:

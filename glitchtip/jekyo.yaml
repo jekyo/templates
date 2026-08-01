@@ -1,5 +1,5 @@
 app: glitchtip
-description: GlitchTip — open-source error tracking system, compatible with Sentry SDKs
+description: GlitchTip: open-source error tracking system, compatible with Sentry SDKs
 icon: https://raw.githubusercontent.com/jekyo/templates/main/glitchtip/logo.png
 inputs:
   DOMAIN:

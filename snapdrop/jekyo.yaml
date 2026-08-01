@@ -1,5 +1,5 @@
 app: snapdrop
-description: Snapdrop — self-hosted file sharing for secure and convenient transfers on a local network or the internet
+description: Snapdrop: self-hosted file sharing for secure and convenient transfers on a local network or the internet
 icon: https://raw.githubusercontent.com/jekyo/templates/main/snapdrop/logo.png
 inputs:
   DOMAIN:

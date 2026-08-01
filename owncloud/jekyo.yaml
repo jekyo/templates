@@ -1,5 +1,5 @@
 app: owncloud
-description: ownCloud — file management and sharing platform with a powerful, user-friendly web interface
+description: ownCloud: file management and sharing platform with a powerful, user-friendly web interface
 icon: https://raw.githubusercontent.com/jekyo/templates/main/owncloud/logo.svg
 inputs:
   DOMAIN:

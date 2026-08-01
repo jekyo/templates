@@ -1,5 +1,5 @@
 app: formbricks
-description: Formbricks — open source survey platform
+description: Formbricks: open source survey platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/formbricks/logo.png
 inputs:
   DOMAIN:

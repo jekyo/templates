@@ -1,5 +1,5 @@
 app: overseerr
-description: Overseerr — request management and media discovery tool for your Plex ecosystem
+description: Overseerr: request management and media discovery tool for your Plex ecosystem
 icon: https://raw.githubusercontent.com/jekyo/templates/main/overseerr/logo.svg
 inputs:
   DOMAIN:

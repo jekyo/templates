@@ -1,5 +1,5 @@
 app: teable
-description: Teable — a powerful visual interface built on relational databases (PostgreSQL)
+description: Teable: a powerful visual interface built on relational databases (PostgreSQL)
 icon: https://raw.githubusercontent.com/jekyo/templates/main/teable/logo.png
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: qdrant
-description: Qdrant — production-ready vector similarity search engine with a convenient API to store, search, and manage vectors with payloads
+description: Qdrant: production-ready vector similarity search engine with a convenient API to store, search, and manage vectors with payloads
 icon: https://raw.githubusercontent.com/jekyo/templates/main/qdrant/logo.png
 inputs:
   DOMAIN:

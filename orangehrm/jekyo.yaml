@@ -1,5 +1,5 @@
 app: orangehrm
-description: OrangeHRM — open source HR management software
+description: OrangeHRM: open source HR management software
 icon: https://raw.githubusercontent.com/jekyo/templates/main/orangehrm/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: miniflux
-description: Miniflux — a minimalist and opinionated feed reader
+description: Miniflux: a minimalist and opinionated feed reader
 icon: https://raw.githubusercontent.com/jekyo/templates/main/miniflux/logo.svg
 inputs:
   DOMAIN:

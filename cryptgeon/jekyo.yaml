@@ -1,5 +1,5 @@
 app: cryptgeon
-description: Cryptgeon — secure note / file sharing service inspired by PrivNote
+description: Cryptgeon: secure note / file sharing service inspired by PrivNote
 icon: https://raw.githubusercontent.com/jekyo/templates/main/cryptgeon/logo.png
 inputs:
   DOMAIN:

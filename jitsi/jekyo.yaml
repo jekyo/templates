@@ -1,5 +1,5 @@
 app: jitsi
-description: Self-hosted Jitsi Meet — open-source video conferencing platform
+description: Self-hosted Jitsi Meet: open-source video conferencing platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/jitsi/logo.svg
 inputs:
   DOMAIN:

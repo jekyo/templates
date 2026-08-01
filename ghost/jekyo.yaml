@@ -1,5 +1,5 @@
 app: ghost
-description: Ghost — professional publishing platform and CMS
+description: Ghost: professional publishing platform and CMS
 icon: https://raw.githubusercontent.com/jekyo/templates/main/ghost/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: freescout
-description: FreeScout — super lightweight free open source help desk and shared inbox
+description: FreeScout: super lightweight free open source help desk and shared inbox
 icon: https://raw.githubusercontent.com/jekyo/templates/main/freescout/logo.png
 inputs:
   DOMAIN:

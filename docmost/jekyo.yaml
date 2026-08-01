@@ -1,5 +1,5 @@
 app: docmost
-description: Docmost — open-source collaborative wiki and documentation software
+description: Docmost: open-source collaborative wiki and documentation software
 icon: https://raw.githubusercontent.com/jekyo/templates/main/docmost/logo.png
 inputs:
   DOMAIN:

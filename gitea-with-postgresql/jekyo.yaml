@@ -1,5 +1,5 @@
 app: gitea-with-postgresql
-description: Gitea — self-hosted, lightweight Git service for version control, collaboration, and code hosting, backed by PostgreSQL
+description: Gitea: self-hosted, lightweight Git service for version control, collaboration, and code hosting, backed by PostgreSQL
 icon: https://raw.githubusercontent.com/jekyo/templates/main/gitea-with-postgresql/logo.svg
 inputs:
   DOMAIN:

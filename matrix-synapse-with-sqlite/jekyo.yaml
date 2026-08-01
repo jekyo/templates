@@ -1,5 +1,5 @@
 app: matrix-synapse-with-sqlite
-description: Matrix Synapse (SQLite) — chat securely with your family, friends and community
+description: Matrix Synapse (SQLite): chat securely with your family, friends and community
 icon: https://raw.githubusercontent.com/jekyo/templates/main/matrix-synapse-with-sqlite/logo.svg
 inputs:
   DOMAIN:
@@ -7,7 +7,7 @@ inputs:
     prompt: Domain for your Matrix server
   SYNAPSE_SERVER_NAME:
     kind: string
-    prompt: Matrix server name — permanent, used in user IDs (e.g. example.org)
+    prompt: Matrix server name: permanent, used in user IDs (e.g. example.org)
   ENABLE_REGISTRATION:
     kind: string
     default: "false"

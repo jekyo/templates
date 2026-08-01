@@ -1,5 +1,5 @@
 app: mindsdb
-description: MindsDB — the platform for building AI from enterprise data, enabling smarter organizations
+description: MindsDB: the platform for building AI from enterprise data, enabling smarter organizations
 icon: https://raw.githubusercontent.com/jekyo/templates/main/mindsdb/logo.svg
 inputs:
   DOMAIN:

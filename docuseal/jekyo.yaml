@@ -1,5 +1,5 @@
 app: docuseal
-description: DocuSeal — open-source document signing, alternative to DocuSign
+description: DocuSeal: open-source document signing, alternative to DocuSign
 icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal/logo.png
 inputs:
   DOMAIN:

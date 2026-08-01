@@ -1,5 +1,5 @@
 app: glpi
-description: GLPI — free, open-source ITSM platform for IT asset management, helpdesk and service desk operations
+description: GLPI: free, open-source ITSM platform for IT asset management, helpdesk and service desk operations
 icon: https://raw.githubusercontent.com/jekyo/templates/main/glpi/logo.svg
 inputs:
   DOMAIN:

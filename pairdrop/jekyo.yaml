@@ -1,5 +1,5 @@
 app: pairdrop
-description: PairDrop — self-hosted local file sharing in your browser, send files between devices securely
+description: PairDrop: self-hosted local file sharing in your browser, send files between devices securely
 icon: https://raw.githubusercontent.com/jekyo/templates/main/pairdrop/logo.png
 inputs:
   DOMAIN:

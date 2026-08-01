@@ -1,5 +1,5 @@
 app: forgejo
-description: Forgejo — self-hosted lightweight software forge, easy to install and low maintenance
+description: Forgejo: self-hosted lightweight software forge, easy to install and low maintenance
 icon: https://raw.githubusercontent.com/jekyo/templates/main/forgejo/logo.svg
 inputs:
   DOMAIN:

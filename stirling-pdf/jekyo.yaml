@@ -1,5 +1,5 @@
 app: stirling-pdf
-description: Stirling PDF — a powerful web based PDF manipulation tool
+description: Stirling PDF: a powerful web based PDF manipulation tool
 icon: https://raw.githubusercontent.com/jekyo/templates/main/stirling-pdf/logo.png
 inputs:
   DOMAIN:

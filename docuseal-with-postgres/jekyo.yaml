@@ -1,5 +1,5 @@
 app: docuseal-with-postgres
-description: DocuSeal — open-source document signing, backed by PostgreSQL
+description: DocuSeal: open-source document signing, backed by PostgreSQL
 icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal-with-postgres/logo.png
 inputs:
   DOMAIN:

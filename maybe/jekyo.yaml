@@ -1,5 +1,5 @@
 app: maybe
-description: Maybe — the OS for your personal finances
+description: Maybe: the OS for your personal finances
 icon: https://raw.githubusercontent.com/jekyo/templates/main/maybe/logo.svg
 inputs:
   DOMAIN:

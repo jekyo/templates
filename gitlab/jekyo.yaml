@@ -1,5 +1,5 @@
 app: gitlab
-description: GitLab — the all-in-one DevOps platform for seamless collaboration and continuous delivery
+description: GitLab: the all-in-one DevOps platform for seamless collaboration and continuous delivery
 icon: https://raw.githubusercontent.com/jekyo/templates/main/gitlab/logo.svg
 inputs:
   DOMAIN:

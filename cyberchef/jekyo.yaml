@@ -1,5 +1,5 @@
 app: cyberchef
-description: CyberChef — the Cyber Swiss Army Knife, a web app for encryption, encoding, compression and data analysis
+description: CyberChef: the Cyber Swiss Army Knife, a web app for encryption, encoding, compression and data analysis
 icon: https://raw.githubusercontent.com/jekyo/templates/main/cyberchef/logo.jpeg
 inputs:
   DOMAIN:

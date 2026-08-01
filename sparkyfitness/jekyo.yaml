@@ -1,5 +1,5 @@
 app: sparkyfitness
-description: SparkyFitness — comprehensive fitness tracking app for nutrition, exercise and body measurements with goals and reports
+description: SparkyFitness: comprehensive fitness tracking app for nutrition, exercise and body measurements with goals and reports
 icon: https://raw.githubusercontent.com/jekyo/templates/main/sparkyfitness/logo.svg
 inputs:
   DOMAIN:

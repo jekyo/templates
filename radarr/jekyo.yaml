@@ -1,5 +1,5 @@
 app: radarr
-description: Radarr — a fork of Sonarr to work with movies à la Couchpotato.
+description: Radarr: a fork of Sonarr to work with movies à la Couchpotato.
 icon: https://raw.githubusercontent.com/jekyo/templates/main/radarr/logo.svg
 inputs:
   DOMAIN:

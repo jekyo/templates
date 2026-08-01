@@ -1,5 +1,5 @@
 app: observium
-description: Observium — comprehensive network monitoring platform with an elegant, intuitive interface
+description: Observium: comprehensive network monitoring platform with an elegant, intuitive interface
 icon: https://raw.githubusercontent.com/jekyo/templates/main/observium/logo.webp
 inputs:
   DOMAIN:

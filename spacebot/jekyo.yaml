@@ -1,5 +1,5 @@
 app: spacebot
-description: Spacebot — an agentic AI system with specialized processes for thinking, working, and remembering
+description: Spacebot: an agentic AI system with specialized processes for thinking, working, and remembering
 icon: https://raw.githubusercontent.com/jekyo/templates/main/spacebot/logo.png
 inputs:
   DOMAIN:

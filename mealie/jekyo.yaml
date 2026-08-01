@@ -1,5 +1,5 @@
 app: mealie
-description: Mealie — a recipe manager and meal planner
+description: Mealie: a recipe manager and meal planner
 icon: https://raw.githubusercontent.com/jekyo/templates/main/mealie/logo.png
 inputs:
   DOMAIN:

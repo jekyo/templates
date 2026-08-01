@@ -1,5 +1,5 @@
 app: sonarr
-description: Sonarr — PVR for usenet and bittorrent users that monitors RSS feeds and grabs, sorts and renames TV episodes
+description: Sonarr: PVR for usenet and bittorrent users that monitors RSS feeds and grabs, sorts and renames TV episodes
 icon: https://raw.githubusercontent.com/jekyo/templates/main/sonarr/logo.svg
 inputs:
   DOMAIN:

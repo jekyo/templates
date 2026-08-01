@@ -1,5 +1,5 @@
 app: qbittorrent
-description: qBittorrent — open-source BitTorrent client with a web UI, an alternative to uTorrent
+description: qBittorrent: open-source BitTorrent client with a web UI, an alternative to uTorrent
 icon: https://raw.githubusercontent.com/jekyo/templates/main/qbittorrent/logo.svg
 inputs:
   DOMAIN:

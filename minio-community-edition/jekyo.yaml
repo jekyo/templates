@@ -1,5 +1,5 @@
 app: minio-community-edition
-description: MinIO — high performance object storage server compatible with Amazon S3 APIs
+description: MinIO: high performance object storage server compatible with Amazon S3 APIs
 icon: https://raw.githubusercontent.com/jekyo/templates/main/minio-community-edition/logo.svg
 inputs:
   DOMAIN:

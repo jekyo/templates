@@ -1,5 +1,5 @@
 app: firefly
-description: Firefly III — a personal finances manager that can help you save money
+description: Firefly III: a personal finances manager that can help you save money
 icon: https://raw.githubusercontent.com/jekyo/templates/main/firefly/logo.svg
 inputs:
   DOMAIN:

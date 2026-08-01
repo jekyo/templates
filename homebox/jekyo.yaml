@@ -1,5 +1,5 @@
 app: homebox
-description: Homebox — the inventory and organization system built for the Home User
+description: Homebox: the inventory and organization system built for the Home User
 icon: https://raw.githubusercontent.com/jekyo/templates/main/homebox/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: proxyscotch
-description: Proxyscotch — simple CORS proxy server created for hoppscotch.io
+description: Proxyscotch: simple CORS proxy server created for hoppscotch.io
 icon: https://raw.githubusercontent.com/jekyo/templates/main/proxyscotch/logo.png
 inputs:
   DOMAIN:

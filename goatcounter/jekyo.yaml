@@ -1,5 +1,5 @@
 app: goatcounter
-description: GoatCounter — lightweight, privacy-friendly web analytics platform
+description: GoatCounter: lightweight, privacy-friendly web analytics platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/goatcounter/logo.svg
 inputs:
   DOMAIN:

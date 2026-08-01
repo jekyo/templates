@@ -1,5 +1,5 @@
 app: hoppscotch
-description: Hoppscotch — the Open Source API Development Platform
+description: Hoppscotch: the Open Source API Development Platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/hoppscotch/logo.png
 inputs:
   DOMAIN:

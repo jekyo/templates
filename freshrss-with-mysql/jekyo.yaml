@@ -1,5 +1,5 @@
 app: freshrss-with-mysql
-description: FreshRSS — a free, self-hostable feed aggregator (MySQL backend)
+description: FreshRSS: a free, self-hostable feed aggregator (MySQL backend)
 icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss-with-mysql/logo.png
 inputs:
   DOMAIN:

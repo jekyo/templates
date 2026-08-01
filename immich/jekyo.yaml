@@ -1,5 +1,5 @@
 app: immich
-description: Immich — self-hosted photo and video management solution
+description: Immich: self-hosted photo and video management solution
 icon: https://raw.githubusercontent.com/jekyo/templates/main/immich/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: freshrss-with-mariadb
-description: FreshRSS — a free, self-hostable feed aggregator (MariaDB backend)
+description: FreshRSS: a free, self-hostable feed aggregator (MariaDB backend)
 icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss-with-mariadb/logo.png
 inputs:
   DOMAIN:

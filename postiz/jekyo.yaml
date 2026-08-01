@@ -1,5 +1,5 @@
 app: postiz
-description: Postiz — open source social media scheduling tool
+description: Postiz: open source social media scheduling tool
 icon: https://raw.githubusercontent.com/jekyo/templates/main/postiz/logo.svg
 inputs:
   DOMAIN:

@@ -7,7 +7,7 @@ inputs:
     prompt: Domain Synapse is served on (e.g. matrix.example.org)
   SYNAPSE_SERVER_NAME:
     kind: string
-    prompt: Matrix server name — permanent, cannot be changed later (e.g. example.org)
+    prompt: Matrix server name: permanent, cannot be changed later (e.g. example.org)
   ENABLE_REGISTRATION:
     kind: string
     default: "false"

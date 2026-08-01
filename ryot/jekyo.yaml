@@ -1,5 +1,5 @@
 app: ryot
-description: Ryot — self-hosted platform for tracking media consumption, fitness activities, and more
+description: Ryot: self-hosted platform for tracking media consumption, fitness activities, and more
 icon: https://raw.githubusercontent.com/jekyo/templates/main/ryot/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: hatchet
-description: Hatchet runs background tasks at scale — a high-throughput, low-latency computing service built on a fault-tolerant queue.
+description: Hatchet runs background tasks at scale: a high-throughput, low-latency computing service built on a fault-tolerant queue.
 icon: https://raw.githubusercontent.com/jekyo/templates/main/hatchet/logo.svg
 inputs:
   DOMAIN:

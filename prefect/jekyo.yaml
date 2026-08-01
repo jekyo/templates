@@ -1,5 +1,5 @@
 app: prefect
-description: Prefect — orchestration and observability platform for building and scaling workflows
+description: Prefect: orchestration and observability platform for building and scaling workflows
 icon: https://raw.githubusercontent.com/jekyo/templates/main/prefect/logo.png
 inputs:
   DOMAIN:

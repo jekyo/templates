@@ -1,5 +1,5 @@
 app: freshrss
-description: FreshRSS — a free, self-hostable feed aggregator
+description: FreshRSS: a free, self-hostable feed aggregator
 icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss/logo.png
 inputs:
   DOMAIN:

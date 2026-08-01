@@ -1,5 +1,5 @@
 app: onedev
-description: OneDev — Git server with CI/CD, kanban, and packages
+description: OneDev: Git server with CI/CD, kanban, and packages
 icon: https://raw.githubusercontent.com/jekyo/templates/main/onedev/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: flowise-with-databases
-description: Flowise — open source low-code tool to build LLM orchestration flows and AI agents, with Postgres, Redis and Qdrant
+description: Flowise: open source low-code tool to build LLM orchestration flows and AI agents, with Postgres, Redis and Qdrant
 icon: https://raw.githubusercontent.com/jekyo/templates/main/flowise-with-databases/logo.png
 inputs:
   DOMAIN:

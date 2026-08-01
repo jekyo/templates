@@ -1,5 +1,5 @@
 app: odoo
-description: Odoo — suite of open-source business apps that cover all your company needs
+description: Odoo: suite of open-source business apps that cover all your company needs
 icon: https://raw.githubusercontent.com/jekyo/templates/main/odoo/logo.svg
 inputs:
   DOMAIN:

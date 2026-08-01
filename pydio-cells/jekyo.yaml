@@ -1,5 +1,5 @@
 app: pydio-cells
-description: Pydio Cells — high-performance file sharing and collaboration platform with no-code automation and fine-grained access control
+description: Pydio Cells: high-performance file sharing and collaboration platform with no-code automation and fine-grained access control
 icon: https://raw.githubusercontent.com/jekyo/templates/main/pydio-cells/logo.svg
 inputs:
   DOMAIN:

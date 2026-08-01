@@ -1,5 +1,5 @@
 app: mautic5
-description: Mautic v5 — open source marketing automation
+description: Mautic v5: open source marketing automation
 icon: https://raw.githubusercontent.com/jekyo/templates/main/mautic5/logo.svg
 inputs:
   DOMAIN:

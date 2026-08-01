@@ -1,5 +1,5 @@
 app: paperless
-description: Paperless-ngx — document management system that transforms your physical documents into a searchable online archive
+description: Paperless-ngx: document management system that transforms your physical documents into a searchable online archive
 icon: https://raw.githubusercontent.com/jekyo/templates/main/paperless/logo.svg
 inputs:
   DOMAIN:

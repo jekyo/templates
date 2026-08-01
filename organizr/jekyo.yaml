@@ -1,5 +1,5 @@
 app: organizr
-description: Organizr — homelab services organizer
+description: Organizr: homelab services organizer
 icon: https://raw.githubusercontent.com/jekyo/templates/main/organizr/logo.png
 inputs:
   DOMAIN:

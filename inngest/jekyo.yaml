@@ -1,5 +1,5 @@
 app: inngest
-description: Inngest — durable workflow engine for background jobs, queues and scheduled tasks
+description: Inngest: durable workflow engine for background jobs, queues and scheduled tasks
 icon: https://raw.githubusercontent.com/jekyo/templates/main/inngest/logo.png
 inputs:
   DOMAIN:

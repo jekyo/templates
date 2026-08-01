@@ -1,5 +1,5 @@
 app: faraday
-description: Faraday — open-source, web-based vulnerability management tool
+description: Faraday: open-source, web-based vulnerability management tool
 icon: https://raw.githubusercontent.com/jekyo/templates/main/faraday/logo.png
 inputs:
   DOMAIN:

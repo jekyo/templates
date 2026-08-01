@@ -1,5 +1,5 @@
 app: foundryvtt
-description: Foundry Virtual Tabletop — a self-hosted & modern roleplaying platform
+description: Foundry Virtual Tabletop: a self-hosted & modern roleplaying platform
 icon: https://raw.githubusercontent.com/jekyo/templates/main/foundryvtt/logo.png
 inputs:
   DOMAIN:

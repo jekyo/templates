@@ -1,5 +1,5 @@
 app: fider
-description: Fider — feedback platform for collecting and managing user feedback
+description: Fider: feedback platform for collecting and managing user feedback
 icon: https://raw.githubusercontent.com/jekyo/templates/main/fider/logo.svg
 inputs:
   DOMAIN:

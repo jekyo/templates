@@ -1,5 +1,5 @@
 app: infisical
-description: Infisical — open source secret management platform for application configuration and secrets
+description: Infisical: open source secret management platform for application configuration and secrets
 icon: https://raw.githubusercontent.com/jekyo/templates/main/infisical/logo.png
 inputs:
   DOMAIN:

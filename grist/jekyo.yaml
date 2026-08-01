@@ -1,5 +1,5 @@
 app: grist
-description: Grist is a modern relational spreadsheet — the flexibility of a spreadsheet with the robustness of a database.
+description: Grist is a modern relational spreadsheet: the flexibility of a spreadsheet with the robustness of a database.
 icon: https://raw.githubusercontent.com/jekyo/templates/main/grist/logo.svg
 inputs:
   DOMAIN:

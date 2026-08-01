@@ -1,5 +1,5 @@
 app: metube
-description: MeTube — web GUI for youtube-dl with playlist support, download videos from YouTube and dozens of other sites
+description: MeTube: web GUI for youtube-dl with playlist support, download videos from YouTube and dozens of other sites
 icon: https://raw.githubusercontent.com/jekyo/templates/main/metube/logo.webp
 inputs:
   DOMAIN:

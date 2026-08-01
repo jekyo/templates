@@ -1,5 +1,5 @@
 app: seafile
-description: Seafile — open source cloud storage system for file sync, share and document collaboration
+description: Seafile: open source cloud storage system for file sync, share and document collaboration
 icon: https://raw.githubusercontent.com/jekyo/templates/main/seafile/logo.svg
 inputs:
   DOMAIN:

@@ -1,5 +1,5 @@
 app: getoutline
-description: Outline — your team's knowledge base
+description: Outline: your team's knowledge base
 icon: https://raw.githubusercontent.com/jekyo/templates/main/getoutline/logo.jpeg
 inputs:
   DOMAIN:

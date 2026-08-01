@@ -1,5 +1,5 @@
 app: ollama-with-open-webui
-description: Ollama with Open WebUI — AI model deployment with a user-friendly interface
+description: Ollama with Open WebUI: AI model deployment with a user-friendly interface
 icon: https://raw.githubusercontent.com/jekyo/templates/main/ollama-with-open-webui/logo.svg
 inputs:
   DOMAIN:

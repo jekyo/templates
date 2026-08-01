@@ -1,5 +1,5 @@
 app: prowlarr
-description: Prowlarr — indexer manager/proxy that integrates with your various PVR apps
+description: Prowlarr: indexer manager/proxy that integrates with your various PVR apps
 icon: https://raw.githubusercontent.com/jekyo/templates/main/prowlarr/logo.svg
 inputs:
   DOMAIN:
