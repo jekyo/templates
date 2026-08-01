@@ -1,0 +1,8 @@
+# Catalog index for `jekyo templates` / `jekyo init <name>`.
+templates:
+  - name: postgres
+    description: PostgreSQL 16 with pgvector and persistent storage
+  - name: redis
+    description: Redis 7 with append-only persistence
+  - name: static-site
+    description: Static site served by nginx, built from the ./public directory
