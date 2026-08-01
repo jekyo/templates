@@ -1,0 +1,30 @@
+app: lobe-chat
+description: An open-source, modern-design AI chat framework.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/lobe-chat/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Lobe Chat
+  OPENAI_API_KEY:
+    kind: string
+    prompt: OpenAI API key
+  OPENAI_BASE_URL:
+    kind: string
+    default: https://api.openai.com/v1
+    required: false
+    prompt: OpenAI-compatible API base URL
+  ACCESS_CODE:
+    kind: secret
+services:
+  lobe-chat:
+    image: lobehub/lobe-chat:1.135.5
+    env:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_PROXY_URL: ${OPENAI_BASE_URL}
+      ACCESS_CODE: ${ACCESS_CODE}
+    port: 3210
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3210

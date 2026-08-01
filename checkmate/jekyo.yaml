@@ -1,0 +1,41 @@
+app: checkmate
+description: An open source server and websites monitoring application
+icon: https://raw.githubusercontent.com/jekyo/templates/main/checkmate/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Checkmate
+  JWT_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  checkmate:
+    image: ghcr.io/bluewave-labs/checkmate-backend-mono-multiarch:v3.2.0
+    env:
+      UPTIME_APP_API_BASE_URL: https://${DOMAIN}/api/v1
+      UPTIME_APP_CLIENT_HOST: https://${DOMAIN}
+      DB_CONNECTION_STRING: mongodb://mongodb:27017/uptime_db
+      CLIENT_HOST: https://${DOMAIN}
+      JWT_SECRET: ${JWT_SECRET}
+    port: 52345
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 52345
+  mongodb:
+    image: ghcr.io/bluewave-labs/checkmate-mongo:v3.2.0
+    args: ["mongod", "--quiet", "--bind_ip_all"]
+    port: 27017
+    health:
+      command: ["mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+    volumes:
+      data:
+        path: /data/db
+        subpath: mongo
+volumes:
+  data:
+    size: ${DATA_SIZE}

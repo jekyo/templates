@@ -1,0 +1,92 @@
+app: maybe
+description: Maybe — the OS for your personal finances
+icon: https://raw.githubusercontent.com/jekyo/templates/main/maybe/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Maybe
+  SECRET_KEY_BASE:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  OPENAI_ACCESS_TOKEN:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenAI API key for AI features (optional)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  maybe:
+    image: ghcr.io/maybe-finance/maybe:latest
+    env:
+      SELF_HOSTED: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      GOOD_JOB_EXECUTION_MODE: async
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: maybe-db
+      POSTGRES_USER: maybe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379/1
+      OPENAI_ACCESS_TOKEN: ${OPENAI_ACCESS_TOKEN}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /rails/storage
+        subpath: app-storage
+  worker:
+    image: ghcr.io/maybe-finance/maybe:latest
+    args: ["bundle", "exec", "sidekiq"]
+    env:
+      SELF_HOSTED: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      GOOD_JOB_EXECUTION_MODE: async
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      POSTGRES_DB: maybe-db
+      POSTGRES_USER: maybe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379/1
+      OPENAI_ACCESS_TOKEN: ${OPENAI_ACCESS_TOKEN}
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: maybe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: maybe-db
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "maybe", "-d", "maybe-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:8-alpine
+    args: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    env:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

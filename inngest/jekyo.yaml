@@ -1,0 +1,57 @@
+app: inngest
+description: Inngest — durable workflow engine for background jobs, queues and scheduled tasks
+icon: https://raw.githubusercontent.com/jekyo/templates/main/inngest/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Inngest
+  EVENT_KEY:
+    kind: secret
+  SIGNING_KEY:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  inngest:
+    image: inngest/inngest:v1.27.0
+    command: ["inngest", "start", "--host", "0.0.0.0"]
+    env:
+      INNGEST_EVENT_KEY: ${EVENT_KEY}
+      INNGEST_SIGNING_KEY: ${SIGNING_KEY}
+      INNGEST_POSTGRES_URI: postgres://inngest:${POSTGRES_PASSWORD}@postgres:5432/inngest
+      INNGEST_REDIS_URI: redis://redis:6379
+    port: 8288
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["inngest", "alpha", "doctor", "healthcheck"]
+  postgres:
+    image: postgres:17
+    env:
+      POSTGRES_DB: inngest
+      POSTGRES_USER: inngest
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U inngest -d inngest"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

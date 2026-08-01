@@ -1,0 +1,31 @@
+app: mage-ai
+description: Build, run, and manage data pipelines for integrating and transforming data.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mage-ai/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Mage AI
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  mage-ai:
+    image: mageai/mageai:0.9.78
+    args: ["mage", "start", "default_project"]
+    env:
+      PROJECT_NAME: default_project
+      USER_CODE_PATH: /home/src/default_project
+      ENV: production
+    port: 6789
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 6789
+    volumes:
+      data:
+        path: /home/src
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,22 @@
+app: newt-pangolin
+description: Pangolin tunnels your services to the internet so you can access anything from anywhere.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/newt-pangolin/logo.png
+inputs:
+  PANGOLIN_ENDPOINT:
+    kind: string
+    prompt: URL of your Pangolin server (e.g. https://pangolin.example.com)
+  NEWT_ID:
+    kind: string
+    prompt: Newt ID from your Pangolin site
+  NEWT_SECRET:
+    kind: string
+    prompt: Newt secret from your Pangolin site
+services:
+  newt:
+    image: fosrl/newt:latest
+    env:
+      PANGOLIN_ENDPOINT: ${PANGOLIN_ENDPOINT}
+      NEWT_ID: ${NEWT_ID}
+      NEWT_SECRET: ${NEWT_SECRET}
+    health:
+      command: ["newt", "--version"]

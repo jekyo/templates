@@ -1,0 +1,67 @@
+app: getoutline
+description: Outline — your team's knowledge base
+icon: https://raw.githubusercontent.com/jekyo/templates/main/getoutline/logo.jpeg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Outline
+  SECRET_KEY:
+    kind: secret
+  UTILS_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    env:
+      NODE_ENV: production
+      SECRET_KEY: ${SECRET_KEY}
+      UTILS_SECRET: ${UTILS_SECRET}
+      DATABASE_URL: postgres://outline:${POSTGRES_PASSWORD}@postgres:5432/outline
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      URL: https://${DOMAIN}
+      PORT: "3000"
+      FILE_STORAGE: local
+      FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
+      FILE_STORAGE_UPLOAD_MAX_SIZE: "2000"
+      FILE_STORAGE_IMPORT_MAX_SIZE: "100"
+      PGSSLMODE: disable
+      FORCE_HTTPS: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/lib/outline/data
+        subpath: outline
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    env:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    port: 6379
+    health:
+      command: ["sh", "-c", "redis-cli -a $$REDIS_PASSWORD PING"]
+  postgres:
+    image: postgres:12-alpine
+    env:
+      POSTGRES_USER: outline
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: outline
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "outline", "-d", "outline"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

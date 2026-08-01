@@ -1,0 +1,58 @@
+app: keycloak-with-postgres
+description: Keycloak is an open-source Identity and Access Management tool.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/keycloak-with-postgres/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Keycloak instance
+  ADMIN_PASSWORD:
+    kind: secret
+  DATABASE_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1
+    args: ["start"]
+    env:
+      TZ: UTC
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${DATABASE_PASSWORD}
+      KC_DB_URL_PORT: "5432"
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak
+      KC_HOSTNAME: https://${DOMAIN}
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health/ready
+      port: 9000
+    volumes:
+      data:
+        path: /opt/keycloak/data
+        subpath: keycloak
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: keycloak
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "keycloak", "-d", "keycloak"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,117 @@
+app: affine
+description: Affine is an open-source, all-in-one workspace and OS for knowledge management, a Notion/Miro alternative.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/affine/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for AFFiNE
+  POSTGRES_PASSWORD:
+    kind: secret
+  MAILER_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  MAILER_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  MAILER_USER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP user (optional)
+  MAILER_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  MAILER_SENDER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP sender address (optional)
+  COPILOT_FAL_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: fal.ai API key for Copilot (optional)
+  COPILOT_PERPLEXITY_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: Perplexity API key for Copilot (optional)
+  COPILOT_OPENAI_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenAI API key for Copilot (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  affine:
+    image: ghcr.io/toeverything/affine:stable
+    env:
+      AFFINE_CONFIG_PATH: /root/.affine/config
+      REDIS_SERVER_HOST: redis
+      DATABASE_URL: postgres://affine:${POSTGRES_PASSWORD}@postgres:5432/affine
+      NODE_ENV: production
+      AFFINE_SERVER_HOST: ${DOMAIN}
+      AFFINE_SERVER_EXTERNAL_URL: https://${DOMAIN}
+      MAILER_HOST: ${MAILER_HOST}
+      MAILER_PORT: ${MAILER_PORT}
+      MAILER_USER: ${MAILER_USER}
+      MAILER_PASSWORD: ${MAILER_PASSWORD}
+      MAILER_SENDER: ${MAILER_SENDER}
+      COPILOT_FAL_API_KEY: ${COPILOT_FAL_API_KEY}
+      COPILOT_PERPLEXITY_API_KEY: ${COPILOT_PERPLEXITY_API_KEY}
+      COPILOT_OPENAI_API_KEY: ${COPILOT_OPENAI_API_KEY}
+    port: 3010
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/3010' || exit 1"]
+    volumes:
+      data:
+        path: /root/.affine
+        subpath: affine
+  affine-migration:
+    image: ghcr.io/toeverything/affine:stable
+    args: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
+    env:
+      REDIS_SERVER_HOST: redis
+      DATABASE_URL: postgres://affine:${POSTGRES_PASSWORD}@postgres:5432/affine
+      AFFINE_INDEXER_ENABLED: "false"
+    volumes:
+      data:
+        path: /root/.affine
+        subpath: affine
+  redis:
+    image: redis
+    port: 6379
+    health:
+      command: ["redis-cli", "--raw", "incr", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+  postgres:
+    image: pgvector/pgvector:pg16
+    env:
+      POSTGRES_USER: affine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: affine
+      PGDATA: /var/lib/postgresql/data/pgdata
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U affine"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

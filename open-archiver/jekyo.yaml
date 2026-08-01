@@ -1,0 +1,95 @@
+app: open-archiver
+description: A self-hosted, open-source email archiving solution with full-text search capability.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/open-archiver/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Open Archiver
+  ENCRYPTION_KEY:
+    kind: secret
+  STORAGE_ENCRYPTION_KEY:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  MEILI_MASTER_KEY:
+    kind: secret
+  VALKEY_PASSWORD:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  open-archiver:
+    image: logiclabshq/open-archiver:latest
+    env:
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      STORAGE_ENCRYPTION_KEY: ${STORAGE_ENCRYPTION_KEY}
+      PORT_BACKEND: "4000"
+      PORT_FRONTEND: "3000"
+      NODE_ENV: production
+      SYNC_FREQUENCY: "* * * * *"
+      POSTGRES_DB: open-archiver-db
+      POSTGRES_USER: openarchiver
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgresql://openarchiver:${POSTGRES_PASSWORD}@postgres:5432/open-archiver-db
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_HOST: http://meilisearch:7700
+      REDIS_HOST: valkey
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${VALKEY_PASSWORD}
+      REDIS_TLS_ENABLED: "false"
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_ROOT_PATH: /var/data/open-archiver
+      BODY_SIZE_LIMIT: 100M
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 7d
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/data/open-archiver
+        subpath: archiver
+  postgres:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_DB: open-archiver-db
+      POSTGRES_USER: openarchiver
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      LC_ALL: C
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  valkey:
+    image: valkey/valkey:8-alpine
+    args: ["valkey-server", "--requirepass", "${VALKEY_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: valkey
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    env:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    port: 7700
+    health:
+      command: ["curl", "-f", "http://127.0.0.1:7700/health"]
+    volumes:
+      data:
+        path: /meili_data
+        subpath: meilisearch
+volumes:
+  data:
+    size: ${DATA_SIZE}

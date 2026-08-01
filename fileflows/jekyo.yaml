@@ -1,0 +1,37 @@
+app: fileflows
+description: FileFlows — shrink your media files up to 90%, saving space and money
+icon: https://raw.githubusercontent.com/jekyo/templates/main/fileflows/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for FileFlows
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  fileflows:
+    image: revenz/fileflows
+    env:
+      _APP_URL: https://${DOMAIN}
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/system/version
+      port: 5000
+    volumes:
+      data:
+        path: /app/Data
+        subpath: configs
+volumes:
+  data:
+    size: ${DATA_SIZE}

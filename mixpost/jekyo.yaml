@@ -1,0 +1,62 @@
+app: mixpost
+description: Mixpost is a robust and versatile social media management software, designed to streamline social media operations and enhance content marketing strategies.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mixpost/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Mixpost
+  APP_KEY:
+    kind: secret
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  mixpost:
+    image: inovector/mixpost:latest
+    env:
+      APP_NAME: Mixpost
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: "false"
+      APP_DOMAIN: https://${DOMAIN}
+      APP_URL: https://${DOMAIN}
+      DB_DATABASE: mixpost_db
+      DB_USERNAME: mixpost
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/www/html/storage/app
+        subpath: storage
+      data-logs:
+        path: /var/www/html/storage/logs
+  mysql:
+    image: mysql/mysql-server:8.0
+    env:
+      MYSQL_DATABASE: mixpost_db
+      MYSQL_USER: mixpost
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-logs:
+    size: 1Gi

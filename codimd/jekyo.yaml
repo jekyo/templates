@@ -1,0 +1,52 @@
+app: codimd
+description: Realtime collaborative markdown notes on all platforms
+icon: https://raw.githubusercontent.com/jekyo/templates/main/codimd/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for CodiMD
+  SESSION_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  codimd:
+    image: nabo.codimd.dev/hackmdio/hackmd:latest
+    env:
+      CMD_DOMAIN: ${DOMAIN}
+      CMD_PROTOCOL_USESSL: "true"
+      CMD_SESSION_SECRET: ${SESSION_SECRET}
+      CMD_USECDN: "false"
+      CMD_DB_URL: postgres://codimd:${POSTGRES_PASSWORD}@postgres:5432/codimd
+      CMD_EMAIL: "true"
+      CMD_ALLOW_EMAIL_REGISTER: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /home/hackmd/app/public/uploads
+        subpath: uploads
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: codimd
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: codimd
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "codimd", "-d", "codimd"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

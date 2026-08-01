@@ -1,0 +1,43 @@
+app: easyappointments
+description: Schedule Anything. Let's start with easy! Get the best free online appointment scheduler on your server, today.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/easyappointments/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Easy!Appointments
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  easyappointments:
+    image: alextselegidis/easyappointments:latest
+    env:
+      BASE_URL: https://${DOMAIN}
+      DB_HOST: mysql
+      DB_NAME: easyappointments
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+  mysql:
+    image: mysql:8
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: easyappointments
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

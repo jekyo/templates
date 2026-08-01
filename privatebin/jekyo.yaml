@@ -1,0 +1,26 @@
+app: privatebin
+description: PrivateBin — minimalist, open source pastebin where the server has zero knowledge of pasted data
+icon: https://raw.githubusercontent.com/jekyo/templates/main/privatebin/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for PrivateBin
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /srv/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

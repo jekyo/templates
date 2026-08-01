@@ -1,0 +1,28 @@
+app: drizzle-gateway
+description: Free self-hosted Drizzle Studio on steroids
+icon: https://raw.githubusercontent.com/jekyo/templates/main/drizzle-gateway/logo.jpeg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Drizzle Gateway
+  MASTERPASS:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  drizzle-gateway:
+    image: ghcr.io/drizzle-team/gateway:latest
+    env:
+      STORE_PATH: /app
+      MASTERPASS: ${MASTERPASS}
+    port: 4983
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app
+volumes:
+  data:
+    size: ${DATA_SIZE}

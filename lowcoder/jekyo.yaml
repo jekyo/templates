@@ -1,0 +1,39 @@
+app: lowcoder
+description: Lowcoder (forked from OpenBlocks) is a self-hosted, open-source, low-code platform for building internal tools.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/lowcoder/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Lowcoder
+  LOWCODER_EMAIL_SIGNUP_ENABLED:
+    kind: string
+    default: "true"
+    required: false
+    prompt: Allow email signups (true/false)
+  ENCRYPTION_PASSWORD:
+    kind: secret
+  ENCRYPTION_SALT:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  lowcoder:
+    image: lowcoderorg/lowcoder-ce
+    env:
+      LOWCODER_EMAIL_SIGNUP_ENABLED: ${LOWCODER_EMAIL_SIGNUP_ENABLED}
+      LOWCODER_DB_ENCRYPTION_PASSWORD: ${ENCRYPTION_PASSWORD}
+      LOWCODER_DB_ENCRYPTION_SALT: ${ENCRYPTION_SALT}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 3000
+    volumes:
+      data:
+        path: /lowcoder-stacks
+volumes:
+  data:
+    size: ${DATA_SIZE}

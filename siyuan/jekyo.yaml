@@ -1,0 +1,38 @@
+app: siyuan
+description: A privacy-first, self-hosted, fully open source personal knowledge management software, written in typescript and golang.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/siyuan/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for SiYuan
+  SIYUAN_AUTH_CODE:
+    kind: secret
+  TZ:
+    kind: string
+    default: UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  siyuan:
+    image: b3log/siyuan:v3.3.5
+    env:
+      TZ: "${TZ}"
+      PUID: "1000"
+      PGID: "1000"
+      SIYUAN_ACCESS_AUTH_CODE: "${SIYUAN_AUTH_CODE}"
+    port: 6806
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/system/version
+      port: 6806
+    volumes:
+      data:
+        path: /siyuan/workspace
+volumes:
+  data:
+    size: ${DATA_SIZE}

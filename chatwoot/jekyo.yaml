@@ -1,0 +1,148 @@
+app: chatwoot
+description: Delightful customer relationships at scale.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/chatwoot/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Chatwoot
+  SECRET_KEY_BASE:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DEFAULT_LOCALE:
+    kind: string
+    default: en
+    required: false
+    prompt: Default locale
+  MAILER_SENDER_EMAIL:
+    kind: string
+    default: chatwoot@example.com
+    required: false
+    prompt: Mail sender address
+  SMTP_ADDRESS:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP server address
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP server port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  chatwoot:
+    image: chatwoot/chatwoot:latest
+    command: ["docker/entrypoints/rails.sh"]
+    args: ["sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0"]
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      FRONTEND_URL: https://${DOMAIN}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE}
+      FORCE_SSL: "false"
+      ENABLE_ACCOUNT_SIGNUP: "false"
+      REDIS_URL: redis://default@redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_OPENSSL_VERIFY_MODE: none
+      POSTGRES_DATABASE: chatwoot
+      POSTGRES_HOST: postgres
+      POSTGRES_USERNAME: chatwoot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      RAILS_MAX_THREADS: "5"
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+      MAILER_SENDER_EMAIL: ${MAILER_SENDER_EMAIL}
+      SMTP_ADDRESS: ${SMTP_ADDRESS}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_AUTHENTICATION: plain
+      SMTP_ENABLE_STARTTLS_AUTO: "true"
+      ACTIVE_STORAGE_SERVICE: local
+      SAFE_FETCH_ALLOW_PRIVATE_NETWORK: "false"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /app/storage
+        subpath: rails
+  sidekiq:
+    image: chatwoot/chatwoot:latest
+    args: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      FRONTEND_URL: https://${DOMAIN}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE}
+      FORCE_SSL: "false"
+      ENABLE_ACCOUNT_SIGNUP: "false"
+      REDIS_URL: redis://default@redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_OPENSSL_VERIFY_MODE: none
+      POSTGRES_DATABASE: chatwoot
+      POSTGRES_HOST: postgres
+      POSTGRES_USERNAME: chatwoot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      RAILS_MAX_THREADS: "5"
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+      MAILER_SENDER_EMAIL: ${MAILER_SENDER_EMAIL}
+      SMTP_ADDRESS: ${SMTP_ADDRESS}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_AUTHENTICATION: plain
+      SMTP_ENABLE_STARTTLS_AUTO: "true"
+      ACTIVE_STORAGE_SERVICE: local
+    health:
+      command: ["sh", "-c", "bundle exec rails runner 'puts Sidekiq.redis(&:info)' > /dev/null 2>&1"]
+    volumes:
+      data:
+        path: /app/storage
+        subpath: rails
+  postgres:
+    image: pgvector/pgvector:pg12
+    env:
+      POSTGRES_DB: chatwoot
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U chatwoot -d chatwoot -h 127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:alpine
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "PING"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

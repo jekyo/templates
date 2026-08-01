@@ -1,0 +1,67 @@
+app: castopod
+description: Castopod is a free & open-source hosting platform made for podcasters who want engage and interact with their audience.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/castopod/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Castopod
+  MYSQL_PASSWORD:
+    kind: secret
+  ANALYTICS_SALT:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  castopod:
+    image: castopod/castopod:1.15.4
+    env:
+      MYSQL_DATABASE: castopod
+      MYSQL_USER: castopod
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      CP_DISABLE_HTTPS: "1"
+      CP_BASEURL: https://${DOMAIN}
+      CP_ANALYTICS_SALT: ${ANALYTICS_SALT}
+      CP_CACHE_HANDLER: redis
+      CP_REDIS_HOST: redis
+      CP_REDIS_PASSWORD: ${REDIS_PASSWORD}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8080
+    volumes:
+      data:
+        path: /var/www/castopod/public/media
+        subpath: media
+  mariadb:
+    image: mariadb:11.2
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: castopod
+      MYSQL_USER: castopod
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:7.2-alpine
+    args: ["--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

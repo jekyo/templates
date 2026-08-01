@@ -1,0 +1,64 @@
+app: nextcloud-with-mysql
+description: NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nextcloud-with-mysql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Nextcloud
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Paris"
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: nextcloud-db
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /status.php
+      port: 80
+    volumes:
+      data:
+        path: /config
+        subpath: config
+  nextcloud-db:
+    image: mysql:8.4.2
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:7.4-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

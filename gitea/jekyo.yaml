@@ -1,0 +1,30 @@
+app: gitea
+description: Gitea — self-hosted, lightweight Git service for version control, collaboration, and code hosting
+icon: https://raw.githubusercontent.com/jekyo/templates/main/gitea/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Gitea instance
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  gitea:
+    image: gitea/gitea:latest
+    env:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      GITEA__server__ROOT_URL: https://${DOMAIN}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

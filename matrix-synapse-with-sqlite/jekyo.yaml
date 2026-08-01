@@ -1,0 +1,82 @@
+app: matrix-synapse-with-sqlite
+description: Matrix Synapse (SQLite) — chat securely with your family, friends and community
+icon: https://raw.githubusercontent.com/jekyo/templates/main/matrix-synapse-with-sqlite/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Matrix server
+  SYNAPSE_SERVER_NAME:
+    kind: string
+    prompt: Matrix server name — permanent, used in user IDs (e.g. example.org)
+  ENABLE_REGISTRATION:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Enable open user registration (true/false)
+  ADMIN_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    command: ["/bin/bash"]
+    args:
+      - -c
+      - |
+        # Generate config on first run
+        if [ ! -f /data/homeserver.yaml ]; then
+          # Generate default config using SYNAPSE_SERVER_NAME (permanent, used in user IDs)
+          /start.py generate
+
+          # Set public_baseurl to actual deployment URL (may differ from server_name)
+          if ! grep -q "public_baseurl" /data/homeserver.yaml; then
+            sed -i "/^server_name:/a public_baseurl: ${SERVICE_URL_SYNAPSE}/" /data/homeserver.yaml
+          fi
+
+          # Configure listener for reverse proxy
+          sed -i 's/bind_addresses: \[.*\]/bind_addresses: ["0.0.0.0"]/' /data/homeserver.yaml
+          sed -i '/x_forwarded:/d' /data/homeserver.yaml
+          sed -i '/type: http/a \    x_forwarded: true' /data/homeserver.yaml
+
+          # Enable registration if requested
+          if [ "${ENABLE_REGISTRATION}" = "true" ] && ! grep -q "enable_registration" /data/homeserver.yaml; then
+            echo "enable_registration: true" >> /data/homeserver.yaml
+          fi
+        fi
+
+        # Register admin user if credentials provided
+        if [ -n "${SERVICE_USER_ADMIN}" ] && [ -n "${SERVICE_PASSWORD_ADMIN}" ]; then
+          (
+            while ! curl -sf http://localhost:8008/health > /dev/null 2>&1; do
+              sleep 2
+            done
+            register_new_matrix_user -a \
+              -u "${SERVICE_USER_ADMIN}" \
+              -p "${SERVICE_PASSWORD_ADMIN}" \
+              -c /data/homeserver.yaml \
+              http://localhost:8008 2>/dev/null || true
+          ) &
+        fi
+
+        exec /start.py
+    env:
+      SYNAPSE_SERVER_NAME: ${SYNAPSE_SERVER_NAME}
+      SYNAPSE_REPORT_STATS: "no"
+      ENABLE_REGISTRATION: ${ENABLE_REGISTRATION}
+      SERVICE_USER_ADMIN: admin
+      SERVICE_PASSWORD_ADMIN: ${ADMIN_PASSWORD}
+      SERVICE_URL_SYNAPSE: https://${DOMAIN}
+    port: 8008
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8008
+    volumes:
+      data: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

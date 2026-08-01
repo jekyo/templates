@@ -1,0 +1,27 @@
+app: jupyter-notebook-python
+description: Jupyter Notebook is an open-source web application that allows you to create and share documents that contain live code, equations, visualizations, and narrative text.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/jupyter-notebook-python/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Jupyter Notebook
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  jupyter:
+    image: quay.io/jupyter/base-notebook:latest
+    args: ["start-notebook.sh"]
+    port: 8888
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8888
+    volumes:
+      data:
+        path: /home/jovyan/work
+volumes:
+  data:
+    size: ${DATA_SIZE}

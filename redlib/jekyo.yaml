@@ -1,0 +1,46 @@
+app: redlib
+description: An alternative private front-end to Reddit, with its origins in Libreddit.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/redlib/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Redlib
+  REDLIB_SFW_ONLY:
+    kind: string
+    default: "off"
+    required: false
+    prompt: Filter all NSFW content (on/off)
+  REDLIB_DEFAULT_FRONT_PAGE:
+    kind: string
+    default: worldnews
+    required: false
+    prompt: Default front page subreddit
+services:
+  redlib:
+    image: quay.io/redlib/redlib:latest
+    env:
+      REDLIB_SFW_ONLY: ${REDLIB_SFW_ONLY}
+      REDLIB_ROBOTS_DISABLE_INDEXING: "off"
+      REDLIB_DEFAULT_FRONT_PAGE: ${REDLIB_DEFAULT_FRONT_PAGE}
+      REDLIB_PUSHSHIFT_FRONTEND: undelete.pullpush.io
+      REDLIB_DEFAULT_LAYOUT: card
+      REDLIB_DEFAULT_WIDE: "off"
+      REDLIB_DEFAULT_POST_SORT: hot
+      REDLIB_DEFAULT_COMMENT_SORT: confidence
+      REDLIB_DEFAULT_BLUR_SPOILER: "off"
+      REDLIB_DEFAULT_SHOW_NSFW: "off"
+      REDLIB_DEFAULT_BLUR_NSFW: "off"
+      REDLIB_DEFAULT_USE_HLS: "off"
+      REDLIB_DEFAULT_HIDE_HLS_NOTIFICATION: "off"
+      REDLIB_DEFAULT_AUTOPLAY_VIDEOS: "off"
+      REDLIB_DEFAULT_HIDE_AWARDS: "off"
+      REDLIB_DEFAULT_HIDE_SIDEBAR_AND_SUMMARY: "off"
+      REDLIB_DEFAULT_DISABLE_VISIT_REDDIT_CONFIRMATION: "off"
+      REDLIB_DEFAULT_HIDE_SCORE: "off"
+      REDLIB_DEFAULT_FIXED_NAVBAR: "on"
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080

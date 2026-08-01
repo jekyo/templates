@@ -1,0 +1,62 @@
+app: freescout
+description: FreeScout — super lightweight free open source help desk and shared inbox
+icon: https://raw.githubusercontent.com/jekyo/templates/main/freescout/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for FreeScout
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin email address
+  ADMIN_PASSWORD:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  freescout:
+    image: tiredofit/freescout:latest
+    env:
+      DB_HOST: mariadb
+      DB_NAME: freescout
+      DB_USER: freescout
+      DB_PASS: ${MARIADB_PASSWORD}
+      SITE_URL: https://${DOMAIN}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASS: ${ADMIN_PASSWORD}
+      DISPLAY_ERRORS: "FALSE"
+      TIMEZONE: UTC
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /data
+        subpath: freescout
+  mariadb:
+    image: mariadb
+    env:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: freescout
+      MARIADB_USER: freescout
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

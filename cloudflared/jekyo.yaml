@@ -1,0 +1,15 @@
+app: cloudflared
+description: Client for Cloudflare Tunnel, a daemon that exposes private services through the Cloudflare edge.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cloudflared/logo.svg
+inputs:
+  CLOUDFLARE_TUNNEL_TOKEN:
+    kind: string
+    prompt: Cloudflare Tunnel token
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    args: ["tunnel", "--no-autoupdate", "run"]
+    env:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    health:
+      command: ["cloudflared", "--version"]

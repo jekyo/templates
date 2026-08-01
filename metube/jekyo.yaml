@@ -1,0 +1,29 @@
+app: metube
+description: MeTube — web GUI for youtube-dl with playlist support, download videos from YouTube and dozens of other sites
+icon: https://raw.githubusercontent.com/jekyo/templates/main/metube/logo.webp
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for MeTube
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  metube:
+    image: ghcr.io/alexta69/metube:latest
+    env:
+      UID: "1000"
+      GID: "1000"
+    port: 8081
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8081
+    volumes:
+      data:
+        path: /downloads
+volumes:
+  data:
+    size: ${DATA_SIZE}

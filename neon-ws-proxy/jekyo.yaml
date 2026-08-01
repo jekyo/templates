@@ -1,0 +1,43 @@
+app: neon-ws-proxy
+description: The database you love, on a serverless platform designed to help you build reliable and scalable applications faster.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/neon-ws-proxy/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Neon WebSocket proxy
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  neon-proxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    env:
+      APPEND_PORT: postgres:5432
+      ALLOW_ADDR_REGEX: .*
+      LOG_TRAFFIC: "false"
+      LOG_CONN_INFO: "true"
+    ports: [80, 2112]
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "nc -z 127.0.0.1 80"]
+  postgres:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: password
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "postgres", "-d", "postgres"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

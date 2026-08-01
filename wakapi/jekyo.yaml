@@ -1,0 +1,103 @@
+app: wakapi
+description: A minimalist, self-hosted WakaTime-compatible backend for coding statistics
+icon: https://raw.githubusercontent.com/jekyo/templates/main/wakapi/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Wakapi
+  PASSWORD_SALT:
+    kind: secret
+  DB_PASSWORD:
+    kind: secret
+  TIMEZONE:
+    kind: string
+    default: Europe/Berlin
+    required: false
+    prompt: Timezone
+  MAIL_ENABLED:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Enable outgoing email (true/false)
+  MAIL_SENDER:
+    kind: string
+    default: ""
+    required: false
+    prompt: Email address Wakapi sends from (optional)
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host for outgoing email (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  wakapi:
+    image: ghcr.io/muety/wakapi:latest
+    env:
+      TZ: ${TIMEZONE}
+      WAKAPI_SERVER_LISTEN_IPV6: "-"
+      WAKAPI_ENV: production
+      WAKAPI_SECURITY_PASSWORD_SALT: ${PASSWORD_SALT}
+      WAKAPI_SECURITY_EXPOSE_METRICS: "false"
+      WAKAPI_DB_TYPE: postgres
+      WAKAPI_DB_NAME: wakapi
+      WAKAPI_DB_USER: wakapi
+      WAKAPI_DB_PASSWORD: ${DB_PASSWORD}
+      WAKAPI_DB_HOST: postgres
+      WAKAPI_DB_PORT: "5432"
+      WAKAPI_MAIL_ENABLED: ${MAIL_ENABLED}
+      WAKAPI_MAIL_PROVIDER: smtp
+      WAKAPI_MAIL_SENDER: ${MAIL_SENDER}
+      WAKAPI_MAIL_SMTP_HOST: ${SMTP_HOST}
+      WAKAPI_MAIL_SMTP_PORT: ${SMTP_PORT}
+      WAKAPI_MAIL_SMTP_USER: ${SMTP_USERNAME}
+      WAKAPI_MAIL_SMTP_PASS: ${SMTP_PASSWORD}
+      WAKAPI_MAIL_SMTP_TLS: "true"
+      WAKAPI_ALLOW_SIGNUP: "true"
+      WAKAPI_LEADERBOARD_ENABLED: "true"
+      WAKAPI_DISABLE_FRONTPAGE: "true"
+      WAKAPI_PUBLIC_URL: https://${DOMAIN}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+        subpath: wakapi
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: wakapi
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: wakapi
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U wakapi -d wakapi"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,23 @@
+app: trailbase
+description: A blazingly fast Rust/SQLite/Wasmtime app server with type-safe APIs
+icon: https://raw.githubusercontent.com/jekyo/templates/main/trailbase/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for TrailBase
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  trailbase:
+    image: trailbase/trailbase:0.22.6
+    port: 4000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/traildepot
+volumes:
+  data:
+    size: ${DATA_SIZE}

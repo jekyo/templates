@@ -1,0 +1,51 @@
+app: redmine
+description: Redmine is a flexible project management web application.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/redmine/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Redmine
+  SECRET_KEY_BASE:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  redmine:
+    image: redmine:6-alpine
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      REDMINE_DB_POSTGRES: postgresql
+      REDMINE_DB_PORT: "5432"
+      REDMINE_DB_USERNAME: redmine
+      REDMINE_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDMINE_DB_DATABASE: redmine-db
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /usr/src/redmine/files
+        subpath: files
+  postgresql:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_USER: redmine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: redmine-db
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "redmine", "-d", "redmine-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

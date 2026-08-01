@@ -1,0 +1,43 @@
+app: calibre-web
+description: Calibre-web is a web app providing a clean interface for browsing, reading and downloading eBooks.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/calibre-web/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Calibre-Web
+  TZ:
+    kind: string
+    default: Etc/UTC
+    required: false
+    prompt: Timezone
+  DOCKER_MODS:
+    kind: string
+    default: linuxserver/mods:universal-calibre
+    required: false
+    prompt: Docker mods (universal-calibre enables ebook conversion, x86-64 only)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for the book library
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      DOCKER_MODS: ${DOCKER_MODS}
+    port: 8083
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8083
+    volumes:
+      config: /config
+      data: /books
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 1Gi

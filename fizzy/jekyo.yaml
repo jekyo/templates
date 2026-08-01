@@ -1,0 +1,50 @@
+app: fizzy
+description: Kanban tracking tool for issues and ideas by 37signals
+icon: https://raw.githubusercontent.com/jekyo/templates/main/fizzy/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Fizzy
+  SECRET_KEY_BASE:
+    kind: secret
+  RAILS_MASTER_KEY:
+    kind: secret
+  VAPID_PRIVATE_KEY:
+    kind: string
+    prompt: VAPID private key for web push notifications
+  VAPID_PUBLIC_KEY:
+    kind: string
+    prompt: VAPID public key for web push notifications
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  fizzy:
+    image: ghcr.io/basecamp/fizzy:main
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "true"
+      DATABASE_ADAPTER: sqlite
+      SOLID_QUEUE_CONNECTS_TO: "false"
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /up
+      port: 80
+    volumes:
+      data:
+        path: /rails/db
+      data-storage:
+        path: /rails/storage
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-storage:
+    size: ${DATA_SIZE}

@@ -1,0 +1,33 @@
+app: navidrome
+description: Standalone server, that allows you to browse and listen to your music collection using a web browser or any Subsonic-compatible client.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/navidrome/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Navidrome
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size (music library and app data)
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    env:
+      ND_BASEURL: https://${DOMAIN}
+      ND_MUSICFOLDER: /data/music
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info
+      ND_SESSIONTIMEOUT: 24h
+      ND_ENABLEINSIGHTSCOLLECTOR: "false"
+    port: 4533
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 4533
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

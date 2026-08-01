@@ -1,0 +1,179 @@
+app: documenso
+description: Documenso — document signing, finally open source
+icon: https://raw.githubusercontent.com/jekyo/templates/main/documenso/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Documenso
+  NEXTAUTH_SECRET:
+    kind: secret
+  ENCRYPTION_KEY:
+    kind: secret
+  SECONDARY_ENCRYPTION_KEY:
+    kind: secret
+  SIGNING_PASSPHRASE:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  SMTP_TRANSPORT:
+    kind: string
+    default: smtp
+    required: false
+    prompt: Mail transport (smtp, smtp-api, resend or mailchannels)
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  SMTP_FROM_ADDRESS:
+    kind: string
+    default: ""
+    required: false
+    prompt: Mail sender address (optional)
+  RESEND_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: Resend API key (optional)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  documenso:
+    image: documenso/documenso:v1.12.10
+    env:
+      NEXTAUTH_URL: https://${DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXT_PRIVATE_ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY: ${SECONDARY_ENCRYPTION_KEY}
+      NEXT_PUBLIC_WEBAPP_URL: https://${DOMAIN}
+      NEXT_PRIVATE_RESEND_API_KEY: ${RESEND_API_KEY}
+      NEXT_PRIVATE_SMTP_TRANSPORT: ${SMTP_TRANSPORT}
+      NEXT_PRIVATE_SMTP_HOST: ${SMTP_HOST}
+      NEXT_PRIVATE_SMTP_PORT: ${SMTP_PORT}
+      NEXT_PRIVATE_SMTP_USERNAME: ${SMTP_USERNAME}
+      NEXT_PRIVATE_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      NEXT_PRIVATE_SMTP_FROM_NAME: Documenso
+      NEXT_PRIVATE_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+      NEXT_PRIVATE_DATABASE_URL: postgresql://documenso:${POSTGRES_PASSWORD}@database/documenso?schema=public
+      NEXT_PRIVATE_DIRECT_DATABASE_URL: postgresql://documenso:${POSTGRES_PASSWORD}@database/documenso?schema=public
+      NEXT_PRIVATE_SIGNING_TRANSPORT: local
+      NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH: /app/certs/cert.p12
+      NEXT_PRIVATE_SIGNING_PASSPHRASE: ${SIGNING_PASSPHRASE}
+      NEXT_PRIVATE_SIGNING_LOCAL_FILE_PASSPHRASE: ${SIGNING_PASSPHRASE}
+      CERT_VALID_DAYS: "365"
+      CERT_INFO_COUNTRY_NAME: DO
+      CERT_INFO_STATE_OR_PROVIDENCE: Santiago
+      CERT_INFO_LOCALITY_NAME: Santiago
+      CERT_INFO_ORGANIZATION_NAME: Example INC
+      CERT_INFO_ORGANIZATIONAL_UNIT: IT Department
+      CERT_INFO_EMAIL: example@gmail.com
+      NEXT_PUBLIC_DISABLE_SIGNUP: "false"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        PASSPHRASE_FILE="/tmp/cert_passphrase"
+        ORIGINAL_DIR="$$(pwd)"
+
+        OPENSSL_CMD="$$(which openssl 2>/dev/null || command -v openssl 2>/dev/null || echo '/usr/bin/openssl')"
+        if ! $$OPENSSL_CMD version >/dev/null 2>&1; then
+          echo "Error: OpenSSL not found. Please use Documenso image v1.12.10 or later."
+          exit 1
+        fi
+
+        CERT_DIR="/app/certs"
+        mkdir -p "$$CERT_DIR" || {
+          CERT_DIR="/tmp/certs"
+          mkdir -p "$$CERT_DIR"
+          echo "Warning: Using fallback directory: $$CERT_DIR"
+        }
+
+        # File-based passphrase prevents exposure in the process list
+        echo -n "$$NEXT_PRIVATE_SIGNING_LOCAL_FILE_PASSPHRASE" > "$$PASSPHRASE_FILE"
+        chmod 600 "$$PASSPHRASE_FILE"
+
+        cat <<EOF > /tmp/cert_info_path
+        [ req ]
+        distinguished_name = req_distinguished_name
+        prompt = no
+        [ req_distinguished_name ]
+        C            = $${CERT_INFO_COUNTRY_NAME}
+        ST           = $${CERT_INFO_STATE_OR_PROVIDENCE}
+        L            = $${CERT_INFO_LOCALITY_NAME}
+        O            = $${CERT_INFO_ORGANIZATION_NAME}
+        OU           = $${CERT_INFO_ORGANIZATIONAL_UNIT}
+        CN           = $${NEXT_PUBLIC_WEBAPP_URL}
+        emailAddress = $${CERT_INFO_EMAIL}
+        EOF
+
+        cd "$$CERT_DIR"
+
+        $$OPENSSL_CMD genrsa -out private.key 2048
+
+        $$OPENSSL_CMD req \
+          -new \
+          -x509 \
+          -key private.key \
+          -out certificate.crt \
+          -days $${CERT_VALID_DAYS} \
+          -config /tmp/cert_info_path
+
+        $$OPENSSL_CMD pkcs12 \
+          -export \
+          -out cert.p12 \
+          -inkey private.key \
+          -in certificate.crt \
+          -legacy \
+          -passout file:"$$PASSPHRASE_FILE"
+
+        rm -f "$$PASSPHRASE_FILE"
+
+        chown 1001:1001 cert.p12 private.key certificate.crt 2>/dev/null || true
+        chmod 400 cert.p12 private.key certificate.crt
+
+        if [ "$$CERT_DIR" != "/app/certs" ]; then
+          export NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH="$$CERT_DIR/cert.p12"
+        fi
+
+        cd "$$ORIGINAL_DIR"
+
+        ./start.sh
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+  database:
+    image: postgres:17
+    env:
+      POSTGRES_USER: documenso
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: documenso
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "documenso", "-d", "documenso"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

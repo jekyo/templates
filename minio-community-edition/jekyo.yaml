@@ -1,0 +1,38 @@
+app: minio-community-edition
+description: MinIO — high performance object storage server compatible with Amazon S3 APIs
+icon: https://raw.githubusercontent.com/jekyo/templates/main/minio-community-edition/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the MinIO console
+  MINIO_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  minio:
+    image: ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    args: ["server", "/data", "--console-address", ":9001"]
+    env:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: https://${DOMAIN}
+    ports:
+      - 9001
+      - 9000
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 9000
+        node: 30900
+        protocol: tcp
+    health:
+      command: ["mc", "ready", "local"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

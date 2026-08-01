@@ -1,0 +1,106 @@
+app: twenty
+description: Twenty is a CRM designed to fit your unique business needs.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/twenty/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Twenty
+  APP_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  twenty:
+    image: twentycrm/twenty:v1.15
+    env:
+      SERVER_URL: https://${DOMAIN}
+      FRONT_BASE_URL: https://${DOMAIN}
+      APP_SECRET: ${APP_SECRET}
+      ENABLE_DB_MIGRATIONS: "true"
+      CACHE_STORAGE_TYPE: redis
+      REDIS_URL: redis://redis:6379
+      API_RATE_LIMITING_TTL: "100"
+      API_RATE_LIMITING_LIMIT: "100"
+      POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_DATABASE_URL: postgres://twenty:${POSTGRES_PASSWORD}@postgres:5432/twenty-db
+      IS_SIGN_UP_DISABLED: "false"
+      PASSWORD_RESET_TOKEN_EXPIRES_IN: 5m
+      WORKSPACE_INACTIVE_DAYS_BEFORE_NOTIFICATION: "7"
+      WORKSPACE_INACTIVE_DAYS_BEFORE_DELETION: "21"
+      STORAGE_TYPE: local
+      MESSAGE_QUEUE_TYPE: pg-boss
+      EMAIL_DRIVER: logger
+      SIGN_IN_PREFILLED: "false"
+      DEBUG_MODE: "false"
+      TELEMETRY_ENABLED: "false"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /healthz
+      port: 3000
+    volumes:
+      data:
+        path: /app/packages/twenty-server/.local-storage
+        subpath: local-storage
+  worker:
+    image: twentycrm/twenty:v1.15
+    command: ["yarn", "worker:prod"]
+    env:
+      SERVER_URL: https://${DOMAIN}
+      FRONT_BASE_URL: https://${DOMAIN}
+      APP_SECRET: ${APP_SECRET}
+      ENABLE_DB_MIGRATIONS: "true"
+      CACHE_STORAGE_TYPE: redis
+      REDIS_URL: redis://redis:6379
+      API_RATE_LIMITING_TTL: "100"
+      API_RATE_LIMITING_LIMIT: "100"
+      POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_DATABASE_URL: postgres://twenty:${POSTGRES_PASSWORD}@postgres:5432/twenty-db
+      IS_SIGN_UP_DISABLED: "false"
+      PASSWORD_RESET_TOKEN_EXPIRES_IN: 5m
+      WORKSPACE_INACTIVE_DAYS_BEFORE_NOTIFICATION: "7"
+      WORKSPACE_INACTIVE_DAYS_BEFORE_DELETION: "21"
+      STORAGE_TYPE: local
+      MESSAGE_QUEUE_TYPE: pg-boss
+      EMAIL_DRIVER: logger
+      SIGN_IN_PREFILLED: "false"
+      DEBUG_MODE: "false"
+      TELEMETRY_ENABLED: "false"
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+    health:
+      command: ["sh", "-c", "ps aux | grep 'dist/queue-worker/queue-worker' | grep -v grep || exit 1"]
+    volumes:
+      data:
+        path: /app/packages/twenty-server/.local-storage
+        subpath: local-storage
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: twenty
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: twenty-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

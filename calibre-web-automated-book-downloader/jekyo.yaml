@@ -1,0 +1,67 @@
+app: calibre-web-automated-book-downloader
+description: An intuitive web interface for searching and requesting book downloads, designed to work seamlessly with Calibre-Web-Automated.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/calibre-web-automated-book-downloader/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Calibre-Web-Automated
+  DOWNLOADER_DOMAIN:
+    kind: domain
+    prompt: Domain for the book downloader interface
+  TZ:
+    kind: string
+    default: UTC
+    required: false
+    prompt: Timezone
+  BOOK_LANGUAGE:
+    kind: string
+    default: en
+    required: false
+    prompt: Preferred book language
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for the book library
+services:
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      NETWORK_SHARE_MODE: "false"
+    port: 8083
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8083
+    volumes:
+      config: /config
+      ingest: /cwa-book-ingest
+      data: /calibre-library
+  calibre-web-downloader:
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    env:
+      FLASK_PORT: "8084"
+      LOG_LEVEL: info
+      BOOK_LANGUAGE: ${BOOK_LANGUAGE}
+      USE_BOOK_TITLE: "true"
+      TZ: ${TZ}
+      APP_ENV: prod
+      UID: "1000"
+      GID: "100"
+      CWA_DB_PATH: /cwa-config/app.db
+    port: 8084
+    http:
+      domain: ${DOWNLOADER_DOMAIN}
+    volumes:
+      config: /cwa-config
+      ingest: /cwa-book-ingest
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 1Gi
+  ingest:
+    size: 5Gi

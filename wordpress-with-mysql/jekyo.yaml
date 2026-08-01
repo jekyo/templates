@@ -1,0 +1,49 @@
+app: wordpress-with-mysql
+description: WordPress is open source software you can use to create a beautiful website, blog, or app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/wordpress-with-mysql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your WordPress site
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  wordpress:
+    image: wordpress:latest
+    env:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: wordpress
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["curl", "-f", "http://127.0.0.1"]
+    volumes:
+      data:
+        path: /var/www/html
+        subpath: wordpress
+  mysql:
+    image: mysql:8
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

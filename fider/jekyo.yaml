@@ -1,0 +1,73 @@
+app: fider
+description: Fider — feedback platform for collecting and managing user feedback
+icon: https://raw.githubusercontent.com/jekyo/templates/main/fider/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Fider
+  POSTGRES_PASSWORD:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  EMAIL_NOREPLY:
+    kind: string
+    default: noreply@example.com
+    required: false
+    prompt: No-reply sender address
+  EMAIL_SMTP_HOST:
+    kind: string
+    default: smtp.mailgun.com
+    required: false
+    prompt: SMTP host
+  EMAIL_SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  EMAIL_SMTP_USERNAME:
+    kind: string
+    default: postmaster@mailgun.com
+    required: false
+    prompt: SMTP username
+  EMAIL_SMTP_PASSWORD:
+    kind: string
+    required: false
+    prompt: SMTP password
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  fider:
+    image: getfider/fider:stable
+    env:
+      BASE_URL: https://${DOMAIN}
+      DATABASE_URL: postgres://fider:${POSTGRES_PASSWORD}@database:5432/fider?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      EMAIL_NOREPLY: ${EMAIL_NOREPLY}
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
+      EMAIL_SMTP_ENABLE_STARTTLS: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/app/fider", "ping"]
+  database:
+    image: postgres:12
+    env:
+      POSTGRES_USER: fider
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: fider
+    port: 5432
+    health:
+      command: ["pg_isready", "-d", "fider", "-U", "fider"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

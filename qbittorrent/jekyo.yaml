@@ -1,0 +1,59 @@
+app: qbittorrent
+description: qBittorrent — open-source BitTorrent client with a web UI, an alternative to uTorrent
+icon: https://raw.githubusercontent.com/jekyo/templates/main/qbittorrent/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the qBittorrent web UI
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size for configuration
+  DOWNLOADS_SIZE:
+    kind: size
+    default: 50Gi
+    prompt: Storage size for downloads
+services:
+  qbit:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    env:
+      WEBUI_PORT: "8080"
+      PUID: "1000"
+      PGID: "1000"
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /config
+        subpath: qbit-config
+      data-downloads:
+        path: /downloads
+        subpath: downloads
+      data-torrents:
+        path: /torrents
+  vuetorrent-backend:
+    image: ghcr.io/vuetorrent/vuetorrent-backend:latest
+    env:
+      PORT: "8080"
+      QBIT_BASE: https://${DOMAIN}
+      RELEASE_TYPE: stable
+      UPDATE_VT_CRON: "0 * * * *"
+    port: 8080
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /config
+        subpath: vuetorrent-config
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-downloads:
+    size: ${DOWNLOADS_SIZE}
+  data-torrents:
+    size: 1Gi

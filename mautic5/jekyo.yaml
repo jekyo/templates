@@ -1,0 +1,127 @@
+app: mautic5
+description: Mautic v5 — open source marketing automation
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mautic5/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Mautic
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  MYSQL_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for the database and message queue
+services:
+  mautic-web:
+    image: mautic/mautic:latest
+    env:
+      DOCKER_MAUTIC_LOAD_TEST_DATA: "false"
+      DOCKER_MAUTIC_RUN_MIGRATIONS: "false"
+      MAUTIC_DB_HOST: mysql
+      MAUTIC_DB_PORT: "3306"
+      MAUTIC_DB_DATABASE: mautic
+      MAUTIC_DB_USER: mautic
+      MAUTIC_DB_PASSWORD: ${MYSQL_PASSWORD}
+      MAUTIC_MESSENGER_DSN_EMAIL: amqp://guest:guest@rabbitmq:5672/mautic/messages
+      MAUTIC_MESSENGER_DSN_HIT: amqp://guest:guest@rabbitmq:5672/mautic/messages
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data-config: /var/www/html/config
+      data-logs: /var/www/html/var/logs
+      data-media-files: /var/www/html/docroot/media/files
+      data-media-images: /var/www/html/docroot/media/images
+      data-plugins: /var/www/html/docroot/plugins
+      data-vendor: /var/www/html/vendor
+      data-bin: /var/www/html/bin
+      data-cron: /opt/mautic/cron
+  mautic-cron:
+    image: mautic/mautic:latest
+    env:
+      DOCKER_MAUTIC_ROLE: mautic_cron
+      MAUTIC_DB_HOST: mysql
+      MAUTIC_DB_PORT: "3306"
+      MAUTIC_DB_DATABASE: mautic
+      MAUTIC_DB_USER: mautic
+      MAUTIC_DB_PASSWORD: ${MYSQL_PASSWORD}
+      MAUTIC_MESSENGER_DSN_EMAIL: amqp://guest:guest@rabbitmq:5672/mautic/messages
+      MAUTIC_MESSENGER_DSN_HIT: amqp://guest:guest@rabbitmq:5672/mautic/messages
+    volumes:
+      data-config: /var/www/html/config
+      data-logs: /var/www/html/var/logs
+      data-media-files: /var/www/html/docroot/media/files
+      data-media-images: /var/www/html/docroot/media/images
+      data-plugins: /var/www/html/docroot/plugins
+      data-vendor: /var/www/html/vendor
+      data-bin: /var/www/html/bin
+      data-cron: /opt/mautic/cron
+  mautic-worker:
+    image: mautic/mautic:latest
+    env:
+      DOCKER_MAUTIC_ROLE: mautic_worker
+      MAUTIC_DB_HOST: mysql
+      MAUTIC_DB_PORT: "3306"
+      MAUTIC_DB_DATABASE: mautic
+      MAUTIC_DB_USER: mautic
+      MAUTIC_DB_PASSWORD: ${MYSQL_PASSWORD}
+      MAUTIC_MESSENGER_DSN_EMAIL: amqp://guest:guest@rabbitmq:5672/mautic/messages
+      MAUTIC_MESSENGER_DSN_HIT: amqp://guest:guest@rabbitmq:5672/mautic/messages
+    volumes:
+      data-config: /var/www/html/config
+      data-logs: /var/www/html/var/logs
+      data-media-files: /var/www/html/docroot/media/files
+      data-media-images: /var/www/html/docroot/media/images
+      data-plugins: /var/www/html/docroot/plugins
+      data-vendor: /var/www/html/vendor
+      data-bin: /var/www/html/bin
+      data-cron: /opt/mautic/cron
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: mautic
+      MYSQL_USER: mautic
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  rabbitmq:
+    image: rabbitmq:3
+    env:
+      RABBITMQ_DEFAULT_VHOST: mautic
+    port: 5672
+    health:
+      command: ["rabbitmq-diagnostics", "-q", "ping"]
+    volumes:
+      data:
+        path: /var/lib/rabbitmq
+        subpath: rabbitmq
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-config:
+    size: 1Gi
+  data-logs:
+    size: 1Gi
+  data-media-files:
+    size: 5Gi
+  data-media-images:
+    size: 5Gi
+  data-plugins:
+    size: 2Gi
+  data-vendor:
+    size: 2Gi
+  data-bin:
+    size: 1Gi
+  data-cron:
+    size: 1Gi

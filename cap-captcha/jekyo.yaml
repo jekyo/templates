@@ -1,0 +1,38 @@
+app: cap-captcha
+description: The self-hosted CAPTCHA for the modern web.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cap-captcha/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Cap
+  ADMIN_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  cap:
+    image: tiago2/cap:3.0.4
+    env:
+      ADMIN_KEY: ${ADMIN_KEY}
+      REDIS_URL: redis://valkey:6379
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+  valkey:
+    image: valkey/valkey:9-alpine
+    args: ["valkey-server", "--save", "60", "1", "--loglevel", "warning", "--maxmemory-policy", "noeviction"]
+    port: 6379
+    health:
+      command: ["valkey-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: valkey
+volumes:
+  data:
+    size: ${DATA_SIZE}

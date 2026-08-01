@@ -1,0 +1,56 @@
+app: drupal-with-postgresql
+description: Drupal is a free and open-source web content management system written in PHP and distributed under the GNU General Public License.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/drupal-with-postgresql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Drupal site
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  drupal:
+    image: drupal:10-apache
+    env:
+      DB_HOST: postgres
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/html/sites
+        subpath: sites
+      modules: /var/www/html/modules
+      profiles: /var/www/html/profiles
+      themes: /var/www/html/themes
+  postgres:
+    image: postgres:16
+    env:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "postgres", "-d", "postgres"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  modules:
+    size: 1Gi
+  profiles:
+    size: 1Gi
+  themes:
+    size: 1Gi

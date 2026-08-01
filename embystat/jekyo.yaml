@@ -1,0 +1,34 @@
+app: embystat
+description: EmbyStat is a web analytics tool, designed to provide insight into website traffic and user behavior.
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for EmbyStat
+  TZ:
+    kind: string
+    default: Europe/Madrid
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  embystat:
+    image: lscr.io/linuxserver/embystat:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 6555
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 6555
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

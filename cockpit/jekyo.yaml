@@ -1,0 +1,31 @@
+app: cockpit
+description: Cockpit is a headless content platform that is lightweight, fast and ready for takeoff.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cockpit/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Cockpit
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  cockpit:
+    image: cockpithq/cockpit:core-latest
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/system/healthcheck
+      port: 80
+    volumes:
+      data: /var/www/html/storage
+      config: /var/www/html/config
+      spaces: /var/www/html/.spaces
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 512Mi
+  spaces:
+    size: 512Mi

@@ -1,0 +1,71 @@
+app: owncloud
+description: ownCloud — file management and sharing platform with a powerful, user-friendly web interface
+icon: https://raw.githubusercontent.com/jekyo/templates/main/owncloud/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for ownCloud
+  ADMIN_PASSWORD:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  owncloud:
+    image: owncloud/server:latest
+    env:
+      OWNCLOUD_DOMAIN: ${DOMAIN}
+      OWNCLOUD_TRUSTED_DOMAINS: ${DOMAIN}
+      OWNCLOUD_DB_TYPE: mysql
+      OWNCLOUD_DB_HOST: mariadb
+      OWNCLOUD_DB_NAME: owncloud
+      OWNCLOUD_DB_USERNAME: owncloud
+      OWNCLOUD_DB_PASSWORD: ${MARIADB_PASSWORD}
+      OWNCLOUD_ADMIN_USERNAME: admin
+      OWNCLOUD_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      OWNCLOUD_MYSQL_UTF8MB4: "true"
+      OWNCLOUD_REDIS_ENABLED: "true"
+      OWNCLOUD_REDIS_HOST: redis
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/usr/bin/healthcheck"]
+    volumes:
+      data:
+        path: /mnt/data
+        subpath: owncloud
+  mariadb:
+    image: mariadb:latest
+    args:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_bin"
+      - "--max-allowed-packet=128M"
+      - "--innodb-log-file-size=64M"
+    env:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_USER: owncloud
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      MYSQL_DATABASE: owncloud
+      TZ: auto
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:6
+    args: ["--databases", "1"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+volumes:
+  data:
+    size: ${DATA_SIZE}

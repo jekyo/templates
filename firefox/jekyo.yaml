@@ -1,0 +1,26 @@
+app: firefox
+description: Fast, private, and self-hosted secure browser for browsing without limits
+icon: https://raw.githubusercontent.com/jekyo/templates/main/firefox/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Firefox
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  firefox:
+    image: jlesage/firefox
+    port: 5800
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5800
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

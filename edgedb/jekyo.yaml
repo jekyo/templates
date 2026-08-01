@@ -1,0 +1,48 @@
+app: edgedb
+description: An open-source database designed as a spiritual successor to SQL and the relational paradigm. Powered by the Postgres query engine under the hood.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/edgedb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the EdgeDB server and admin UI
+  EDGEDB_PASSWORD:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  edgedb:
+    image: edgedb/edgedb
+    env:
+      EDGEDB_SERVER_ADMIN_UI: enabled
+      EDGEDB_SERVER_BACKEND_DSN: postgres://postgres:${POSTGRES_PASSWORD}@postgresql:5432/edgedb
+      EDGEDB_SERVER_SECURITY: strict
+      EDGEDB_SERVER_PASSWORD: ${EDGEDB_PASSWORD}
+    port: 5656
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["curl", "-f", "http://localhost:5656/server/status/alive"]
+    volumes:
+      data:
+        path: /dbschema
+        subpath: dbschema
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: edgedb
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "postgres", "-d", "edgedb"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

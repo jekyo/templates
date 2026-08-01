@@ -1,0 +1,31 @@
+app: rivet-engine
+description: Build and scale stateful workloads with long-lived processes
+icon: https://raw.githubusercontent.com/jekyo/templates/main/rivet-engine/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Rivet Engine
+  ADMIN_TOKEN:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  rivet-engine:
+    image: rivetdev/engine:2.2.0
+    env:
+      RIVET__FILE_SYSTEM__PATH: /data
+      RIVET__AUTH__ADMIN_TOKEN: ${ADMIN_TOKEN}
+    port: 6420
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 6420
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

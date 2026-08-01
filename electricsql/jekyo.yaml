@@ -1,0 +1,36 @@
+app: electricsql
+description: Sync shape-based subsets of your Postgres data over HTTP.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/electricsql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Electric
+  DATABASE_URL:
+    kind: string
+    prompt: Postgres connection URL (logical replication must be enabled)
+  ELECTRIC_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  electric:
+    image: electricsql/electric:1.4.2
+    env:
+      DATABASE_URL: ${DATABASE_URL}
+      ELECTRIC_SECRET: ${ELECTRIC_SECRET}
+      ELECTRIC_STORAGE_DIR: /app/persistent
+      ELECTRIC_USAGE_REPORTING: "false"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /v1/health
+      port: 3000
+    volumes:
+      data:
+        path: /app/persistent
+volumes:
+  data:
+    size: ${DATA_SIZE}

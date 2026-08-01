@@ -1,0 +1,51 @@
+app: listmonk
+description: Self-hosted newsletter and mailing list manager
+icon: https://raw.githubusercontent.com/jekyo/templates/main/listmonk/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for listmonk
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  listmonk:
+    image: listmonk/listmonk:v6.0.0
+    command: ["sh", "-c", "./listmonk --install --yes --idempotent && exec ./listmonk"]
+    env:
+      LISTMONK_app__address: 0.0.0.0:9000
+      LISTMONK_db__host: postgres
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: ${POSTGRES_PASSWORD}
+      LISTMONK_db__port: "5432"
+      TZ: Etc/UTC
+    port: 9000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 9000
+    volumes:
+      data:
+        path: /listmonk/uploads
+        subpath: uploads
+  postgres:
+    image: postgres:18-alpine
+    env:
+      POSTGRES_DB: listmonk
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U listmonk -d listmonk"]
+    volumes:
+      data:
+        path: /var/lib/postgresql
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

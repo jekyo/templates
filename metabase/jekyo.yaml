@@ -1,0 +1,45 @@
+app: metabase
+description: Fast analytics with the friendly UX and integrated tooling to let your company explore data on their own.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/metabase/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Metabase
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  metabase:
+    image: metabase/metabase:latest
+    env:
+      MB_DB_TYPE: "postgres"
+      MB_DB_HOST: "postgresql"
+      MB_DB_PORT: "5432"
+      MB_DB_DBNAME: "metabase"
+      MB_DB_USER: "metabase"
+      MB_DB_PASS: ${POSTGRES_PASSWORD}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 3000
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: "metabase"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: "metabase"
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "metabase", "-d", "metabase"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

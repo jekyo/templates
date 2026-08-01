@@ -1,0 +1,29 @@
+app: heimdall
+description: Heimdall is a dashboard for managing and organizing your server applications.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/heimdall/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Heimdall
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Madrid"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["curl", "-f", "http://127.0.0.1:80"]
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

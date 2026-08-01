@@ -1,0 +1,92 @@
+app: sure
+description: Sure — an all-in-one personal finance platform
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sure/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Sure
+  SECRET_KEY_BASE:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  ONBOARDING_STATE:
+    kind: string
+    default: open
+    required: false
+    prompt: Onboarding state (open or closed)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  web:
+    image: ghcr.io/we-promise/sure:0.6.7
+    env:
+      APP_DOMAIN: ${DOMAIN}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sure
+      REDIS_URL: redis://valkey:6379
+      DB_HOST: postgresql
+      DB_PORT: "5432"
+      SELF_HOSTED: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      ONBOARDING_STATE: ${ONBOARDING_STATE}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /rails/storage
+        subpath: storage
+  worker:
+    image: ghcr.io/we-promise/sure:0.6.7
+    args: ["bundle", "exec", "sidekiq"]
+    env:
+      APP_DOMAIN: ${DOMAIN}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sure
+      REDIS_URL: redis://valkey:6379
+      DB_HOST: postgresql
+      DB_PORT: "5432"
+      SELF_HOSTED: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+      ONBOARDING_STATE: ${ONBOARDING_STATE}
+    volumes:
+      data:
+        path: /rails/storage
+        subpath: storage
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sure
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U sure -d sure"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+  valkey:
+    image: valkey/valkey:8-alpine
+    args: ["valkey-server", "--appendonly", "yes"]
+    port: 6379
+    health:
+      command: ["sh", "-c", "valkey-cli ping | grep PONG"]
+    volumes:
+      data:
+        path: /data
+        subpath: valkey
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,70 @@
+app: immich
+description: Immich — self-hosted photo and video management solution
+icon: https://raw.githubusercontent.com/jekyo/templates/main/immich/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Immich
+  POSTGRES_PASSWORD:
+    kind: secret
+  TZ:
+    kind: string
+    default: Etc/UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 50Gi
+    prompt: Storage size
+services:
+  immich:
+    image: ghcr.io/immich-app/immich-server:release
+    env:
+      DB_HOSTNAME: database
+      DB_USERNAME: immich
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: redis
+      TZ: ${TZ}
+    port: 2283
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/server/ping
+      port: 2283
+    volumes:
+      data:
+        path: /usr/src/app/upload
+        subpath: upload
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    env:
+      TZ: ${TZ}
+    port: 3003
+    volumes:
+      data:
+        path: /cache
+        subpath: model-cache
+  redis:
+    image: redis:7.4-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]
+  database:
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0
+    env:
+      POSTGRES_USER: immich
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      DB_STORAGE_TYPE: SSD
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U immich -d immich"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,6 +1,6 @@
 app: redis
 description: Redis 7 with append-only persistence
-icon: https://raw.githubusercontent.com/docker-library/docs/master/redis/logo.png
+icon: https://raw.githubusercontent.com/jekyo/templates/main/redis/logo.svg
 services:
   redis:
     image: redis:7-alpine

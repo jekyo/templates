@@ -1,0 +1,18 @@
+app: vert
+description: The next-generation file converter. Open source, fully local and free forever.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/vert/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for VERT
+services:
+  vert:
+    image: ghcr.io/vert-sh/vert:latest
+    env:
+      PUB_VERT_URL: https://${DOMAIN}
+      PUB_HOSTNAME: ${DOMAIN}
+      PUB_PORT: "80"
+      PUB_ENV: production
+    port: 80
+    http:
+      domain: ${DOMAIN}

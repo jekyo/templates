@@ -1,0 +1,26 @@
+app: flipt
+description: Feature flag solution that keeps your feature flags and remote config next to your code in Git
+icon: https://raw.githubusercontent.com/jekyo/templates/main/flipt/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Flipt
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  flipt:
+    image: docker.flipt.io/flipt/flipt:latest
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /var/opt/flipt
+volumes:
+  data:
+    size: ${DATA_SIZE}

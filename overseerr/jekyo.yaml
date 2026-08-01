@@ -1,0 +1,35 @@
+app: overseerr
+description: Overseerr — request management and media discovery tool for your Plex ecosystem
+icon: https://raw.githubusercontent.com/jekyo/templates/main/overseerr/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Overseerr
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  overseerr:
+    image: sctx/overseerr:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 5055
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/v1/status
+      port: 5055
+    volumes:
+      data:
+        path: /app/config
+volumes:
+  data:
+    size: ${DATA_SIZE}

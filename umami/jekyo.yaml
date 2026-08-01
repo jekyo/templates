@@ -1,0 +1,44 @@
+app: umami
+description: Umami is web analytics platform which provides insights into visitor behavior without compromising user privacy.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/umami/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Umami
+  POSTGRES_PASSWORD:
+    kind: secret
+  APP_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:3.0.3
+    env:
+      DATABASE_URL: postgres://umami:${POSTGRES_PASSWORD}@postgresql:5432/umami
+      DATABASE_TYPE: postgres
+      APP_SECRET: ${APP_SECRET}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/heartbeat
+      port: 3000
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: umami
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

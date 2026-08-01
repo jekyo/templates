@@ -1,0 +1,103 @@
+app: reactive-resume
+description: A one-of-a-kind resume builder that keeps your privacy in mind.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/reactive-resume/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Reactive Resume
+  S3_DOMAIN:
+    kind: domain
+    prompt: Domain for file storage (MinIO)
+  POSTGRES_PASSWORD:
+    kind: secret
+  ACCESS_TOKEN_SECRET:
+    kind: secret
+  REFRESH_TOKEN_SECRET:
+    kind: secret
+  CHROME_TOKEN:
+    kind: secret
+  MINIO_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  reactive-resume:
+    image: amruthpillai/reactive-resume:v4.3.7
+    env:
+      PUBLIC_URL: https://${DOMAIN}
+      STORAGE_URL: https://${S3_DOMAIN}/default
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      CHROME_TOKEN: ${CHROME_TOKEN}
+      CHROME_URL: ws://chrome:3000/chrome
+      REDIS_URL: redis://redis:6379
+      STORAGE_ENDPOINT: minio
+      STORAGE_PORT: "9000"
+      STORAGE_REGION: us-east-1
+      STORAGE_BUCKET: default
+      STORAGE_ACCESS_KEY: minio
+      STORAGE_SECRET_KEY: ${MINIO_PASSWORD}
+      STORAGE_USE_SSL: "false"
+      DISABLE_SIGNUPS: "false"
+      DISABLE_EMAIL_AUTH: "false"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["node", "-e", "require('http').get('http://127.0.0.1:3000', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U postgres -d postgres"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  minio:
+    image: ghcr.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    args: ["server", "/data", "--console-address", ":9001"]
+    env:
+      MINIO_SERVER_URL: https://${S3_DOMAIN}
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    port: 9000
+    http:
+      domain: ${S3_DOMAIN}
+    health:
+      command: ["mc", "ready", "local"]
+    volumes:
+      data:
+        path: /data
+        subpath: minio
+  chrome:
+    image: ghcr.io/browserless/chrome:latest
+    env:
+      HEALTH: "true"
+      TIMEOUT: "10000"
+      CONCURRENT: "10"
+      TOKEN: ${CHROME_TOKEN}
+    port: 3000
+    health:
+      path: /
+      port: 3000
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

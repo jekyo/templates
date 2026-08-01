@@ -1,0 +1,32 @@
+app: vikunja
+description: The open-source, self-hostable to-do app. Organize everything, on all platforms.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/vikunja/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Vikunja
+  JWT_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  vikunja:
+    image: vikunja/vikunja
+    env:
+      VIKUNJA_SERVICE_PUBLICURL: https://${DOMAIN}
+      VIKUNJA_SERVICE_JWTSECRET: ${JWT_SECRET}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: "true"
+      VIKUNJA_DATABASE_TYPE: sqlite
+      VIKUNJA_DATABASE_PATH: /app/vikunja/vikunja.db
+    port: 3456
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/vikunja
+        subpath: vikunja
+volumes:
+  data:
+    size: ${DATA_SIZE}

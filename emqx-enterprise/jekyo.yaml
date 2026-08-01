@@ -1,0 +1,50 @@
+app: emqx-enterprise
+description: Open-source MQTT broker for IoT, IIoT, and connected vehicles.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/emqx-enterprise/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the EMQX dashboard
+  EMQX_DASHBOARD_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  emqx:
+    image: emqx/emqx-enterprise:6.2.0
+    env:
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_PASSWORD}
+    ports:
+      - 18083
+      - 1883
+      - 8083
+      - 8084
+      - 8883
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 1883
+        node: 31883
+        protocol: tcp
+      - port: 8883
+        node: 30883
+        protocol: tcp
+      - port: 8083
+        node: 30083
+        protocol: tcp
+      - port: 8084
+        node: 30084
+        protocol: tcp
+    health:
+      command:
+        - /opt/emqx/bin/emqx
+        - ctl
+        - status
+    volumes:
+      data:
+        path: /opt/emqx/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,51 @@
+app: freshrss-with-postgresql
+description: FreshRSS — a free, self-hostable feed aggregator (PostgreSQL backend)
+icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss-with-postgresql/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for FreshRSS
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    env:
+      CRON_MIN: "1,31"
+      POSTGRES_DB: freshrss
+      POSTGRES_USER: freshrss
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: freshrss-db
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/80' || exit 1"]
+    volumes:
+      data:
+        path: /var/www/FreshRSS/data
+        subpath: freshrss
+      data-extensions:
+        path: /var/www/FreshRSS/extensions
+  freshrss-db:
+    image: postgres:16
+    env:
+      POSTGRES_USER: freshrss
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: freshrss
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "freshrss", "-d", "freshrss"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-extensions:
+    size: 1Gi

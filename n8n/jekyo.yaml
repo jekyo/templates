@@ -1,0 +1,58 @@
+app: n8n
+description: n8n is an extendable workflow automation tool.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/n8n/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for n8n
+  N8N_RUNNERS_AUTH_TOKEN:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  n8n:
+    image: n8nio/n8n:2.10.2
+    env:
+      N8N_EDITOR_BASE_URL: https://${DOMAIN}
+      WEBHOOK_URL: https://${DOMAIN}
+      N8N_HOST: ${DOMAIN}
+      N8N_PROTOCOL: https
+      GENERIC_TIMEZONE: UTC
+      TZ: UTC
+      DB_SQLITE_POOL_SIZE: "2"
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_MODE: external
+      N8N_RUNNERS_BROKER_LISTEN_ADDRESS: 0.0.0.0
+      N8N_RUNNERS_BROKER_PORT: "5679"
+      N8N_RUNNERS_AUTH_TOKEN: ${N8N_RUNNERS_AUTH_TOKEN}
+      N8N_NATIVE_PYTHON_RUNNER: "true"
+      N8N_RUNNERS_MAX_CONCURRENCY: "5"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_GIT_NODE_DISABLE_BARE_REPOS: "true"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_PROXY_HOPS: "1"
+      N8N_SKIP_AUTH_ON_OAUTH_CALLBACK: "false"
+    ports: [5678, 5679]
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /healthz
+      port: 5678
+    volumes:
+      data:
+        path: /home/node/.n8n
+        subpath: n8n
+  task-runners:
+    image: n8nio/runners:2.10.2
+    env:
+      N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
+      N8N_RUNNERS_AUTH_TOKEN: ${N8N_RUNNERS_AUTH_TOKEN}
+      N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT: "15"
+      N8N_RUNNERS_MAX_CONCURRENCY: "5"
+    health:
+      command: ["sh", "-c", "wget -qO- http://127.0.0.1:5680/healthz"]
+volumes:
+  data:
+    size: ${DATA_SIZE}

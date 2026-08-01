@@ -1,0 +1,116 @@
+app: limesurvey
+description: Simple, quick and anonymous online survey tool that's bursting with juicy insights.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/limesurvey/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for LimeSurvey
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  ADMIN_PASSWORD:
+    kind: secret
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin email address
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host
+  SMTP_USER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP user
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password
+  SMTP_SSL:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP SSL mode (ssl or tls)
+  FROM_EMAIL:
+    kind: string
+    default: ""
+    required: false
+    prompt: From email address
+  TZ:
+    kind: string
+    default: America/Jamaica
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  limesurvey:
+    image: adamzammit/limesurvey:latest
+    env:
+      LIMESURVEY_DB_HOST: mariadb
+      LIMESURVEY_DB_PASSWORD: ${MYSQL_PASSWORD}
+      LIMESURVEY_DB_USER: limesurvey
+      LIMESURVEY_DB_NAME: limesurvey-db
+      LIMESURVEY_ADMIN_USER: admin
+      LIMESURVEY_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      LIMESURVEY_ADMIN_NAME: Admin
+      LIMESURVEY_ADMIN_EMAIL: ${ADMIN_EMAIL}
+      LIMESURVEY_FROM_EMAIL: ${FROM_EMAIL}
+      LIMESURVEY_SMTP_HOST: ${SMTP_HOST}
+      LIMESURVEY_SMTP_USER: ${SMTP_USER}
+      LIMESURVEY_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      LIMESURVEY_SMTP_SSL: ${SMTP_SSL}
+      LIMESURVEY_PHP_SESSION_SAVE_HANDLER: redis
+      LIMESURVEY_PHP_SESSION_SAVE_PATH: tcp://redis:6379
+      TZ: ${TZ}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/html/upload
+        subpath: upload
+      data-plugins:
+        path: /var/www/html/plugins
+      data-config:
+        path: /var/www/html/application/config
+      data-sessions:
+        path: /var/lime/sessions
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_USER: limesurvey
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: limesurvey-db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+  redis:
+    image: redis:7-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-plugins:
+    size: 1Gi
+  data-config:
+    size: 1Gi
+  data-sessions:
+    size: 1Gi

@@ -1,0 +1,45 @@
+app: pydio-cells
+description: Pydio Cells — high-performance file sharing and collaboration platform with no-code automation and fine-grained access control
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pydio-cells/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Pydio Cells
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  cells:
+    image: pydio/cells:4.4
+    env:
+      CELLS_SITE_EXTERNAL: https://${DOMAIN}
+      CELLS_SITE_NO_TLS: "1"
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/cells
+        subpath: cells
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: cells
+      MYSQL_USER: cells
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

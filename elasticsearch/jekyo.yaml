@@ -1,0 +1,36 @@
+app: elasticsearch
+description: Elasticsearch is free and Open Source, Distributed, RESTful Search Engine.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/elasticsearch/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Elasticsearch
+  ELASTIC_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-wolfi:8.19.0
+    env:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      xpack.security.http.ssl.enabled: "false"
+    port: 9200
+    http:
+      domain: ${DOMAIN}
+    health:
+      command:
+        - sh
+        - -c
+        - curl --user elastic:$$ELASTIC_PASSWORD --silent --fail http://localhost:9200/_cluster/health
+    volumes:
+      data:
+        path: /usr/share/elasticsearch/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

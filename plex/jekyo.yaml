@@ -1,0 +1,52 @@
+app: plex
+description: Plex organizes video, music and photos from personal media libraries and streams them to smart TVs, streaming boxes and mobile devices.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/plex/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Plex
+  PLEX_CLAIM:
+    kind: string
+    prompt: Plex claim token (get one at https://plex.tv/claim)
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Config storage size
+  MEDIA_SIZE:
+    kind: size
+    default: 100Gi
+    prompt: Storage size per media library (TV and movies)
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    env:
+      _APP_URL: https://${DOMAIN}
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      PLEX_CLAIM: ${PLEX_CLAIM}
+    port: 32400
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /identity
+      port: 32400
+    volumes:
+      data:
+        path: /config
+      tv:
+        path: /tv
+      movies:
+        path: /movies
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  tv:
+    size: ${MEDIA_SIZE}
+  movies:
+    size: ${MEDIA_SIZE}

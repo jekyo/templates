@@ -1,0 +1,34 @@
+app: pgadmin
+description: pgAdmin is a web-based database management tool for administering your PostgreSQL databases through a user-friendly interface.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pgadmin/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for pgAdmin
+  PGADMIN_DEFAULT_EMAIL:
+    kind: string
+    prompt: Admin login email
+  PGADMIN_DEFAULT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /login
+      port: 80
+    volumes:
+      data:
+        path: /var/lib/pgadmin
+volumes:
+  data:
+    size: ${DATA_SIZE}

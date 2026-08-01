@@ -1,0 +1,52 @@
+app: langflow
+description: Langflow is an open-source, Python-based, customizable framework for building AI applications.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/langflow/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Langflow
+  LANGFLOW_PASSWORD:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  langflow:
+    image: langflowai/langflow:1.7.2
+    env:
+      LANGFLOW_AUTO_LOGIN: "false"
+      LANGFLOW_SUPERUSER: langflow
+      LANGFLOW_SUPERUSER_PASSWORD: ${LANGFLOW_PASSWORD}
+      LANGFLOW_DATABASE_URL: postgresql://langflow:${POSTGRES_PASSWORD}@postgres:5432/langflow-db
+      LANGFLOW_CONFIG_DIR: app/langflow
+      LANGFLOW_HOST: 0.0.0.0
+      PORT: "7860"
+    port: 7860
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 7860
+    volumes:
+      data:
+        path: /app/langflow
+        subpath: langflow
+  postgres:
+    image: postgres:18-alpine
+    env:
+      POSTGRES_USER: langflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: langflow-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U langflow -d langflow-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

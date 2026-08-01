@@ -1,0 +1,32 @@
+app: pingvinshare
+description: A self-hosted file sharing platform that combines lightness and beauty, perfect for seamless and efficient file sharing.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pingvinshare/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Pingvin Share
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for shared files
+services:
+  pingvinshare:
+    image: ghcr.io/stonith404/pingvin-share
+    env:
+      TRUST_PROXY: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 3000
+    volumes:
+      data:
+        path: /opt/app/backend/data
+      images:
+        path: /opt/app/frontend/public/img
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  images:
+    size: 1Gi

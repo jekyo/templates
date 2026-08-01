@@ -1,0 +1,30 @@
+app: rabbitmq
+description: With tens of thousands of users, RabbitMQ is one of the most popular open source message brokers.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/rabbitmq/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the RabbitMQ management UI
+  RABBITMQ_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    env:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports: [15672, 5672]
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["rabbitmq-diagnostics", "-q", "ping"]
+    volumes:
+      data:
+        path: /var/lib/rabbitmq
+volumes:
+  data:
+    size: ${DATA_SIZE}

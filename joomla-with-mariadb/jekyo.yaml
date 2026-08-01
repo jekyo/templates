@@ -1,0 +1,50 @@
+app: joomla-with-mariadb
+description: Joomla! is the mobile-ready and user-friendly way to build your website. Choose from thousands of features and designs. Joomla! is free and open source.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/joomla-with-mariadb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Joomla
+  JOOMLA_DB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  joomla:
+    image: joomla:latest
+    env:
+      JOOMLA_DB_HOST: mariadb
+      JOOMLA_DB_USER: joomla
+      JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
+      JOOMLA_DB_NAME: joomla-db
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/html
+        subpath: joomla
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: joomla-db
+      MYSQL_USER: joomla
+      MYSQL_PASSWORD: ${JOOMLA_DB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

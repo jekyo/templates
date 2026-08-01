@@ -1,0 +1,36 @@
+app: babybuddy
+description: It helps parents track their baby's daily activities, growth, and health with ease.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/babybuddy/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Baby Buddy
+  TZ:
+    kind: string
+    default: Europe/Madrid
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  babybuddy:
+    image: lscr.io/linuxserver/babybuddy:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      CSRF_TRUSTED_ORIGINS: https://${DOMAIN}
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8000
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

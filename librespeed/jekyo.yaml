@@ -1,0 +1,21 @@
+app: librespeed
+description: Self-hosted lightweight Speed Test.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/librespeed/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for LibreSpeed
+services:
+  librespeed:
+    image: ghcr.io/librespeed/speedtest:latest
+    env:
+      MODE: standalone
+      TELEMETRY: "false"
+      DISTANCE: km
+      WEBPORT: "82"
+    port: 82
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 82

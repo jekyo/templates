@@ -1,0 +1,38 @@
+app: openobserve
+description: Cloud-native observability platform for logs, metrics, traces, RUM, errors and session replays — a 140x cheaper alternative to Elasticsearch, Splunk and Datadog.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/openobserve/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for OpenObserve
+  ZO_ROOT_USER_EMAIL:
+    kind: string
+    default: root@example.com
+    required: false
+    prompt: Root user email
+  ZO_ROOT_USER_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  openobserve:
+    image: public.ecr.aws/zinclabs/openobserve:v0.90.0
+    env:
+      ZO_DATA_DIR: /data
+      ZO_ROOT_USER_EMAIL: ${ZO_ROOT_USER_EMAIL}
+      ZO_ROOT_USER_PASSWORD: ${ZO_ROOT_USER_PASSWORD}
+      ZO_TELEMETRY: "false"
+      ZO_COOKIE_SECURE_ONLY: "true"
+    port: 5080
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/openobserve", "node", "status"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

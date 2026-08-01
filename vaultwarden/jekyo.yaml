@@ -1,0 +1,40 @@
+app: vaultwarden
+description: Vaultwarden is a password manager that allows you to securely store and manage your passwords.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/vaultwarden/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Vaultwarden
+  ADMIN_TOKEN:
+    kind: secret
+  SIGNUPS_ALLOWED:
+    kind: string
+    default: "true"
+    required: false
+    prompt: Allow new user signups (true/false)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    env:
+      DOMAIN: https://${DOMAIN}
+      DATABASE_URL: data/db.sqlite3
+      SIGNUPS_ALLOWED: ${SIGNUPS_ALLOWED}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      IP_HEADER: X-Forwarded-For
+      PUSH_ENABLED: "false"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

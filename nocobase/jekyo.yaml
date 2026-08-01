@@ -1,0 +1,49 @@
+app: nocobase
+description: NocoBase is the most extensible AI-powered no-code/low-code platform.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nocobase/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your NocoBase instance
+  APP_KEY:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  nocobase:
+    image: nocobase/nocobase:1.9.33
+    env:
+      APP_KEY: ${APP_KEY}
+      DB_DIALECT: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: nocobase
+      DB_USER: nocobase
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 13000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/nocobase/storage
+        subpath: storage
+  postgres:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_USER: nocobase
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nocobase
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "nocobase", "-d", "nocobase"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

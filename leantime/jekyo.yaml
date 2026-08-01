@@ -1,0 +1,80 @@
+app: leantime
+description: Leantime is a goals focused project management system for non-project managers.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/leantime/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Leantime
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  SESSION_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  leantime:
+    image: leantime/leantime:latest
+    env:
+      LEAN_APP_URL: https://${DOMAIN}
+      LEAN_DB_HOST: mysql
+      LEAN_DB_USER: leantime
+      LEAN_DB_PASSWORD: ${MYSQL_PASSWORD}
+      LEAN_DB_DATABASE: leantime-db
+      LEAN_SESSION_PASSWORD: ${SESSION_PASSWORD}
+      LEAN_SESSION_EXPIRATION: "28800"
+      LEAN_USE_REDIS: "true"
+      LEAN_REDIS_HOST: redis
+      LEAN_REDIS_PORT: "6379"
+      LEAN_REDIS_SCHEME: tcp
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /var/www/html/userfiles
+        subpath: userfiles
+      data-public:
+        path: /var/www/html/public/userfiles
+      data-plugins:
+        path: /var/www/html/app/Plugins
+  mysql:
+    image: mysql:8.4
+    args:
+      - --character-set-server=UTF8MB4
+      - --collation-server=UTF8MB4_unicode_ci
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: leantime
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: leantime-db
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "localhost"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server", "--appendonly", "yes"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-public:
+    size: 2Gi
+  data-plugins:
+    size: 1Gi

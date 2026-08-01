@@ -1,0 +1,31 @@
+app: freshrss
+description: FreshRSS — a free, self-hostable feed aggregator
+icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for FreshRSS
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    env:
+      CRON_MIN: "1,31"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/80' || exit 1"]
+    volumes:
+      data:
+        path: /var/www/FreshRSS/data
+      data-extensions:
+        path: /var/www/FreshRSS/extensions
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-extensions:
+    size: 1Gi

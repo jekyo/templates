@@ -1,0 +1,59 @@
+app: heyform
+description: Allows anyone to create engaging conversational forms for surveys, questionnaires, quizzes, and polls. No coding skills required.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/heyform/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for HeyForm
+  SESSION_KEY:
+    kind: secret
+  FORM_ENCRYPTION_KEY:
+    kind: secret
+  KEYDB_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  heyform:
+    image: heyform/community-edition:latest
+    env:
+      APP_HOMEPAGE_URL: "https://${DOMAIN}"
+      SESSION_KEY: "${SESSION_KEY}"
+      FORM_ENCRYPTION_KEY: "${FORM_ENCRYPTION_KEY}"
+      MONGO_URI: "mongodb://mongo:27017/heyform"
+      REDIS_HOST: "keydb"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${KEYDB_PASSWORD}"
+    port: 9157
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "wget -qO- http://127.0.0.1:9157 || exit 1"]
+    volumes:
+      data:
+        path: /app/static/upload
+        subpath: heyform-assets
+  mongo:
+    image: percona/percona-server-mongodb:latest
+    port: 27017
+    volumes:
+      data:
+        path: /data/db
+        subpath: mongo
+  keydb:
+    image: eqalpha/keydb:latest
+    args: ["keydb-server", "--appendonly", "yes"]
+    env:
+      KEYDB_PASSWORD: "${KEYDB_PASSWORD}"
+    port: 6379
+    health:
+      command: ["keydb-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: keydb
+volumes:
+  data:
+    size: ${DATA_SIZE}

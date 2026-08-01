@@ -1,0 +1,104 @@
+app: authentik
+description: An open-source Identity Provider, focused on flexibility and versatility.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/authentik/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for authentik
+  POSTGRESQL_PASSWORD:
+    kind: secret
+  AUTHENTIK_SECRET_KEY:
+    kind: secret
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host for outgoing email (optional)
+  SMTP_PORT:
+    kind: string
+    default: "25"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  SMTP_FROM:
+    kind: string
+    default: authentik@localhost
+    required: false
+    prompt: Email address authentik sends from
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2025.10.3
+    args: ["server"]
+    env:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRESQL_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
+      AUTHENTIK_EMAIL__HOST: ${SMTP_HOST}
+      AUTHENTIK_EMAIL__PORT: ${SMTP_PORT}
+      AUTHENTIK_EMAIL__USERNAME: ${SMTP_USERNAME}
+      AUTHENTIK_EMAIL__PASSWORD: ${SMTP_PASSWORD}
+      AUTHENTIK_EMAIL__USE_TLS: "false"
+      AUTHENTIK_EMAIL__USE_SSL: "false"
+      AUTHENTIK_EMAIL__TIMEOUT: "10"
+      AUTHENTIK_EMAIL__FROM: ${SMTP_FROM}
+    port: 9000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /media
+        subpath: media
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2025.10.3
+    args: ["worker"]
+    env:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRESQL_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
+      AUTHENTIK_EMAIL__HOST: ${SMTP_HOST}
+      AUTHENTIK_EMAIL__PORT: ${SMTP_PORT}
+      AUTHENTIK_EMAIL__USERNAME: ${SMTP_USERNAME}
+      AUTHENTIK_EMAIL__PASSWORD: ${SMTP_PASSWORD}
+      AUTHENTIK_EMAIL__USE_TLS: "false"
+      AUTHENTIK_EMAIL__USE_SSL: "false"
+      AUTHENTIK_EMAIL__TIMEOUT: "10"
+      AUTHENTIK_EMAIL__FROM: ${SMTP_FROM}
+    volumes:
+      data:
+        path: /media
+        subpath: media
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: authentik
+      POSTGRES_DB: authentik
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+    port: 5432
+    health:
+      command: ["pg_isready", "-d", "authentik", "-U", "authentik"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: db
+volumes:
+  data:
+    size: ${DATA_SIZE}

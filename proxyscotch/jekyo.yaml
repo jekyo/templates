@@ -1,0 +1,23 @@
+app: proxyscotch
+description: Proxyscotch — simple CORS proxy server created for hoppscotch.io
+icon: https://raw.githubusercontent.com/jekyo/templates/main/proxyscotch/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the proxy
+  PROXYSCOTCH_TOKEN:
+    kind: secret
+  ALLOWED_ORIGINS:
+    kind: string
+    default: "*"
+    required: false
+    prompt: Allowed CORS origins
+services:
+  proxyscotch:
+    image: hoppscotch/proxyscotch:v0.1.4
+    env:
+      PROXYSCOTCH_TOKEN: "${PROXYSCOTCH_TOKEN}"
+      PROXYSCOTCH_ALLOWED_ORIGINS: "${ALLOWED_ORIGINS}"
+    port: 9159
+    http:
+      domain: ${DOMAIN}

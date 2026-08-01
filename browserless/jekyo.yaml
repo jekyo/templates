@@ -1,0 +1,20 @@
+app: browserless
+description: A headless Chrome browser as a service.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/browserless/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Browserless
+  TOKEN:
+    kind: secret
+services:
+  browserless:
+    image: ghcr.io/browserless/chromium
+    env:
+      TOKEN: ${TOKEN}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /docs
+      port: 3000

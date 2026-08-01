@@ -1,0 +1,58 @@
+app: kuzzle
+description: Kuzzle is a generic backend offering the basic building blocks common to every application.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/kuzzle/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Kuzzle
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  kuzzle:
+    image: kuzzleio/kuzzle:latest
+    env:
+      kuzzle_services__storageEngine__client__node: http://elasticsearch:9200
+      kuzzle_services__storageEngine__commonMapping__dynamic: "true"
+      kuzzle_services__internalCache__node__host: redis
+      kuzzle_services__memoryStorage__node__host: redis
+      kuzzle_server__protocols__mqtt__enabled: "true"
+      kuzzle_server__protocols__mqtt__developmentMode: "false"
+      kuzzle_limits__loginsPerSecond: "50"
+      NODE_ENV: production
+      DEBUG: kuzzle:cluster:sync
+      DEBUG_DEPTH: "0"
+      DEBUG_MAX_ARRAY_LENGTH: "100"
+      DEBUG_EXPAND: "off"
+      DEBUG_SHOW_HIDDEN: "on"
+      DEBUG_COLORS: "on"
+    port: 7512
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /_healthcheck
+      port: 7512
+  elasticsearch:
+    image: kuzzleio/elasticsearch:7
+    port: 9200
+    health:
+      path: /
+      port: 9200
+    volumes:
+      data:
+        path: /usr/share/elasticsearch/data
+        subpath: elasticsearch
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server", "--appendonly", "yes"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

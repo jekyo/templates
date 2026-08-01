@@ -1,0 +1,78 @@
+app: usesend
+description: Usesend is an open-source alternative to Resend, Sendgrid, Mailgun and Postmark etc.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/usesend/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for useSend
+  POSTGRES_PASSWORD:
+    kind: secret
+  NEXTAUTH_SECRET:
+    kind: secret
+  AWS_ACCESS_KEY:
+    kind: string
+    prompt: AWS access key (for SES)
+  AWS_SECRET_KEY:
+    kind: string
+    prompt: AWS secret key (for SES)
+  AWS_DEFAULT_REGION:
+    kind: string
+    prompt: AWS region (for SES)
+  GITHUB_ID:
+    kind: string
+    prompt: GitHub OAuth app client ID
+  GITHUB_SECRET:
+    kind: string
+    prompt: GitHub OAuth app client secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  usesend:
+    image: usesend/usesend:latest
+    env:
+      DATABASE_URL: postgresql://usesend:${POSTGRES_PASSWORD}@postgres:5432/usesend
+      NEXTAUTH_URL: https://${DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+      REDIS_URL: redis://redis:6379
+      NEXT_PUBLIC_IS_CLOUD: "false"
+      API_RATE_LIMIT: "1"
+      HOSTNAME: 0.0.0.0
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+  postgres:
+    image: postgres:16
+    env:
+      POSTGRES_USER: usesend
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: usesend
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

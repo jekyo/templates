@@ -1,0 +1,37 @@
+app: gowa
+description: Golang WhatsApp - Built with Go for efficient memory use
+icon: https://raw.githubusercontent.com/jekyo/templates/main/gowa/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for GoWA
+  GOWA_PASSWORD:
+    kind: secret
+  WHATSAPP_WEBHOOK:
+    kind: string
+    prompt: Webhook URL to forward incoming WhatsApp events to
+  WHATSAPP_WEBHOOK_SECRET:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  gowa:
+    image: aldinokemal2104/go-whatsapp-web-multidevice:latest
+    env:
+      APP_BASIC_AUTH: gowa:${GOWA_PASSWORD}
+      APP_PORT: "3000"
+      APP_DEBUG: "false"
+      APP_ACCOUNT_VALIDATION: "false"
+      WHATSAPP_WEBHOOK: ${WHATSAPP_WEBHOOK}
+      WHATSAPP_WEBHOOK_SECRET: ${WHATSAPP_WEBHOOK_SECRET}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/storages
+volumes:
+  data:
+    size: ${DATA_SIZE}

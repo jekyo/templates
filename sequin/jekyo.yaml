@@ -1,0 +1,68 @@
+app: sequin
+description: The fastest Postgres change data capture
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sequin/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Sequin
+  POSTGRES_PASSWORD:
+    kind: secret
+  SECRET_KEY_BASE:
+    kind: secret
+  VAULT_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  sequin:
+    image: sequin/sequin:latest
+    env:
+      SERVER_HOST: ${DOMAIN}
+      PG_HOSTNAME: postgres
+      PG_DATABASE: sequin-db
+      PG_PORT: "5432"
+      PG_USERNAME: sequin
+      PG_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_POOL_SIZE: "20"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      VAULT_KEY: ${VAULT_KEY}
+      REDIS_URL: redis://redis:6379
+      CONFIG_FILE_PATH: /config/playground.yml
+      FEATURE_ACCOUNT_SELF_SIGNUP: "false"
+      SEQUIN_TELEMETRY_DISABLED: "false"
+      CRASH_REPORTING_DISABLED: "false"
+    port: 7376
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 7376
+  postgres:
+    image: postgres:16
+    args: ["postgres", "-c", "wal_level=logical"]
+    env:
+      POSTGRES_DB: sequin-db
+      POSTGRES_USER: sequin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "sequin", "-d", "sequin-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7
+    args: ["redis-server", "--port", "6379"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

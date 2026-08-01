@@ -1,0 +1,91 @@
+app: hatchet
+description: Hatchet runs background tasks at scale — a high-throughput, low-latency computing service built on a fault-tolerant queue.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/hatchet/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Hatchet dashboard
+  POSTGRES_PASSWORD:
+    kind: secret
+  RABBITMQ_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for database and queue
+services:
+  dashboard:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-dashboard:latest
+    args: ["sh", "./entrypoint.sh", "--config", "/hatchet/config"]
+    env:
+      DATABASE_URL: postgres://hatchet:${POSTGRES_PASSWORD}@postgres:5432/hatchet
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data-certs: /hatchet/certs
+      data-config: /hatchet/config
+  engine:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:latest
+    args: ["/hatchet/hatchet-engine", "--config", "/hatchet/config"]
+    env:
+      DATABASE_URL: postgres://hatchet:${POSTGRES_PASSWORD}@postgres:5432/hatchet
+      SERVER_GRPC_BIND_ADDRESS: 0.0.0.0
+      SERVER_GRPC_INSECURE: "t"
+    port: 7077
+    volumes:
+      data-certs: /hatchet/certs
+      data-config: /hatchet/config
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: hatchet
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: hatchet
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U hatchet -d hatchet"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  rabbitmq:
+    image: rabbitmq:3-management
+    env:
+      RABBITMQ_DEFAULT_USER: hatchet
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    port: 5672
+    health:
+      command: ["rabbitmq-diagnostics", "-q", "ping"]
+    volumes:
+      data:
+        path: /var/lib/rabbitmq
+        subpath: rabbitmq
+  migration:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:latest
+    args: ["sh", "-c", "/hatchet/hatchet-migrate && sleep infinity"]
+    env:
+      DATABASE_URL: postgres://hatchet:${POSTGRES_PASSWORD}@postgres:5432/hatchet
+  setup:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:latest
+    args: ["sh", "-c", "/hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false && sleep infinity"]
+    env:
+      DATABASE_URL: postgres://hatchet:${POSTGRES_PASSWORD}@postgres:5432/hatchet
+      SERVER_TASKQUEUE_RABBITMQ_URL: amqp://hatchet:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      SERVER_AUTH_COOKIE_DOMAIN: ${DOMAIN}
+      SERVER_AUTH_COOKIE_INSECURE: "f"
+      SERVER_GRPC_BIND_ADDRESS: 0.0.0.0
+      SERVER_GRPC_INSECURE: "t"
+      SERVER_GRPC_BROADCAST_ADDRESS: engine:7077
+      SERVER_DEFAULT_ENGINE_VERSION: V1
+      SERVER_INTERNAL_CLIENT_INTERNAL_GRPC_BROADCAST_ADDRESS: engine:7077
+    volumes:
+      data-certs: /hatchet/certs
+      data-config: /hatchet/config
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-certs:
+    size: 1Gi
+  data-config:
+    size: 1Gi

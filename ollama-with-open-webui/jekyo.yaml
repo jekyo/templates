@@ -1,0 +1,38 @@
+app: ollama-with-open-webui
+description: Ollama with Open WebUI — AI model deployment with a user-friendly interface
+icon: https://raw.githubusercontent.com/jekyo/templates/main/ollama-with-open-webui/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Open WebUI
+  DATA_SIZE:
+    kind: size
+    default: 30Gi
+    prompt: Storage size (models are large)
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    env:
+      OLLAMA_BASE_URL: "http://ollama-api:11434"
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /app/backend/data
+        subpath: open-webui
+  ollama-api:
+    image: ollama/ollama:latest
+    port: 11434
+    health:
+      command: ["ollama", "list"]
+    volumes:
+      data:
+        path: /root/.ollama
+        subpath: ollama
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,49 @@
+app: zipline
+description: A ShareX/file upload server that is easy to use, packed with features, and with an easy setup!
+icon: https://raw.githubusercontent.com/jekyo/templates/main/zipline/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Zipline instance
+  CORE_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  zipline:
+    image: ghcr.io/diced/zipline:latest
+    env:
+      CORE_RETURN_HTTPS: "true"
+      CORE_SECRET: ${CORE_SECRET}
+      DATABASE_URL: postgres://zipline:${POSTGRES_PASSWORD}@postgres/zipline-db
+      CORE_LOGGER: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /auth/login
+      port: 3000
+    volumes:
+      data:
+        path: /zipline/uploads
+        subpath: uploads
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: zipline
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: zipline-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U zipline -d zipline-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

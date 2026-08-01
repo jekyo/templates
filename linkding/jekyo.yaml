@@ -1,0 +1,30 @@
+app: linkding
+description: A self-hosted bookmark manager designed to be minimal, fast, and easy to set up.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/linkding/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for linkding
+  LINKDING_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  linkding:
+    image: sissbruecker/linkding:latest
+    env:
+      LD_SUPERUSER_NAME: linkding
+      LD_SUPERUSER_PASSWORD: ${LINKDING_PASSWORD}
+    port: 9090
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/9090' || exit 1"]
+    volumes:
+      data:
+        path: /etc/linkding/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

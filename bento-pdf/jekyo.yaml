@@ -1,0 +1,16 @@
+app: bento-pdf
+description: Process PDFs entirely in your browser. No uploads. No servers. Complete privacy.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/bento-pdf/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for BentoPDF
+services:
+  bento-pdf:
+    image: ghcr.io/alam00000/bentopdf:v1.16.1
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080

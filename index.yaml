@@ -1,19 +1,1295 @@
-# Catalog index for `jekyo templates` / `jekyo init <name>` and the
-# website catalog page.
+# Catalog index for `jekyo templates` / `jekyo init <name>` and the website.
+# Many templates are converted from Coolify (Apache-2.0) — see README.
 templates:
-  - name: postgres
-    description: PostgreSQL 16 with pgvector and persistent storage
-    category: databases
-    docs: https://www.postgresql.org/docs/
-  - name: redis
-    description: Redis 7 with append-only persistence
-    category: databases
-    docs: https://redis.io/docs/
-  - name: ghost
-    description: Ghost — professional publishing platform and CMS
+  - name: "activepieces"
+    description: "Open source no-code business automation."
+    category: automation
+    docs: "https://www.activepieces.com/docs/getting-started/introduction"
+    icon: "logo.png"
+  - name: "actualbudget"
+    description: "A local-first personal finance app."
+    category: finance
+    docs: "https://actualbudget.org/docs/install/docker"
+    icon: "logo.png"
+  - name: "affine"
+    description: "Affine is an open-source, all-in-one workspace and OS for knowledge management, a Notion/Miro alternative."
+    category: productivity
+    docs: "https://docs.affine.pro/docs/self-host-affine"
+  - name: "alexandrie"
+    description: "A powerful Markdown workspace designed for speed, clarity, and creativity."
+    category: productivity
+    docs: "https://github.com/Smaug6739/Alexandrie/tree/main/docs"
+  - name: "anythingllm"
+    description: "AnythingLLM is the easiest to use, all-in-one AI application that can do RAG, AI Agents, and much more with no code or infrastructure headaches."
+    category: ai
+    docs: "https://docs.anythingllm.com/installation-docker/overview"
+  - name: "apprise-api"
+    description: "Push Notifications API"
+    category: automation
+    docs: "https://docs.linuxserver.io/images/docker-apprise-api/"
+    icon: "logo.png"
+  - name: "appsmith"
+    description: "A low-code application platform for building internal tools."
+    category: productivity
+    docs: "https://appsmith.com"
+  - name: "argilla"
+    description: "Argilla is a collaboration tool for AI engineers and domain experts who need to build high-quality datasets for their projects."
+    category: ai
+    docs: "https://docs.argilla.io/latest/"
+    icon: "logo.png"
+  - name: "audiobookshelf"
+    description: "Self-hosted audiobook, ebook, and podcast server"
+    category: media
+    docs: "https://www.audiobookshelf.org/"
+  - name: "authentik"
+    description: "An open-source Identity Provider, focused on flexibility and versatility."
+    category: auth
+    docs: "https://docs.goauthentik.io/docs/installation/docker-compose"
+    icon: "logo.png"
+  - name: "babybuddy"
+    description: "It helps parents track their baby's daily activities, growth, and health with ease."
+    category: productivity
+    docs: "https://docs.baby-buddy.net"
+    icon: "logo.png"
+  - name: "bento-pdf"
+    description: "Process PDFs entirely in your browser. No uploads. No servers. Complete privacy."
+    category: productivity
+    docs: "https://bentopdf.com/docs"
+    icon: "logo.png"
+  - name: "beszel"
+    description: "A lightweight server resource monitoring hub with historical data, docker stats, and alerts."
+    category: monitoring
+    docs: "https://github.com/henrygd/beszel?tab=readme-ov-file#getting-started"
+  - name: "bitcoin-core"
+    description: "A self-hosted Bitcoin Core full node."
+    category: other
+    docs: "https://hub.docker.com/r/ruimarinho/bitcoin-core/"
+  - name: "bluesky-pds"
+    description: "Bluesky PDS (Personal Data Server)"
+    category: other
+    docs: "https://github.com/bluesky-social/pds"
+  - name: "booklore"
+    description: "Booklore is an open-source library management system for your digital book collection."
+    category: media
+    docs: "https://booklore.org/docs/getting-started"
+  - name: "bookstack"
+    description: "BookStack is a simple, self-hosted, easy-to-use platform for organising and storing information"
     category: cms
-    docs: https://ghost.org
-  - name: static-site
-    description: Static site served by nginx, built from the ./public directory
+    docs: "https://www.bookstackapp.com/docs/"
+    icon: "logo.png"
+  - name: "browserless"
+    description: "A headless Chrome browser as a service."
+    category: devtools
+    docs: "https://docs.browserless.io/"
+  - name: "budge"
+    description: "A budgeting personal finance app."
+    category: finance
+    docs: "https://github.com/linuxserver/budge"
+    icon: "logo.png"
+  - name: "bugsink"
+    description: "Self-hosted Error Tracking."
+    category: monitoring
+    docs: "https://www.bugsink.com/docs/"
+  - name: "calcom"
+    description: "Scheduling infrastructure for everyone."
+    category: productivity
+    docs: "https://cal.com/docs/developing/introduction"
+  - name: "calibre-web"
+    description: "Calibre-web is a web app providing a clean interface for browsing, reading and downloading eBooks."
+    category: media
+    docs: "https://github.com/linuxserver/docker-calibre-web"
+  - name: "calibre-web-automated-book-downloader"
+    description: "An intuitive web interface for searching and requesting book downloads, designed to work seamlessly with Calibre-Web-Automated."
+    category: media
+    docs: "https://github.com/calibrain/calibre-web-automated-book-downloader"
+    icon: "logo.png"
+  - name: "cap"
+    description: "Cap is the open source alternative to Loom. Lightweight, powerful, and cross-platform. Record and share in seconds."
+    category: media
+    docs: "https://cap.so"
+  - name: "cap-captcha"
+    description: "The self-hosted CAPTCHA for the modern web."
+    category: security
+    docs: "https://capjs.js.org/guide/"
+    icon: "logo.png"
+  - name: "castopod"
+    description: "Castopod is a free & open-source hosting platform made for podcasters who want engage and interact with their audience."
+    category: media
+    docs: "https://docs.castopod.org/main/en/"
+  - name: "chatwoot"
+    description: "Delightful customer relationships at scale."
+    category: communication
+    docs: "https://www.chatwoot.com/docs/self-hosted/"
+  - name: "checkmate"
+    description: "An open source server and websites monitoring application"
+    category: monitoring
+    docs: "https://docs.checkmate.so/"
+    icon: "logo.png"
+  - name: "chroma"
+    description: "Chroma is the open-source search and retrieval database for AI applications."
+    category: ai
+    docs: "https://cookbook.chromadb.dev/"
+  - name: "classicpress-with-mariadb"
+    description: "A lightweight, stable, instantly familiar free open-source content management system, based on WordPress without the block editor (Gutenberg)."
+    category: cms
+    docs: "https://www.classicpress.net/"
+  - name: "classicpress-with-mysql"
+    description: "A lightweight, stable, instantly familiar free open-source content management system, based on WordPress without the block editor (Gutenberg)."
+    category: cms
+    docs: "https://www.classicpress.net/"
+  - name: "classicpress-without-database"
+    description: "A lightweight, stable, instantly familiar free open-source content management system, based on WordPress without the block editor (Gutenberg)."
+    category: cms
+    docs: "https://www.classicpress.net/"
+  - name: "cloudbeaver"
+    description: "CloudBeaver is a lightweight web application designed for comprehensive data management."
+    category: devtools
+    docs: "https://dbeaver.com/docs/cloudbeaver/"
+  - name: "cloudflare-ddns"
+    description: "A small, feature-rich, and robust Cloudflare DDNS updater."
+    category: automation
+    docs: "https://github.com/favonia/cloudflare-ddns"
+  - name: "cloudflared"
+    description: "Client for Cloudflare Tunnel, a daemon that exposes private services through the Cloudflare edge."
+    category: networking
+    docs: "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/"
+  - name: "cloudreve"
+    description: "A self-hosted file management and sharing system."
+    category: storage
+    docs: "https://docs.cloudreve.org/"
+  - name: "cockpit"
+    description: "Cockpit is a headless content platform that is lightweight, fast and ready for takeoff."
+    category: cms
+    docs: "https://getcockpit.com/documentation/"
+  - name: "code-server"
+    description: "Code-Server is a web-based code editor that enables remote coding and collaboration from any device, anywhere."
+    category: devtools
+    docs: "https://coder.com/docs/code-server/latest"
+  - name: "codimd"
+    description: "Realtime collaborative markdown notes on all platforms"
+    category: productivity
+    docs: "https://hackmd.io/c/codimd-documentation"
+    icon: "logo.png"
+  - name: "convertx"
+    description: "A self-hosted online file converter. Supports over a thousand different formats."
+    category: other
+    icon: "logo.png"
+  - name: "cryptgeon"
+    description: "Secure note / file sharing service inspired by PrivNote."
+    category: security
+    docs: "https://github.com/cupcakearmy/cryptgeon"
+    icon: "logo.png"
+  - name: "cyberchef"
+    description: "The Cyber Swiss Army Knife - a web app for encryption, encoding, compression and data analysis"
+    category: security
+    docs: "https://github.com/gchq/CyberChef"
+    icon: "logo.jpeg"
+  - name: "databasus"
+    description: "Databasus is a free, open source and self-hosted tool to backup PostgreSQL, MySQL, and MongoDB."
+    category: devtools
+    docs: "https://databasus.com/installation"
+  - name: "denoKV"
+    description: "Deno KV \u2014 the Denoland key-value database"
+    category: databases
+    docs: "https://docs.deno.com/deploy/kv/manual/"
+  - name: "directus"
+    description: "Directus wraps databases with a dynamic API, and provides an intuitive app for managing its content."
+    category: cms
+    docs: "https://directus.io"
+  - name: "directus-with-postgresql"
+    description: "Directus wraps databases with a dynamic API, and provides an intuitive app for managing its content."
+    category: cms
+    docs: "https://directus.io"
+  - name: "docmost"
+    description: "Docmost \u2014 open-source collaborative wiki and documentation software"
+    category: productivity
+    docs: "https://docmost.com/docs/"
+    icon: "logo.png"
+  - name: "documenso"
+    description: "Documenso \u2014 document signing, finally open source"
+    category: productivity
+    docs: "https://docs.documenso.com/"
+    icon: "logo.png"
+  - name: "docuseal"
+    description: "DocuSeal \u2014 open-source document signing, alternative to DocuSign"
+    category: productivity
+    docs: "https://www.docuseal.co/"
+    icon: "logo.png"
+  - name: "docuseal-with-postgres"
+    description: "DocuSeal \u2014 open-source document signing, backed by PostgreSQL"
+    category: productivity
+    docs: "https://www.docuseal.co/"
+    icon: "logo.png"
+  - name: "dokuwiki"
+    description: "A lightweight and easy-to-use wiki platform for creating and managing documentation and knowledge bases."
+    category: cms
+    docs: "https://www.dokuwiki.org/"
+    icon: "logo.png"
+  - name: "dolibarr"
+    description: "Dolibarr is a modern software package to manage your organization's activity (contacts, quotes, invoices, orders, stocks, agenda, hr, expense reports, accountan"
+    category: productivity
+    docs: "https://www.dolibarr.org/documentation-home.php"
+    icon: "logo.png"
+  - name: "drizzle-gateway"
+    description: "Free self-hosted Drizzle Studio on steroids"
+    category: devtools
+    docs: "https://gateway.drizzle.team/"
+    icon: "logo.jpeg"
+  - name: "drupal-with-postgresql"
+    description: "Drupal is a free and open-source web content management system written in PHP and distributed under the GNU General Public License."
+    category: cms
+    docs: "https://www.drupal.org/about"
+  - name: "duplicati"
+    description: "Duplicati is a backup solution, allowing you to make scheduled backups with encryption."
+    category: storage
+    docs: "https://duplicati.readthedocs.io"
+    icon: "logo.webp"
+  - name: "easyappointments"
+    description: "Schedule Anything. Let's start with easy! Get the best free online appointment scheduler on your server, today."
+    category: productivity
+    docs: "https://easyappointments.org/"
+    icon: "logo.png"
+  - name: "edgedb"
+    description: "An open-source database designed as a spiritual successor to SQL and the relational paradigm. Powered by the Postgres query engine under the hood."
+    category: databases
+    docs: "https://www.edgedb.com"
+  - name: "elasticsearch"
+    description: "Elasticsearch is free and Open Source, Distributed, RESTful Search Engine."
+    category: databases
+    docs: "https://www.elastic.co/products/elasticsearch"
+  - name: "electricsql"
+    description: "Sync shape-based subsets of your Postgres data over HTTP."
+    category: other
+    docs: "https://electric-sql.com/docs/guides/deployment"
+  - name: "emby"
+    description: "A media server software that allows you to organize, stream, and access your multimedia content effortlessly."
+    category: media
+    docs: "https://emby.media/support/articles/Home.html"
+    icon: "logo.png"
+  - name: "embystat"
+    description: "EmbyStat is a web analytics tool, designed to provide insight into website traffic and user behavior."
+    category: analytics
+    docs: "https://github.com/mregni/EmbyStat"
+  - name: "emqx-enterprise"
+    description: "Open-source MQTT broker for IoT, IIoT, and connected vehicles."
+    category: networking
+    docs: "https://www.emqx.io/docs/en/latest/deploy/install-docker.html"
+  - name: "ente-photos"
+    description: "Ente Photos is a fully open source, End to End Encrypted alternative to Google Photos and Apple Photos."
+    category: media
+    docs: "https://help.ente.io/self-hosting/installation/compose"
+  - name: "ente-photos-with-s3"
+    description: "Ente Photos is a fully open source, End to End Encrypted alternative to Google Photos and Apple Photos."
+    category: media
+    docs: "https://help.ente.io/self-hosting/installation/compose"
+  - name: "espocrm"
+    description: "EspoCRM is a free and open-source CRM platform."
+    category: productivity
+    docs: "https://docs.espocrm.com"
+  - name: "evolution-api"
+    description: "Multi-platform messaging (whatsapp and more) integration API"
+    category: other
+    docs: "https://doc.evolution-api.com/v2/en/get-started/introduction"
+  - name: "excalidraw"
+    description: "Excalidraw \u2014 virtual whiteboard for sketching hand-drawn like diagrams"
+    category: productivity
+    docs: "https://docs.excalidraw.com/docs"
+  - name: "faraday"
+    description: "Faraday \u2014 open-source, web-based vulnerability management tool"
+    category: security
+    docs: "https://faradaysec.com/"
+    icon: "logo.png"
+  - name: "fider"
+    description: "Fider \u2014 feedback platform for collecting and managing user feedback"
+    category: productivity
+    docs: "https://fider.io"
+  - name: "fileflows"
+    description: "FileFlows \u2014 shrink your media files up to 90%, saving space and money"
+    category: media
+    docs: "https://fileflows.com/docs/"
+  - name: "firefly"
+    description: "Firefly III \u2014 a personal finances manager that can help you save money"
+    category: finance
+    docs: "https://firefly-iii.org"
+  - name: "firefox"
+    description: "Fast, private, and self-hosted secure browser for browsing without limits"
+    category: productivity
+    docs: "https://github.com/jlesage/docker-firefox"
+  - name: "fizzy"
+    description: "Kanban tracking tool for issues and ideas by 37signals"
+    category: productivity
+    docs: "https://github.com/basecamp/fizzy"
+    icon: "logo.png"
+  - name: "flipt"
+    description: "Feature flag solution that keeps your feature flags and remote config next to your code in Git"
+    category: other
+    docs: "https://docs.flipt.io/cloud/overview"
+  - name: "flowise"
+    description: "Flowise is an open source low-code tool for developers to build customized LLM orchestration flows & AI agents."
+    category: ai
+    docs: "https://docs.flowiseai.com/"
+    icon: "logo.png"
+  - name: "flowise-with-databases"
+    description: "Flowise \u2014 open source low-code tool to build LLM orchestration flows and AI agents, with Postgres, Redis and Qdrant"
+    category: ai
+    docs: "https://docs.flowiseai.com/"
+    icon: "logo.png"
+  - name: "forgejo"
+    description: "Forgejo \u2014 self-hosted lightweight software forge, easy to install and low maintenance"
+    category: devtools
+    docs: "https://forgejo.org/docs"
+  - name: "forgejo-with-mariadb"
+    description: "Forgejo is a self-hosted lightweight software forge. Easy to install and low maintenance, it just does the job."
+    category: devtools
+    docs: "https://forgejo.org/docs"
+  - name: "forgejo-with-mysql"
+    description: "Forgejo is a self-hosted lightweight software forge. Easy to install and low maintenance, it just does the job."
+    category: devtools
+    docs: "https://forgejo.org/docs"
+  - name: "forgejo-with-postgresql"
+    description: "Forgejo is a self-hosted lightweight software forge. Easy to install and low maintenance, it just does the job."
+    category: devtools
+    docs: "https://forgejo.org/docs"
+  - name: "formbricks"
+    description: "Formbricks \u2014 open source survey platform"
+    category: productivity
+    docs: "https://formbricks.com/docs/self-hosting/setup/docker"
+    icon: "logo.png"
+  - name: "foundryvtt"
+    description: "Foundry Virtual Tabletop \u2014 a self-hosted & modern roleplaying platform"
+    category: games
+    docs: "https://foundryvtt.com/kb/"
+    icon: "logo.png"
+  - name: "freescout"
+    description: "FreeScout \u2014 super lightweight free open source help desk and shared inbox"
+    category: communication
+    docs: "https://github.com/freescout-help-desk/freescout/wiki/"
+    icon: "logo.png"
+  - name: "freshrss"
+    description: "A free, self-hostable feed aggregator."
+    category: media
+    docs: "https://freshrss.org/index.html"
+    icon: "logo.png"
+  - name: "freshrss-with-mariadb"
+    description: "FreshRSS \u2014 a free, self-hostable feed aggregator (MariaDB backend)"
+    category: media
+    docs: "https://freshrss.org/index.html"
+    icon: "logo.png"
+  - name: "freshrss-with-mysql"
+    description: "FreshRSS \u2014 a free, self-hostable feed aggregator (MySQL backend)"
+    category: media
+    docs: "https://freshrss.org/index.html"
+    icon: "logo.png"
+  - name: "freshrss-with-postgresql"
+    description: "FreshRSS \u2014 a free, self-hostable feed aggregator (PostgreSQL backend)"
+    category: media
+    docs: "https://freshrss.org/index.html"
+    icon: "logo.png"
+  - name: "getoutline"
+    description: "Your team's knowledge base"
+    category: productivity
+    docs: "https://docs.getoutline.com/s/hosting/doc/hosting-outline-nipGaCRBDu"
+    icon: "logo.jpeg"
+  - name: "ghost"
+    description: "Ghost \u2014 professional publishing platform and CMS"
+    category: cms
+    docs: "https://ghost.org"
+  - name: "gitea"
+    description: "Gitea \u2014 self-hosted, lightweight Git service for version control, collaboration, and code hosting"
+    category: devtools
+    docs: "https://docs.gitea.com"
+  - name: "gitea-with-mariadb"
+    description: "Gitea is a self-hosted, lightweight Git service, offering version control, collaboration, and code hosting."
+    category: devtools
+    docs: "https://docs.gitea.com"
+  - name: "gitea-with-mysql"
+    description: "Gitea \u2014 self-hosted, lightweight Git service for version control, collaboration, and code hosting, backed by MySQL"
+    category: devtools
+    docs: "https://docs.gitea.com"
+  - name: "gitea-with-postgresql"
+    description: "Gitea \u2014 self-hosted, lightweight Git service for version control, collaboration, and code hosting, backed by PostgreSQL"
+    category: devtools
+    docs: "https://docs.gitea.com"
+  - name: "gitlab"
+    description: "GitLab \u2014 the all-in-one DevOps platform for seamless collaboration and continuous delivery"
+    category: devtools
+    docs: "https://docs.gitlab.com/ee/install/docker.html"
+  - name: "glitchtip"
+    description: "GlitchTip is a error tracking system."
+    category: monitoring
+    docs: "https://glitchtip.com"
+    icon: "logo.png"
+  - name: "glpi"
+    description: "GLPI (Gestionnaire Libre de Parc Informatique) is a free, open-source IT Service Management (ITSM) platform used for IT asset management, helpdesk, and service "
+    category: communication
+    docs: "https://help.glpi-project.org/documentation"
+  - name: "goatcounter"
+    description: "Lightweight web analytics platform."
+    category: analytics
+    docs: "https://www.goatcounter.com/help"
+  - name: "gotenberg"
+    description: "Gotenberg is a Docker-powered stateless API for PDF files."
+    category: devtools
+    docs: "https://gotenberg.dev/docs/getting-started/introduction"
+    icon: "logo.png"
+  - name: "gotify"
+    description: "Gotify is an open-source self-hosted notification server."
+    category: communication
+    docs: "https://gotify.net/docs/install"
+    icon: "logo.png"
+  - name: "gowa"
+    description: "Golang WhatsApp - Built with Go for efficient memory use"
+    category: communication
+    docs: "https://github.com/aldinokemal/go-whatsapp-web-multidevice"
+  - name: "grafana"
+    description: "Grafana is the open source analytics & monitoring solution for every database."
+    category: monitoring
+    docs: "https://grafana.com"
+  - name: "grafana-with-postgresql"
+    description: "Grafana is the open source analytics & monitoring solution for every database."
+    category: monitoring
+    docs: "https://grafana.com"
+  - name: "gramps-web"
+    description: "Gramps Web \u2014 open source online genealogy system"
+    category: other
+    docs: "https://www.grampsweb.org/install_setup/setup/"
+  - name: "grimmory"
+    description: "Grimmory is a self-hosted application for managing your entire book collection \u2014 organize, read, annotate, sync across devices, and share."
+    category: other
+    docs: "https://github.com/grimmory-tools/grimmory"
+  - name: "grist"
+    description: "Grist is a modern relational spreadsheet \u2014 the flexibility of a spreadsheet with the robustness of a database."
+    category: productivity
+    docs: "https://support.getgrist.com/"
+  - name: "grocy"
+    description: "Grocy is a web-based household management and grocery list application."
+    category: productivity
+    docs: "https://github.com/grocy/grocy"
+  - name: "hatchet"
+    description: "Hatchet runs background tasks at scale \u2014 a high-throughput, low-latency computing service built on a fault-tolerant queue."
+    category: automation
+    docs: "https://docs.hatchet.run/self-hosting/docker-compose"
+  - name: "healthchecks"
+    description: "Healthchecks is a cron job monitoring service. It listens for HTTP requests and email messages from your cron jobs and scheduled tasks."
+    category: monitoring
+    docs: "https://healthchecks.io/docs"
+    icon: "logo.webp"
+  - name: "heimdall"
+    description: "Heimdall is a dashboard for managing and organizing your server applications."
+    category: productivity
+    docs: "https://github.com/linuxserver/Heimdall"
+  - name: "heyform"
+    description: "Allows anyone to create engaging conversational forms for surveys, questionnaires, quizzes, and polls. No coding skills required."
+    category: productivity
+    docs: "https://docs.heyform.net/open-source/self-hosting"
+  - name: "homebox"
+    description: "Homebox is the inventory and organization system built for the Home User."
+    category: productivity
+    docs: "https://github.com/sysadminsmedia/homebox"
+  - name: "hoppscotch"
+    description: "The Open Source API Development Platform"
+    category: devtools
+    docs: "https://docs.hoppscotch.io"
+    icon: "logo.png"
+  - name: "imgcompress"
+    description: "Offline image compression, conversion, and AI background removal for Docker homelabs"
+    category: media
+    docs: "https://imgcompress.karimzouine.com"
+    icon: "logo.png"
+  - name: "immich"
+    description: "Immich \u2014 self-hosted photo and video management solution"
+    category: media
+    docs: "https://immich.app/docs/overview/introduction"
+  - name: "infisical"
+    description: "Infisical \u2014 open source secret management platform for application configuration and secrets"
+    category: security
+    docs: "https://infisical.com/docs/documentation/getting-started/introduction"
+    icon: "logo.png"
+  - name: "inngest"
+    description: "Inngest \u2014 durable workflow engine for background jobs, queues and scheduled tasks"
+    category: automation
+    docs: "https://www.inngest.com/docs/self-hosting"
+    icon: "logo.png"
+  - name: "it-tools"
+    description: "IT Tools is a self-hosted solution for managing various IT tasks."
+    category: devtools
+    docs: "https://github.com/corentinth/it-tools"
+  - name: "jellyfin"
+    description: "Jellyfin is a media server for hosting and streaming your media collection."
+    category: media
+    docs: "https://jellyfin.org"
+  - name: "jitsi"
+    description: "Self-hosted Jitsi Meet \u2014 open-source video conferencing platform"
+    category: productivity
+    docs: "https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-docker/"
+  - name: "joomla-with-mariadb"
+    description: "Joomla! is the mobile-ready and user-friendly way to build your website. Choose from thousands of features and designs. Joomla! is free and open source."
+    category: cms
+    docs: "https://joomla.org"
+  - name: "joplin"
+    description: "Self-hosted sync server for Joplin"
+    category: productivity
+    docs: "https://github.com/laurent22/joplin/blob/dev/packages/server/README.md"
+    icon: "logo.png"
+  - name: "jupyter-notebook-python"
+    description: "Jupyter Notebook is an open-source web application that allows you to create and share documents that contain live code, equations, visualizations, and narrativ"
+    category: devtools
+    docs: "https://jupyter.org/"
+  - name: "karakeep"
+    description: "A self-hostable bookmark-everything app (links, notes and images) with AI-based automatic tagging and full text search"
+    category: productivity
+    docs: "https://docs.karakeep.app/"
+  - name: "keycloak"
+    description: "Keycloak is an open-source Identity and Access Management tool."
+    category: auth
+    docs: "https://www.keycloak.org"
+  - name: "keycloak-with-postgres"
+    description: "Keycloak is an open-source Identity and Access Management tool."
+    category: auth
+    docs: "https://www.keycloak.org"
+  - name: "kimai"
+    description: "Open source time-tracking app."
+    category: productivity
+    docs: "https://www.kimai.org/"
+  - name: "kuzzle"
+    description: "Kuzzle is a generic backend offering the basic building blocks common to every application."
+    category: other
+    docs: "https://kuzzle.io"
+    icon: "logo.png"
+  - name: "labelstudio"
+    description: "Label Studio is a multi-type data labeling and annotation tool with standardized output format"
+    category: ai
+    docs: "https://labelstud.io/guide/"
+    icon: "logo.png"
+  - name: "langflow"
+    description: "Langflow is an open-source, Python-based, customizable framework for building AI applications."
+    category: ai
+    docs: "https://docs.langflow.org"
+  - name: "langfuse"
+    description: "Langfuse is an open-source LLM engineering platform that helps teams collaboratively debug, analyze, and iterate on their LLM applications."
+    category: ai
+    docs: "https://langfuse.com/docs"
+  - name: "leantime"
+    description: "Leantime is a goals focused project management system for non-project managers."
+    category: productivity
+    docs: "https://leantime.io"
+  - name: "libreoffice"
+    description: "LibreOffice is a free and powerful office suite."
+    category: productivity
+    docs: "https://docs.linuxserver.io/images/docker-libreoffice/"
+  - name: "librespeed"
+    description: "Self-hosted lightweight Speed Test."
+    category: devtools
+    docs: "https://github.com/librespeed/speedtest"
+    icon: "logo.png"
+  - name: "libretranslate"
+    description: "Free and open-source machine translation API, entirely self-hosted."
+    category: ai
+    docs: "https://libretranslate.com/docs/"
+  - name: "limesurvey"
+    description: "Simple, quick and anonymous online survey tool that's bursting with juicy insights."
+    category: productivity
+    docs: "https://www.limesurvey.org/manual/"
+  - name: "linkding"
+    description: "A self-hosted bookmark manager designed to be minimal, fast, and easy to set up."
+    category: media
+    docs: "https://linkding.link/"
+  - name: "linkding-plus"
+    description: "A self-hosted bookmark manager designed to be minimal, fast, and easy to set up. (Includes feature for archiving websites as HTML snapshots)"
+    category: media
+    docs: "https://linkding.link/"
+  - name: "listmonk"
+    description: "Self-hosted newsletter and mailing list manager"
+    category: communication
+    docs: "https://listmonk.app/"
+  - name: "litequeen"
+    description: "Lite Queen is an open-source SQLite database management software that runs on your server."
+    category: databases
+    docs: "https://litequeen.com/"
+  - name: "lobe-chat"
+    description: "An open-source, modern-design AI chat framework."
+    category: ai
+    docs: "https://github.com/lobehub/lobe-chat?tab=readme-ov-file#b-deploying-with-docker"
+    icon: "logo.png"
+  - name: "logto"
+    description: "A comprehensive identity solution covering both the front and backend, complete with pre-built infrastructure and enterprise-grade solutions."
+    category: auth
+    docs: "https://docs.logto.io/docs/tutorials/get-started/#logto-oss-self-hosted"
+  - name: "lowcoder"
+    description: "Lowcoder (forked from OpenBlocks) is a self-hosted, open-source, low-code platform for building internal tools."
+    category: productivity
+    docs: "https://docs.lowcoder.cloud/"
+  - name: "mage-ai"
+    description: "Build, run, and manage data pipelines for integrating and transforming data."
+    category: automation
+    docs: "https://docs.mage.ai"
+  - name: "mailpit"
+    description: "Email & SMTP testing tool with API for developers"
+    category: communication
+    docs: "https://mailpit.axllent.org/docs/"
+  - name: "marimo"
+    description: "An open-source reactive notebook for Python \u2014 reproducible, git-friendly, SQL built-in, executable as a script, and shareable as an app."
+    category: devtools
+  - name: "martin"
+    description: "Martin is a tile server able to generate and serve vector tiles on the fly from large PostGIS databases, PMTiles (local or remote), and MBTiles files."
+    category: other
+    docs: "https://maplibre.org/martin/introduction.html/"
+    icon: "logo.png"
+  - name: "matrix-synapse-with-postgresql"
+    description: "Chat securely with your family, friends, community, or build great apps with Matrix!"
+    category: communication
+    docs: "https://element-hq.github.io/synapse/latest/welcome_and_overview.html"
+  - name: "matrix-synapse-with-sqlite"
+    description: "Matrix Synapse (SQLite) \u2014 chat securely with your family, friends and community"
+    category: communication
+    docs: "https://element-hq.github.io/synapse/latest/welcome_and_overview.html"
+  - name: "mattermost"
+    description: "Mattermost \u2014 open source, self-hosted Slack-alternative"
+    category: communication
+    docs: "https://docs.mattermost.com"
+  - name: "mautic5"
+    description: "Mautic v5 \u2014 open source marketing automation"
+    category: analytics
+    docs: "https://www.mautic.org/"
+  - name: "maybe"
+    description: "Maybe \u2014 the OS for your personal finances"
+    category: productivity
+    docs: "https://github.com/maybe-finance/maybe"
+  - name: "mealie"
+    description: "Mealie \u2014 a recipe manager and meal planner"
+    category: productivity
+    docs: "https://docs.mealie.io/"
+    icon: "logo.png"
+  - name: "mediawiki"
+    description: "MediaWiki is a collaboration and documentation platform brought to you by a vibrant community."
+    category: cms
+    docs: "https://www.mediawiki.org"
+    icon: "logo.ico"
+  - name: "meilisearch"
+    description: "MeiliSearch is a powerful, fast, easy to use and deploy search engine."
+    category: databases
+    docs: "https://www.meilisearch.com"
+  - name: "memos"
+    description: "An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way."
+    category: productivity
+    docs: "https://github.com/usememos/memos"
+    icon: "logo.png"
+  - name: "metabase"
+    description: "Fast analytics with the friendly UX and integrated tooling to let your company explore data on their own."
+    category: analytics
+    docs: "https://www.metabase.com"
+  - name: "metamcp"
+    description: "MCP Aggregator, Orchestrator, Middleware, Gateway in one app"
+    category: devtools
+    docs: "https://github.com/metatool-ai/metamcp"
+    icon: "logo.png"
+  - name: "metube"
+    description: "MeTube \u2014 web GUI for youtube-dl with playlist support, download videos from YouTube and dozens of other sites"
+    category: media
+    docs: "https://github.com/alexta69/metube"
+    icon: "logo.webp"
+  - name: "mindsdb"
+    description: "MindsDB \u2014 the platform for building AI from enterprise data, enabling smarter organizations"
+    category: ai
+    docs: "https://docs.mindsdb.com/what-is-mindsdb"
+  - name: "minecraft"
+    description: "Minecraft Server that will automatically download selected version at startup"
+    category: games
+    docs: "https://github.com/itzg/docker-minecraft-server"
+  - name: "miniflux"
+    description: "Miniflux \u2014 a minimalist and opinionated feed reader"
+    category: media
+    docs: "https://miniflux.app/docs/index.html"
+  - name: "minio"
+    description: "MinIO is a high performance object storage server compatible with Amazon S3 APIs."
+    category: storage
+    docs: "https://min.io/docs/minio/container/index.html"
+  - name: "minio-community-edition"
+    description: "MinIO \u2014 high performance object storage server compatible with Amazon S3 APIs"
+    category: storage
+    docs: "https://github.com/coollabsio/minio?tab=readme-ov-file#minio-docker-images"
+  - name: "mixpost"
+    description: "Mixpost is a robust and versatile social media management software, designed to streamline social media operations and enhance content marketing strategies."
+    category: analytics
+    docs: "https://docs.mixpost.app/lite"
+  - name: "moodle"
+    description: "Moodle is the world's most customisable and trusted eLearning solution that empowers educators to improve our world."
+    category: cms
+    docs: "https://moodle.org"
+    icon: "logo.png"
+  - name: "mosquitto"
+    description: "Mosquitto is lightweight and suitable for use on all devices, from low-power single-board computers to full servers."
+    category: communication
+    docs: "https://mosquitto.org/documentation/"
+  - name: "n8n"
+    description: "n8n is an extendable workflow automation tool."
+    category: automation
+    docs: "https://n8n.io"
+    icon: "logo.png"
+  - name: "n8n-with-postgres-and-worker"
+    description: "n8n is an extendable workflow automation tool with queue mode and workers."
+    category: automation
+    docs: "https://n8n.io"
+    icon: "logo.png"
+  - name: "n8n-with-postgresql"
+    description: "n8n is an extendable workflow automation tool."
+    category: automation
+    docs: "https://n8n.io"
+    icon: "logo.png"
+  - name: "navidrome"
+    description: "Standalone server, that allows you to browse and listen to your music collection using a web browser or any Subsonic-compatible client."
+    category: media
+    docs: "https://www.navidrome.org/docs/"
+  - name: "neon-ws-proxy"
+    description: "The database you love, on a serverless platform designed to help you build reliable and scalable applications faster."
+    category: networking
+    docs: "https://neon.tech"
+  - name: "newapi"
+    description: "The next-generation LLM gateway and AI asset management system supports multiple languages."
+    category: devtools
+    docs: "https://docs.newapi.pro/en/getting-started/"
+    icon: "logo.png"
+  - name: "newt-pangolin"
+    description: "Pangolin tunnels your services to the internet so you can access anything from anywhere."
+    category: networking
+    docs: "https://docs.digpangolin.com/manage/sites/install-site"
+    icon: "logo.png"
+  - name: "next-image-transformation"
+    description: "Drop-in replacement for Vercel's Nextjs image optimization service."
+    category: media
+    docs: "https://github.com/coollabsio/next-image-transformation"
+  - name: "nextcloud"
+    description: "NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management."
+    category: storage
+    docs: "https://docs.nextcloud.com"
+  - name: "nextcloud-with-mariadb"
+    description: "NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management."
+    category: storage
+    docs: "https://docs.nextcloud.com"
+  - name: "nextcloud-with-mysql"
+    description: "NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management."
+    category: storage
+    docs: "https://docs.nextcloud.com"
+  - name: "nextcloud-with-postgres"
+    description: "NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management."
+    category: storage
+    docs: "https://docs.nextcloud.com"
+  - name: "nexus"
+    description: "Open source Universal Repository Manager (x86_64 version, official), default credentials admin/admin123."
+    category: devtools
+    docs: "https://help.sonatype.com/en/sonatype-nexus-repository.html"
+    icon: "logo.png"
+  - name: "nexus-arm"
+    description: "Open source Universal Repository Manager (ARM version, community edition), default credentials admin/admin123."
+    category: devtools
+    docs: "https://help.sonatype.com/en/sonatype-nexus-repository.html"
+    icon: "logo.png"
+  - name: "nitropage"
+    description: "Nitropage is an extensible, visual website builder, offering a growing library of versatile building blocks, focal-point image cropping and sovereign font manag"
+    category: cms
+    docs: "https://nitropage.org"
+  - name: "nitropage-with-postgresql"
+    description: "Nitropage is an extensible, visual website builder, offering a growing library of versatile building blocks, focal-point image cropping and sovereign font manag"
+    category: cms
+    docs: "https://nitropage.org"
+  - name: "nocobase"
+    description: "NocoBase is the most extensible AI-powered no-code/low-code platform."
+    category: devtools
+    docs: "https://docs.nocobase.com/"
+    icon: "logo.png"
+  - name: "nocodb"
+    description: "NocoDB is an open source Airtable alternative. Turns any MySQL, PostgreSQL, SQL Server, SQLite & MariaDB into a smart-spreadsheet."
+    category: productivity
+    docs: "https://nocodb.com/"
+  - name: "nodebb"
+    description: "A next-generation discussion platform."
+    category: communication
+    docs: "https://docs.nodebb.org/"
+  - name: "ntfy"
+    description: "ntfy is a simple HTTP-based pub-sub notification service. It allows you to send notifications to your phone or desktop via scripts from any computer, and/or usi"
+    category: communication
+    docs: "https://docs.ntfy.sh/"
+  - name: "observium"
+    description: "Observium \u2014 comprehensive network monitoring platform with an elegant, intuitive interface"
+    category: monitoring
+    docs: "https://docs.observium.org/"
+    icon: "logo.webp"
+  - name: "odoo"
+    description: "Odoo \u2014 suite of open-source business apps that cover all your company needs"
+    category: productivity
+    docs: "https://www.odoo.com/"
+  - name: "ollama-with-open-webui"
+    description: "Ollama with Open WebUI \u2014 AI model deployment with a user-friendly interface"
+    category: ai
+    docs: "https://docs.openwebui.com"
+  - name: "once-campfire"
+    description: "Campfire \u2014 super simple group chat, without a subscription"
+    category: communication
+    docs: "https://github.com/basecamp/once-campfire"
+    icon: "logo.png"
+  - name: "onedev"
+    description: "OneDev \u2014 Git server with CI/CD, kanban, and packages"
+    category: devtools
+    docs: "https://docs.onedev.io/"
+  - name: "onetimesecret"
+    description: "Share sensitive information securely with self-destructing links that are only viewable once."
+    category: security
+    docs: "https://docs.onetimesecret.com"
+  - name: "open-archiver"
+    description: "A self-hosted, open-source email archiving solution with full-text search capability."
+    category: communication
+    docs: "https://docs.openarchiver.com/"
+  - name: "open-webui"
+    description: "User-friendly AI Interface (Supports Ollama, OpenAI API, ...)"
+    category: ai
+    docs: "https://docs.openwebui.com"
+  - name: "openclaw"
+    description: "AI-powered coding assistant with multi-provider support and browser automation."
+    category: ai
+    docs: "https://coolify.io/docs/services/openclaw"
+  - name: "openobserve"
+    description: "Cloud-native observability platform for logs, metrics, traces, RUM, errors and session replays \u2014 a 140x cheaper alternative to Elasticsearch, Splunk and Datadog"
+    category: monitoring
+    docs: "https://openobserve.ai/docs/"
+  - name: "orangehrm"
+    description: "OrangeHRM open source HR management software"
+    category: productivity
+    docs: "https://starterhelp.orangehrm.com/hc/en-us"
+  - name: "organizr"
+    description: "Homelab Services Organizer"
+    category: productivity
+    docs: "https://docs.organizr.app/"
+    icon: "logo.png"
+  - name: "osticket"
+    description: "osTicket is a widely-used open source support ticket system"
+    category: communication
+    docs: "https://docs.osticket.com/en/latest/"
+    icon: "logo.png"
+  - name: "overseerr"
+    description: "Overseerr \u2014 request management and media discovery tool for your Plex ecosystem"
+    category: media
+    docs: "https://docs.overseerr.dev/getting-started/installation#docker"
+  - name: "owncloud"
+    description: "ownCloud \u2014 file management and sharing platform with a powerful, user-friendly web interface"
+    category: storage
+    docs: "https://owncloud.com/docs-guides/"
+  - name: "pairdrop"
+    description: "PairDrop \u2014 self-hosted local file sharing in your browser, send files between devices securely"
+    category: productivity
+    docs: "https://pairdrop.net/"
+    icon: "logo.png"
+  - name: "palworld"
+    description: "Palworld \u2014 dedicated game server for the multiplayer monster-catching survival game"
+    category: games
+  - name: "paperless"
+    description: "Paperless-ngx \u2014 document management system that transforms your physical documents into a searchable online archive"
+    category: productivity
+    docs: "https://docs.paperless-ngx.com/configuration/"
+  - name: "passbolt"
+    description: "Passbolt Community Edition (CE) API. The JSON API for the open source password manager for teams!"
+    category: auth
+    docs: "https://www.passbolt.com/ce/docker"
+  - name: "paymenter"
+    description: "Open-Source Billing, Built for Hosting"
+    category: finance
+    docs: "https://paymenter.org/docs/guides/docker"
+  - name: "penpot"
+    description: "Penpot is the first Open Source design and prototyping platform for product teams."
+    category: productivity
+    docs: "https://help.penpot.app/technical-guide/getting-started/#install-with-docker"
+  - name: "pgadmin"
+    description: "pgAdmin is a web-based database management tool for administering your PostgreSQL databases through a user-friendly interface."
+    category: databases
+    docs: "https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html"
+  - name: "pgbackweb"
+    description: "Effortless PostgreSQL backups with a user-friendly web interface!"
+    category: devtools
+    docs: "https://github.com/eduardolat/pgbackweb"
+    icon: "logo.png"
+  - name: "phpmyadmin"
+    description: "phpMyAdmin is a web-based database management tool for administering your MySQL and MariaDB databases through a user-friendly interface."
+    category: databases
+    docs: "https://phpmyadmin.net"
+  - name: "pi-hole"
+    description: "Network-wide Ad Blocking"
+    category: networking
+    docs: "https://pi-hole.net/"
+  - name: "pingvinshare"
+    description: "A self-hosted file sharing platform that combines lightness and beauty, perfect for seamless and efficient file sharing."
+    category: storage
+    docs: "https://github.com/stonith404/pingvin-share"
+  - name: "pingvinshare-with-clamav"
+    description: "A self-hosted file sharing platform that combines lightness and beauty, perfect for seamless and efficient file sharing."
+    category: storage
+    docs: "https://github.com/stonith404/pingvin-share"
+  - name: "plex"
+    description: "Plex organizes video, music and photos from personal media libraries and streams them to smart TVs, streaming boxes and mobile devices."
+    category: media
+    docs: "https://docs.linuxserver.io/images/docker-plex/"
+  - name: "plunk"
+    description: "Plunk, The Open-Source Email Platform for AWS"
+    category: communication
+    docs: "https://docs.useplunk.com/getting-started/introduction"
+  - name: "pocket-id"
+    description: "A simple and secure OIDC provider with passkey authentication"
+    category: auth
+    docs: "https://pocket-id.org/docs/setup/installation"
+    icon: "logo.png"
+  - name: "pocket-id-with-postgresql"
+    description: "A simple and secure OIDC provider with passkey authentication"
+    category: auth
+    docs: "https://pocket-id.org/docs/setup/installation"
+    icon: "logo.png"
+  - name: "pocketbase"
+    description: "Open Source backend for your next SaaS and Mobile app in 1 file"
+    category: other
+    docs: "https://pocketbase.io/docs/"
+  - name: "postgres"
+    description: "PostgreSQL 16 with pgvector and persistent storage"
+    category: databases
+    docs: "https://www.postgresql.org/docs/"
+  - name: "postiz"
+    description: "Postiz \u2014 open source social media scheduling tool"
+    category: analytics
+    docs: "https://docs.postiz.com"
+  - name: "prefect"
+    description: "Prefect \u2014 orchestration and observability platform for building and scaling workflows"
+    category: automation
+    docs: "https://www.prefect.io/"
+    icon: "logo.png"
+  - name: "privatebin"
+    description: "PrivateBin \u2014 minimalist, open source pastebin where the server has zero knowledge of pasted data"
+    category: security
+    docs: "https://github.com/PrivateBin/PrivateBin/blob/master/doc/README.md"
+  - name: "prowlarr"
+    description: "Prowlarr \u2014 indexer manager/proxy that integrates with your various PVR apps"
+    category: media
+    docs: "https://hub.docker.com/r/linuxserver/prowlarr"
+  - name: "proxyscotch"
+    description: "Proxyscotch \u2014 simple CORS proxy server created for hoppscotch.io"
+    category: networking
+    docs: "https://github.com/hoppscotch/proxyscotch"
+    icon: "logo.png"
+  - name: "pydio-cells"
+    description: "Pydio Cells \u2014 high-performance file sharing and collaboration platform with no-code automation and fine-grained access control"
+    category: storage
+  - name: "qbittorrent"
+    description: "qBittorrent \u2014 open-source BitTorrent client with a web UI, an alternative to uTorrent"
+    category: media
+    docs: "https://docs.linuxserver.io/images/docker-qbittorrent/"
+  - name: "qdrant"
+    description: "Qdrant \u2014 production-ready vector similarity search engine with a convenient API to store, search, and manage vectors with payloads"
+    category: databases
+    docs: "https://qdrant.tech/documentation/"
+    icon: "logo.png"
+  - name: "rabbitmq"
+    description: "With tens of thousands of users, RabbitMQ is one of the most popular open source message brokers."
+    category: communication
+    docs: "https://www.rabbitmq.com/documentation.html"
+  - name: "radarr"
+    description: "Radarr \u2014 a fork of Sonarr to work with movies \u00e0 la Couchpotato."
+    category: media
+    docs: "https://hub.docker.com/r/linuxserver/radarr"
+  - name: "rallly"
+    description: "Rallly is an open-source scheduling and collaboration tool designed to make organizing events and meetings easier."
+    category: productivity
+    docs: "https://support.rallly.co/self-hosting/introduction"
+  - name: "reactive-resume"
+    description: "A one-of-a-kind resume builder that keeps your privacy in mind."
+    category: productivity
+    docs: "https://rxresu.me/"
+  - name: "readeck"
+    description: "Simple web application that lets you save the precious readable content of web pages you like and want to keep forever."
+    category: productivity
+    docs: "https://readeck.org/en/docs/"
+  - name: "redis"
+    description: "Redis 7 with append-only persistence"
+    category: databases
+    docs: "https://redis.io/docs/"
+  - name: "redis-insight"
+    description: "Redis Insight lets you do both GUI- and CLI-based interactions in a fully-featured desktop GUI client."
+    category: monitoring
+    docs: "https://redis.io/docs/latest/operate/redisinsight/"
+    icon: "logo.png"
+  - name: "redlib"
+    description: "An alternative private front-end to Reddit, with its origins in Libreddit."
+    category: productivity
+    docs: "https://github.com/redlib-org/redlib"
+  - name: "redmine"
+    description: "Redmine is a flexible project management web application."
+    category: productivity
+    docs: "https://www.redmine.org/"
+  - name: "rivet-engine"
+    description: "Build and scale stateful workloads with long-lived processes"
+    category: devtools
+    docs: "https://www.rivet.dev/docs"
+  - name: "rocketchat"
+    description: "Self-hosted, secure and highly customizable open-source communication platform for organizations with sophisticated security and privacy concerns."
+    category: communication
+    docs: "https://github.com/RocketChat/Rocket.Chat"
+  - name: "rustfs"
+    description: "RustFS \u2014 high-performance distributed storage system built with Rust, compatible with Amazon S3 APIs"
+    category: storage
+    docs: "https://docs.rustfs.com/installation/docker/"
+    icon: "logo.png"
+  - name: "ryot"
+    description: "Ryot \u2014 self-hosted platform for tracking media consumption, fitness activities, and more"
+    category: productivity
+    docs: "https://github.com/ignisda/ryot"
+  - name: "satisfactory"
+    description: "Satisfactory Dedicated Server for hosting your own Satisfactory game sessions"
+    category: games
+    docs: "https://github.com/wolveix/satisfactory-server"
+  - name: "seafile"
+    description: "Seafile \u2014 open source cloud storage system for file sync, share and document collaboration"
+    category: storage
+    docs: "https://manual.seafile.com"
+  - name: "sequin"
+    description: "The fastest Postgres change data capture"
+    category: analytics
+    docs: "https://sequinstream.com/docs/"
+  - name: "sessy"
+    description: "Email observability platform for monitoring and analyzing email systems."
+    category: monitoring
+    docs: "https://github.com/marckohlbrugge/sessy/blob/main/docs/docker-deployment.md"
+  - name: "sftpgo"
+    description: "SFTPGo is an event-driven SFTP, FTP/S, HTTP/S and WebDAV server."
+    category: storage
+    docs: "https://docs.sftpgo.com/2.7/"
+    icon: "logo.png"
+  - name: "shlink"
+    description: "The definitive self-hosted URL shortener"
+    category: productivity
+    docs: "https://shlink.io/"
+  - name: "silverbullet"
+    description: "SilverBullet is a tool to develop, organize, and structure your personal knowledge and to make it universally accessible across all your devices."
+    category: productivity
+    docs: "https://v2.silverbullet.md/Install/Configuration"
+    icon: "logo.png"
+  - name: "siyuan"
+    description: "A privacy-first, self-hosted, fully open source personal knowledge management software, written in typescript and golang."
+    category: cms
+    docs: "https://github.com/siyuan-note/siyuan"
+  - name: "slash"
+    description: "An open source, self-hosted links shortener and sharing platform."
+    category: productivity
+    docs: "https://github.com/yourselfhosted/slash"
+  - name: "snapdrop"
+    description: "Snapdrop \u2014 self-hosted file sharing for secure and convenient transfers on a local network or the internet"
+    category: productivity
+    docs: "https://github.com/RobinLinus/snapdrop"
+    icon: "logo.png"
+  - name: "soketi"
+    description: "Soketi is your simple, fast, and resilient open-source WebSockets server"
+    category: communication
+    docs: "https://docs.soketi.app"
+    icon: "logo.jpeg"
+  - name: "soketi-app-manager"
+    description: "Manage soketi websocket server and apps with ease"
+    category: devtools
+    docs: "https://github.com/rahulhaque/soketi-app-manager-filament"
+  - name: "sonarqube"
+    description: "SonarQube is a self-managed, automatic code review tool that systematically helps you deliver Clean Code"
+    category: productivity
+    docs: "https://hub.docker.com/_/sonarqube/"
+  - name: "sonarr"
+    description: "Sonarr \u2014 PVR for usenet and bittorrent users that monitors RSS feeds and grabs, sorts and renames TV episodes"
+    category: media
+    docs: "https://hub.docker.com/r/linuxserver/sonarr"
+  - name: "spacebot"
+    description: "Spacebot \u2014 an agentic AI system with specialized processes for thinking, working, and remembering"
+    category: ai
+    docs: "https://docs.spacebot.sh/docker"
+    icon: "logo.png"
+  - name: "sparkyfitness"
+    description: "SparkyFitness \u2014 comprehensive fitness tracking app for nutrition, exercise and body measurements with goals and reports"
+    category: other
+    docs: "https://codewithcj.github.io/SparkyFitness/"
+  - name: "static-site"
+    description: "Static site served by nginx, built from the ./public directory"
     category: web
-    docs: https://nginx.org
+    docs: "https://nginx.org"
+  - name: "statusnook"
+    description: "Statusnook \u2014 effortlessly deploy a status page and start monitoring endpoints in minutes"
+    category: monitoring
+    docs: "https://statusnook.com"
+  - name: "stirling-pdf"
+    description: "Stirling PDF \u2014 a powerful web based PDF manipulation tool"
+    category: productivity
+    docs: "https://github.com/Stirling-Tools/Stirling-PDF"
+    icon: "logo.png"
+  - name: "strapi"
+    description: "Open-source headless CMS to build powerful APIs with built-in content management."
+    category: other
+    docs: "https://docs.strapi.io/"
+  - name: "supertokens-with-mysql"
+    description: "An open-source authentication solution that simplifies the implementation of secure user authentication and session management for web and mobile applications."
+    category: auth
+    docs: "https://supertokens.com/docs/guides"
+  - name: "supertokens-with-postgresql"
+    description: "An open-source authentication solution that simplifies the implementation of secure user authentication and session management for web and mobile applications."
+    category: auth
+    docs: "https://supertokens.com/docs/guides"
+  - name: "sure"
+    description: "An all-in-one personal finance platform."
+    category: finance
+    docs: "https://github.com/we-promise/sure"
+    icon: "logo.png"
+  - name: "syncthing"
+    description: "Syncthing synchronizes files between two or more computers in real time."
+    category: storage
+    docs: "https://syncthing.net/"
+  - name: "teable"
+    description: "Teable is a powerful visual interface built on relational databases (PostgreSQL)."
+    category: productivity
+    docs: "https://help.teable.io/"
+    icon: "logo.png"
+  - name: "terraria-server"
+    description: "Docker multi-arch Image for Terraria Server"
+    category: games
+    docs: "https://github.com/hexlo/terraria-server-docker"
+  - name: "tolgee"
+    description: "Tolgee is a localization management platform for developers and translators"
+    category: productivity
+    docs: "https://tolgee.io/"
+  - name: "traccar"
+    description: "Traccar is a free and open source modern GPS tracking system"
+    category: monitoring
+    docs: "https://www.traccar.org/documentation/"
+    icon: "logo.png"
+  - name: "trailbase"
+    description: "A blazingly fast Rust/SQLite/Wasmtime app server with type-safe APIs"
+    category: other
+    docs: "https://trailbase.io/"
+  - name: "transmission"
+    description: "Fast, easy, and free BitTorrent client"
+    category: media
+    docs: "https://docs.linuxserver.io/images/docker-transmission/"
+  - name: "triliumnext"
+    description: "Build your personal knowledge base with TriliumNext Notes."
+    category: productivity
+    docs: "https://github.com/TriliumNext/Trilium"
+  - name: "twenty"
+    description: "Twenty is a CRM designed to fit your unique business needs."
+    category: productivity
+    docs: "https://docs.twenty.com"
+  - name: "typesense"
+    description: "Cutting-edge, in-memory search engine for mere mortals. Knowledge of rocket science optional."
+    category: databases
+    docs: "https://typesense.org/docs"
+    icon: "logo.png"
+  - name: "umami"
+    description: "Umami is web analytics platform which provides insights into visitor behavior without compromising user privacy."
+    category: analytics
+    docs: "https://umami.is"
+  - name: "unleash-with-postgresql"
+    description: "Open source feature flag management for enterprises."
+    category: devtools
+    docs: "https://docs.getunleash.io"
+  - name: "unleash-without-database"
+    description: "Open source feature flag management for enterprises."
+    category: devtools
+    docs: "https://docs.getunleash.io"
+  - name: "unstructured"
+    description: "Unstructured provides a platform and tools to ingest and process unstructured documents for Retrieval Augmented Generation (RAG) and model fine-tuning."
+    category: ai
+    docs: "https://github.com/Unstructured-IO/unstructured-api?tab=readme-ov-file#--general-pre-processing-pipeline-for-documents"
+    icon: "logo.png"
+  - name: "uptime-kuma"
+    description: "Uptime Kuma is a monitoring tool for tracking the status and performance of your applications in real-time."
+    category: monitoring
+    docs: "https://github.com/louislam/uptime-kuma?tab=readme-ov-file"
+  - name: "uptime-kuma-with-mariadb"
+    description: "Uptime Kuma is a monitoring tool for tracking the status and performance of your applications in real-time."
+    category: monitoring
+    docs: "https://github.com/louislam/uptime-kuma?tab=readme-ov-file"
+  - name: "uptime-kuma-with-mysql"
+    description: "Uptime Kuma is a monitoring tool for tracking the status and performance of your applications in real-time."
+    category: monitoring
+    docs: "https://github.com/louislam/uptime-kuma?tab=readme-ov-file"
+  - name: "usesend"
+    description: "Usesend is an open-source alternative to Resend, Sendgrid, Mailgun and Postmark etc."
+    category: communication
+    docs: "https://docs.usesend.com/self-hosting/overview"
+  - name: "vaultwarden"
+    description: "Vaultwarden is a password manager that allows you to securely store and manage your passwords."
+    category: auth
+    docs: "https://github.com/dani-garcia/vaultwarden"
+  - name: "vert"
+    description: "The next-generation file converter. Open source, fully local and free forever."
+    category: devtools
+    docs: "https://github.com/VERT-sh/VERT"
+    icon: "logo.png"
+  - name: "vikunja"
+    description: "The open-source, self-hostable to-do app. Organize everything, on all platforms."
+    category: productivity
+    docs: "https://vikunja.io"
+  - name: "vikunja-with-postgresql"
+    description: "The open-source, self-hostable to-do app. Organize everything, on all platforms."
+    category: productivity
+    docs: "https://vikunja.io"
+  - name: "vvveb"
+    description: "Powerful and easy to use cms to build websites, blogs or ecommerce stores."
+    category: cms
+    docs: "https://docs.vvveb.com"
+  - name: "vvveb-with-mariadb"
+    description: "Powerful and easy to use cms to build websites, blogs or ecommerce stores."
+    category: cms
+    docs: "https://docs.vvveb.com"
+  - name: "vvveb-with-mysql"
+    description: "Powerful and easy to use cms to build websites, blogs or ecommerce stores."
+    category: cms
+    docs: "https://docs.vvveb.com"
+  - name: "wakapi"
+    description: "A minimalist, self-hosted WakaTime-compatible backend for coding statistics"
+    category: analytics
+    docs: "https://wakapi.dev/"
+  - name: "weaviate"
+    description: "Weaviate is an open-source vector database that stores both objects and vectors, allowing for combining vector search with structured filtering."
+    category: ai
+    docs: "https://weaviate.io/developers/weaviate"
+    icon: "logo.png"
+  - name: "web-check"
+    description: "All-in-one OSINT tool for analysing any website"
+    category: monitoring
+    docs: "https://github.com/lissy93/web-check"
+    icon: "logo.png"
+  - name: "weblate"
+    description: "Weblate is a libre software web-based continuous localization system."
+    category: productivity
+    docs: "https://weblate.org"
+    icon: "logo.webp"
+  - name: "whoogle"
+    description: "Whoogle is a self-hosted, privacy-focused search engine front-end for accessing Google search results without tracking and data collection."
+    category: databases
+    docs: "https://github.com/benbusby/whoogle-search?tab=readme-ov-file"
+    icon: "logo.png"
+  - name: "wikijs"
+    description: "The most powerful and extensible open source Wiki software."
+    category: cms
+    docs: "https://docs.requarks.io"
+  - name: "wordpress-with-mariadb"
+    description: "WordPress is open source software you can use to create a beautiful website, blog, or app."
+    category: cms
+    docs: "https://wordpress.org"
+  - name: "wordpress-with-mysql"
+    description: "WordPress is open source software you can use to create a beautiful website, blog, or app."
+    category: cms
+    docs: "https://wordpress.org"
+  - name: "wordpress-without-database"
+    description: "WordPress is open source software you can use to create a beautiful website, blog, or app."
+    category: cms
+    docs: "https://wordpress.org"
+  - name: "yamtrack"
+    description: "Yamtrack is a self hosted media tracker for movies, tv shows, anime, manga, video games and books."
+    category: productivity
+    docs: "https://github.com/FuzzyGrim/Yamtrack/wiki"
+  - name: "yamtrack-with-postgresql"
+    description: "Yamtrack is a self hosted media tracker for movies, tv shows, anime, manga, video games and books."
+    category: productivity
+    docs: "https://github.com/FuzzyGrim/Yamtrack/wiki"
+  - name: "zipline"
+    description: "A ShareX/file upload server that is easy to use, packed with features, and with an easy setup!"
+    category: media
+    docs: "https://zipline.diced.sh/docs/config"
+    icon: "logo.png"

@@ -1,0 +1,55 @@
+app: sftpgo
+description: SFTPGo is an event-driven SFTP, FTP/S, HTTP/S and WebDAV server.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sftpgo/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the SFTPGo web admin
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  sftpgo:
+    image: ghcr.io/drakkan/sftpgo:v2.7-alpine
+    env:
+      SFTPGO_DATA_PROVIDER__DRIVER: postgresql
+      SFTPGO_DATA_PROVIDER__CONNECTION_STRING: postgresql://sftpgo:${POSTGRES_PASSWORD}@postgresql:5432/sftpgo-db
+      SFTPGO_SFTPD__BINDINGS__0__PORT: "2222"
+      SFTPGO_LOG_LEVEL: info
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 2222
+        node: 32222
+        protocol: tcp
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /srv/sftpgo/data
+        subpath: sftpgo-data
+      data-keys:
+        path: /var/lib/sftpgo
+  postgresql:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_USER: sftpgo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sftpgo-db
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "sftpgo", "-d", "sftpgo-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-keys:
+    size: 1Gi

@@ -1,0 +1,69 @@
+app: nextcloud-with-postgres
+description: NextCloud is a self-hosted, open-source platform that provides file storage, collaboration, and communication tools for seamless data management.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nextcloud-with-postgres/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Nextcloud
+  POSTGRES_PASSWORD:
+    kind: secret
+  TZ:
+    kind: string
+    default: Europe/Paris
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size for files
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: nextcloud-db
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /status.php
+      port: 80
+    volumes:
+      config: /config
+      data:
+        path: /data
+        subpath: files
+  nextcloud-db:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nextcloud
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "nextcloud", "-d", "nextcloud"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7.4-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 2Gi

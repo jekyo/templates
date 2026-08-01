@@ -1,0 +1,37 @@
+app: phpmyadmin
+description: phpMyAdmin is a web-based database management tool for administering your MySQL and MariaDB databases through a user-friendly interface.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/phpmyadmin/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for phpMyAdmin
+  TZ:
+    kind: string
+    default: UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  phpmyadmin:
+    image: lscr.io/linuxserver/phpmyadmin:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      PMA_ARBITRARY: "1"
+      PMA_ABSOLUTE_URI: https://${DOMAIN}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

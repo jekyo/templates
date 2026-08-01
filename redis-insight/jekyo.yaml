@@ -1,0 +1,35 @@
+app: redis-insight
+description: Redis Insight lets you do both GUI- and CLI-based interactions in a fully-featured desktop GUI client.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/redis-insight/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Redis Insight
+  RI_ENCRYPTION_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  redisinsight:
+    image: redis/redisinsight:2.70
+    env:
+      RI_APP_HOST: "0.0.0.0"
+      RI_APP_PORT: "5540"
+      RI_ENCRYPTION_KEY: ${RI_ENCRYPTION_KEY}
+      RI_LOG_LEVEL: info
+      RI_FILES_LOGGER: "true"
+      RI_STDOUT_LOGGER: "true"
+    port: 5540
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 5540
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,39 @@
+app: marimo
+description: An open-source reactive notebook for Python — reproducible, git-friendly, SQL built-in, executable as a script, and shareable as an app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/marimo/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for marimo
+  MARIMO_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  marimo:
+    image: ghcr.io/marimo-team/marimo:latest-sql
+    args:
+      - marimo
+      - edit
+      - --token-password
+      - ${MARIMO_PASSWORD}
+      - --port
+      - "8080"
+      - --host
+      - 0.0.0.0
+    env:
+      TOKEN_PASSWORD: ${MARIMO_PASSWORD}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8080
+    volumes:
+      data:
+        path: /app
+volumes:
+  data:
+    size: ${DATA_SIZE}

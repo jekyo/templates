@@ -1,0 +1,50 @@
+app: nitropage-with-postgresql
+description: Nitropage is an extensible, visual website builder, offering a growing library of versatile building blocks, focal-point image cropping and sovereign font management.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nitropage-with-postgresql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Nitropage site
+  AUTH_SALT:
+    kind: secret
+  SESSION_PASSWORD:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  nitropage:
+    image: nitropage/nitropage
+    env:
+      NP_AUTH_SALT: ${AUTH_SALT}
+      NP_AUTH_PASSWORD: ${SESSION_PASSWORD}
+      DATABASE_URL: postgresql://nitropage:${POSTGRES_PASSWORD}@postgresql:5432/nitropage
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /admin
+      port: 3000
+    volumes:
+      data:
+        path: /app/.data
+        subpath: app
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: nitropage
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nitropage
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "nitropage", "-d", "nitropage"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

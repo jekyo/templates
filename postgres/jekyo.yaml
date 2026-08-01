@@ -1,6 +1,13 @@
 app: postgres
 description: PostgreSQL 16 with pgvector and persistent storage
-icon: https://raw.githubusercontent.com/docker-library/docs/master/postgres/logo.png
+icon: https://raw.githubusercontent.com/jekyo/templates/main/postgres/logo.svg
+inputs:
+  PG_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -12,4 +19,4 @@ services:
       pgdata: /var/lib/postgresql/data
 volumes:
   pgdata:
-    size: 10Gi
+    size: ${DATA_SIZE}

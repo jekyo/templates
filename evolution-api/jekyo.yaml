@@ -1,0 +1,114 @@
+app: evolution-api
+description: Multi-platform messaging (whatsapp and more) integration API
+icon: https://raw.githubusercontent.com/jekyo/templates/main/evolution-api/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Evolution API
+  POSTGRES_PASSWORD:
+    kind: secret
+  AUTHENTICATION_API_KEY:
+    kind: secret
+  LANGUAGE:
+    kind: string
+    default: en
+    required: false
+    prompt: Interface language
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  api:
+    image: evoapicloud/evolution-api:v2.3.7
+    env:
+      SERVER_URL: https://${DOMAIN}
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_DATABASE: evolution
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_USER: evolution
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_PROVIDER: postgresql
+      DATABASE_URL: postgresql://evolution:${POSTGRES_PASSWORD}@postgres:5432/evolution
+      DATABASE_CONNECTION_URI: postgresql://evolution:${POSTGRES_PASSWORD}@postgres:5432/evolution
+      DEL_INSTANCE: "false"
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+      DATABASE_SAVE_MESSAGE_UPDATE: "true"
+      DATABASE_SAVE_DATA_CONTACTS: "true"
+      DATABASE_SAVE_DATA_CHATS: "true"
+      DATABASE_SAVE_DATA_LABELS: "true"
+      DATABASE_SAVE_DATA_HISTORIC: "true"
+      DATABASE_CONNECTION_CLIENT_NAME: evolution_v2
+      RABBITMQ_ENABLED: "false"
+      SQS_ENABLED: "false"
+      WEBSOCKET_ENABLED: "false"
+      WEBSOCKET_GLOBAL_EVENTS: "false"
+      WA_BUSINESS_TOKEN_WEBHOOK: evolution
+      WA_BUSINESS_URL: https://graph.facebook.com
+      WA_BUSINESS_VERSION: v20.0
+      WA_BUSINESS_LANGUAGE: pt_BR
+      WEBHOOK_GLOBAL_URL: ""
+      WEBHOOK_GLOBAL_ENABLED: "false"
+      WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS: "false"
+      CONFIG_SESSION_PHONE_CLIENT: Evolution API V2
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      QRCODE_LIMIT: "30"
+      OPENAI_ENABLED: "true"
+      DIFY_ENABLED: "true"
+      FLOWISE_ENABLED: "true"
+      N8N_ENABLED: "true"
+      TYPEBOT_ENABLED: "true"
+      TYPEBOT_API_VERSION: latest
+      CHATWOOT_ENABLED: "true"
+      CHATWOOT_MESSAGE_READ: "true"
+      CHATWOOT_MESSAGE_DELETE: "true"
+      CHATWOOT_IMPORT_DATABASE_CONNECTION_URI: postgresql://evolution:${POSTGRES_PASSWORD}@postgres:5432/chatwoot
+      CHATWOOT_IMPORT_PLACEHOLDER_MEDIA_MESSAGE: "true"
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://redis:6379/6
+      CACHE_REDIS_PREFIX_KEY: evolution_v2
+      CACHE_REDIS_SAVE_INSTANCES: "false"
+      CACHE_LOCAL_ENABLED: "false"
+      S3_ENABLED: "false"
+      AUTHENTICATION_API_KEY: ${AUTHENTICATION_API_KEY}
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+      LANGUAGE: ${LANGUAGE}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /evolution/instances
+        subpath: instances
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server", "--port", "6379", "--appendonly", "yes"]
+    port: 6379
+    health:
+      command: ["redis-cli", "-h", "127.0.0.1", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+  postgres:
+    image: postgres:16-alpine
+    args: ["postgres", "-c", "max_connections=1000"]
+    env:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: evolution
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U evolution -d evolution -h 127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

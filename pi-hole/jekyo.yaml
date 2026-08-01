@@ -1,0 +1,41 @@
+app: pi-hole
+description: Network-wide Ad Blocking
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pi-hole/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Pi-hole admin interface
+  PIHOLE_PASSWORD:
+    kind: secret
+  TZ:
+    kind: string
+    default: Europe/London
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  pihole:
+    image: pihole/pihole:latest
+    env:
+      TZ: ${TZ}
+      FTLCONF_webserver_api_password: ${PIHOLE_PASSWORD}
+      FTLCONF_dns_listeningMode: all
+    ports: [80, 53]
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 53
+        node: 30053
+        protocol: tcp
+      - port: 53
+        node: 30053
+        protocol: udp
+    volumes:
+      data:
+        path: /etc/pihole
+volumes:
+  data:
+    size: ${DATA_SIZE}

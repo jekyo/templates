@@ -1,0 +1,62 @@
+app: paperless
+description: Paperless-ngx — document management system that transforms your physical documents into a searchable online archive
+icon: https://raw.githubusercontent.com/jekyo/templates/main/paperless/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Paperless
+  ADMIN_PASSWORD:
+    kind: secret
+  SECRET_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size for database and search index
+  MEDIA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size for document media
+services:
+  paperless:
+    image: paperlessngx/paperless-ngx:latest
+    env:
+      PAPERLESS_URL: https://${DOMAIN}
+      PAPERLESS_ADMIN_USER: paperless
+      PAPERLESS_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_SECRET_KEY: ${SECRET_KEY}
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8000
+    volumes:
+      data:
+        path: /usr/src/paperless/data
+        subpath: data
+      data-media:
+        path: /usr/src/paperless/media
+      data-export:
+        path: /usr/src/paperless/export
+      data-consume:
+        path: /usr/src/paperless/consume
+  redis:
+    image: redis:7.4
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-media:
+    size: ${MEDIA_SIZE}
+  data-export:
+    size: 5Gi
+  data-consume:
+    size: 5Gi

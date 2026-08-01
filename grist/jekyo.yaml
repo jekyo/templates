@@ -1,0 +1,95 @@
+app: grist
+description: Grist is a modern relational spreadsheet — the flexibility of a spreadsheet with the robustness of a database.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/grist/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Grist
+  DEFAULT_EMAIL:
+    kind: string
+    prompt: Admin email (must match your OIDC account email)
+  OIDC_ISSUER:
+    kind: string
+    prompt: OIDC identity provider issuer URL
+  OIDC_CLIENT_ID:
+    kind: string
+    prompt: OIDC client ID
+  OIDC_CLIENT_SECRET:
+    kind: string
+    prompt: OIDC client secret (from your identity provider)
+  SESSION_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  grist:
+    image: gristlabs/grist:latest
+    env:
+      APP_HOME_URL: https://${DOMAIN}
+      APP_DOC_URL: https://${DOMAIN}
+      GRIST_DOMAIN: ${DOMAIN}
+      TZ: UTC
+      GRIST_SUPPORT_ANON: "false"
+      GRIST_FORCE_LOGIN: "true"
+      COOKIE_MAX_AGE: "86400000"
+      GRIST_HIDE_UI_ELEMENTS: billing,sendToDrive,supportGrist,multiAccounts,tutorials
+      GRIST_UI_FEATURES: helpCenter,billing,templates,createSite,multiSite,sendToDrive,tutorials,supportGrist
+      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+      GRIST_ORG_IN_PATH: "true"
+      GRIST_OIDC_SP_HOST: https://${DOMAIN}
+      GRIST_OIDC_IDP_SCOPES: openid profile email
+      GRIST_OIDC_IDP_SKIP_END_SESSION_ENDPOINT: "false"
+      GRIST_OIDC_IDP_ISSUER: ${OIDC_ISSUER}
+      GRIST_OIDC_IDP_CLIENT_ID: ${OIDC_CLIENT_ID}
+      GRIST_OIDC_IDP_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      GRIST_SESSION_SECRET: ${SESSION_SECRET}
+      GRIST_HOME_INCLUDE_STATIC: "true"
+      GRIST_SANDBOX_FLAVOR: gvisor
+      COMMENTS: "true"
+      TYPEORM_TYPE: postgres
+      TYPEORM_DATABASE: grist-db
+      TYPEORM_USERNAME: grist
+      TYPEORM_PASSWORD: ${POSTGRES_PASSWORD}
+      TYPEORM_HOST: postgres
+      TYPEORM_PORT: "5432"
+      TYPEORM_LOGGING: "false"
+      REDIS_URL: redis://redis:6379
+    port: 8484
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /status
+      port: 8484
+    volumes:
+      data:
+        path: /persist
+        subpath: grist
+  postgres:
+    image: postgres:16
+    env:
+      POSTGRES_DB: grist-db
+      POSTGRES_USER: grist
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U grist -d grist-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

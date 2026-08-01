@@ -1,0 +1,96 @@
+app: openclaw
+description: AI-powered coding assistant with multi-provider support and browser automation.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/openclaw/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for OpenClaw
+  OPENCLAW_PASSWORD:
+    kind: secret
+  GATEWAY_TOKEN:
+    kind: secret
+  ANTHROPIC_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: Anthropic API key (optional)
+  OPENAI_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenAI API key (optional)
+  OPENROUTER_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenRouter API key (optional)
+  GEMINI_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: Gemini API key (optional)
+  OPENCLAW_PRIMARY_MODEL:
+    kind: string
+    default: ""
+    required: false
+    prompt: Primary model (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  openclaw:
+    image: coollabsio/openclaw:2026.2.6
+    env:
+      AUTH_USERNAME: openclaw
+      AUTH_PASSWORD: ${OPENCLAW_PASSWORD}
+      OPENCLAW_GATEWAY_TOKEN: ${GATEWAY_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENCLAW_PRIMARY_MODEL: ${OPENCLAW_PRIMARY_MODEL}
+      AWS_REGION: us-east-1
+      BEDROCK_PROVIDER_FILTER: anthropic
+      PORT: "8080"
+      OPENCLAW_GATEWAY_PORT: "18789"
+      OPENCLAW_GATEWAY_BIND: loopback
+      OPENCLAW_STATE_DIR: /data/.openclaw
+      OPENCLAW_WORKSPACE_DIR: /data/workspace
+      BROWSER_CDP_URL: http://browser:9223
+      BROWSER_DEFAULT_PROFILE: openclaw
+      BROWSER_EVALUATE_ENABLED: "true"
+      BROWSER_SNAPSHOT_MODE: efficient
+      BROWSER_REMOTE_TIMEOUT_MS: "1500"
+      BROWSER_REMOTE_HANDSHAKE_TIMEOUT_MS: "3000"
+      HOOKS_ENABLED: "false"
+      HOOKS_PATH: /hooks
+      MOONSHOT_BASE_URL: https://api.moonshot.ai/v1
+      KIMI_BASE_URL: https://api.moonshot.ai/anthropic
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /healthz
+      port: 8080
+    volumes:
+      data:
+        path: /data
+        subpath: openclaw
+  browser:
+    image: coollabsio/openclaw-browser:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Etc/UTC
+      CHROME_CLI: --remote-debugging-port=9222
+    port: 9223
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/9222' || exit 1"]
+    volumes:
+      data:
+        path: /config
+        subpath: browser
+volumes:
+  data:
+    size: ${DATA_SIZE}

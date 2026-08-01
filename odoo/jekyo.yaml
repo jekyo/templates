@@ -1,0 +1,50 @@
+app: odoo
+description: Odoo — suite of open-source business apps that cover all your company needs
+icon: https://raw.githubusercontent.com/jekyo/templates/main/odoo/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Odoo
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  odoo:
+    image: odoo:18
+    env:
+      HOST: "postgresql"
+      USER: "odoo"
+      PASSWORD: ${POSTGRES_PASSWORD}
+    port: 8069
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8069
+    volumes:
+      data:
+        path: /var/lib/odoo
+        subpath: odoo
+      data-addons:
+        path: /mnt/extra-addons
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: "odoo"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: "postgres"
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U odoo -d postgres"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-addons:
+    size: 1Gi

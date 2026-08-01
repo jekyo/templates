@@ -1,0 +1,83 @@
+app: paymenter
+description: Open-Source Billing, Built for Hosting
+icon: https://raw.githubusercontent.com/jekyo/templates/main/paymenter/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Paymenter
+  APP_KEY:
+    kind: secret
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  paymenter:
+    image: ghcr.io/paymenter/paymenter:v1.4.5
+    env:
+      APP_URL: https://${DOMAIN}
+      APP_ENV: production
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: mariadb
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_DATABASE: paymenter-db
+      DB_USERNAME: paymenter
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      REDIS_HOST: redis
+      REDIS_USERNAME: default
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /app/storage/app
+        subpath: storage
+      data-logs:
+        path: /app/storage/logs
+      data-extensions:
+        path: /app/extensions
+      data-themes:
+        path: /app/themes
+  mariadb:
+    image: mariadb:11.8
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: paymenter-db
+      MYSQL_USER: paymenter
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  redis:
+    image: redis:alpine
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "PING"]
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-logs:
+    size: 1Gi
+  data-extensions:
+    size: 1Gi
+  data-themes:
+    size: 1Gi

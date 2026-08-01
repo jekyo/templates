@@ -1,0 +1,96 @@
+app: docmost
+description: Docmost — open-source collaborative wiki and documentation software
+icon: https://raw.githubusercontent.com/jekyo/templates/main/docmost/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Docmost
+  APP_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  MAIL_DRIVER:
+    kind: string
+    default: log
+    required: false
+    prompt: Mail driver (log, smtp or postmark)
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  MAIL_FROM_ADDRESS:
+    kind: string
+    default: ""
+    required: false
+    prompt: Mail sender address (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  docmost:
+    image: docmost/docmost:latest
+    env:
+      APP_SECRET: ${APP_SECRET}
+      APP_URL: https://${DOMAIN}
+      DATABASE_URL: postgresql://docmost:${POSTGRES_PASSWORD}@postgresql/docmost?schema=public
+      REDIS_URL: redis://redis:6379
+      MAIL_DRIVER: ${MAIL_DRIVER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_SECURE: "false"
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
+      MAIL_FROM_NAME: Docmost
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /app/data/storage
+        subpath: docmost
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: docmost
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: docmost
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "docmost", "-d", "docmost"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7.2-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

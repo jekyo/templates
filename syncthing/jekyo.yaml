@@ -1,0 +1,41 @@
+app: syncthing
+description: Syncthing synchronizes files between two or more computers in real time
+icon: https://raw.githubusercontent.com/jekyo/templates/main/syncthing/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Syncthing web UI
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Etc/UTC
+    port: 8384
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 22000
+        node: 32200
+        protocol: tcp
+      - port: 22000
+        node: 32200
+        protocol: udp
+      - port: 21027
+        node: 31027
+        protocol: udp
+    health:
+      path: /
+      port: 8384
+    volumes:
+      data:
+        path: /config
+        subpath: config
+volumes:
+  data:
+    size: ${DATA_SIZE}

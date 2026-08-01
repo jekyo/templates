@@ -1,0 +1,28 @@
+app: chroma
+description: Chroma is the open-source search and retrieval database for AI applications.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/chroma/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Chroma
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  chromadb:
+    image: chromadb/chroma:1.0.15
+    env:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /data
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/bin/bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8000"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

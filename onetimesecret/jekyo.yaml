@@ -1,0 +1,50 @@
+app: onetimesecret
+description: Share sensitive information securely with self-destructing links that are only viewable once.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/onetimesecret/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Onetime Secret
+  COLONEL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin (colonel) email address
+  ONETIMESECRET_SECRET:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  onetimesecret:
+    image: onetimesecret/onetimesecret:latest
+    env:
+      AUTH_AUTOVERIFY: "true"
+      AUTH_SIGNUP: "true"
+      COLONEL: ${COLONEL}
+      HOST: ${DOMAIN}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SECRET: ${ONETIMESECRET_SECRET}
+      SSL: "true"
+      RACK_ENV: production
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["ruby", "-rnet/http", "-e", "exit(Net::HTTP.get_response(URI('http://localhost:3000')).is_a?(Net::HTTPSuccess) ? 0 : 1)"]
+  redis:
+    image: redis:8-alpine
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

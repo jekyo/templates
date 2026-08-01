@@ -1,0 +1,54 @@
+app: terraria-server
+description: Docker multi-arch Image for Terraria Server
+icon: https://raw.githubusercontent.com/jekyo/templates/main/terraria-server/logo.svg
+inputs:
+  WORLDNAME:
+    kind: string
+    default: world1
+    required: false
+    prompt: World name
+  DIFFICULTY:
+    kind: string
+    default: "1"
+    required: false
+    prompt: Difficulty (0=classic, 1=expert, 2=master, 3=journey)
+  MAXPLAYERS:
+    kind: string
+    default: "8"
+    required: false
+    prompt: Maximum players
+  MOTD:
+    kind: string
+    default: Welcome to the server!
+    required: false
+    prompt: Message of the day
+  SERVER_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  terraria:
+    image: hexlo/terraria-server-docker:1.4.4.9
+    env:
+      WORLD: /root/.local/share/Terraria/Worlds/${WORLDNAME}.wld
+      AUTOCREATE: "2"
+      WORLDNAME: ${WORLDNAME}
+      DIFFICULTY: ${DIFFICULTY}
+      MAXPLAYERS: ${MAXPLAYERS}
+      PASSWORD: ${SERVER_PASSWORD}
+      MOTD: ${MOTD}
+      LANGUAGE: en/US
+      SECURE: "1"
+    port: 7777
+    expose:
+      - port: 7777
+        node: 31777
+        protocol: tcp
+    volumes:
+      data:
+        path: /root/.local/share/Terraria/Worlds
+volumes:
+  data:
+    size: ${DATA_SIZE}

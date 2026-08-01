@@ -1,0 +1,66 @@
+app: homebox
+description: Homebox — the inventory and organization system built for the Home User
+icon: https://raw.githubusercontent.com/jekyo/templates/main/homebox/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Homebox
+  HBOX_OPTIONS_ALLOW_REGISTRATION:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Allow user registration (true/false)
+  HBOX_MAILER_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  HBOX_MAILER_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  HBOX_MAILER_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  HBOX_MAILER_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  HBOX_MAILER_FROM:
+    kind: string
+    default: ""
+    required: false
+    prompt: Mail from address (optional)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  homebox:
+    image: ghcr.io/sysadminsmedia/homebox:latest
+    env:
+      HBOX_OPTIONS_ALLOW_REGISTRATION: ${HBOX_OPTIONS_ALLOW_REGISTRATION}
+      HBOX_LOG_LEVEL: info
+      HBOX_LOG_FORMAT: text
+      HBOX_WEB_MAX_UPLOAD_SIZE: "10"
+      HBOX_MAILER_HOST: ${HBOX_MAILER_HOST}
+      HBOX_MAILER_PORT: ${HBOX_MAILER_PORT}
+      HBOX_MAILER_USERNAME: ${HBOX_MAILER_USERNAME}
+      HBOX_MAILER_PASSWORD: ${HBOX_MAILER_PASSWORD}
+      HBOX_MAILER_FROM: ${HBOX_MAILER_FROM}
+    port: 7745
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/v1/status
+      port: 7745
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

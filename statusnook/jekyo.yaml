@@ -1,0 +1,26 @@
+app: statusnook
+description: Statusnook — effortlessly deploy a status page and start monitoring endpoints in minutes
+icon: https://raw.githubusercontent.com/jekyo/templates/main/statusnook/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your status page
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  statusnook:
+    image: goksan/statusnook
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8000
+    volumes:
+      data:
+        path: /app/statusnook-data
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,32 @@
+app: minio
+description: MinIO is a high performance object storage server compatible with Amazon S3 APIs.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/minio/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the MinIO console
+  MINIO_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  minio:
+    image: quay.io/minio/minio:latest
+    args: ["server", "/data", "--console-address", ":9001"]
+    env:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: https://${DOMAIN}
+    ports: [9001, 9000]
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["mc", "ready", "local"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

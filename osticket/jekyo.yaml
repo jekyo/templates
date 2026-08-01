@@ -1,0 +1,67 @@
+app: osticket
+description: osTicket — widely-used open source support ticket system
+icon: https://raw.githubusercontent.com/jekyo/templates/main/osticket/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for osTicket
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin email address
+  ADMIN_PASSWORD:
+    kind: secret
+  INSTALL_SECRET:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  osticket:
+    image: tiredofit/osticket:latest
+    env:
+      APP_URL: https://${DOMAIN}
+      CRON_INTERVAL: "10"
+      DB_HOST: "mariadb"
+      DB_NAME: "osticket-db"
+      DB_USER: "osticket"
+      DB_PASS: ${MARIADB_PASSWORD}
+      INSTALL_SECRET: ${INSTALL_SECRET}
+      ADMIN_FIRSTNAME: "Admin"
+      ADMIN_LASTNAME: "istrator"
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_USER: "admin"
+      ADMIN_PASS: ${ADMIN_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /www/osticket
+        subpath: osticket
+  mariadb:
+    image: mariadb:11
+    env:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: "osticket-db"
+      MARIADB_USER: "osticket"
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

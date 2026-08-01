@@ -1,0 +1,47 @@
+app: shlink
+description: The definitive self-hosted URL shortener
+icon: https://raw.githubusercontent.com/jekyo/templates/main/shlink/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for short links (Shlink server)
+  WEB_DOMAIN:
+    kind: domain
+    prompt: Domain for the Shlink web client
+  SHLINK_API_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  shlink:
+    image: shlinkio/shlink:stable
+    env:
+      DEFAULT_DOMAIN: "${DOMAIN}"
+      IS_HTTPS_ENABLED: "true"
+      INITIAL_API_KEY: "${SHLINK_API_KEY}"
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /rest/v3/health
+      port: 8080
+    volumes:
+      data:
+        path: /etc/shlink/data
+        subpath: shlink
+  shlink-web:
+    image: shlinkio/shlink-web-client
+    env:
+      SHLINK_SERVER_API_KEY: "${SHLINK_API_KEY}"
+      SHLINK_SERVER_URL: "https://${DOMAIN}"
+    port: 8080
+    http:
+      domain: ${WEB_DOMAIN}
+    health:
+      path: /
+      port: 8080
+volumes:
+  data:
+    size: ${DATA_SIZE}

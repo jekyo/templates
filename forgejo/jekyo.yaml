@@ -1,0 +1,31 @@
+app: forgejo
+description: Forgejo — self-hosted lightweight software forge, easy to install and low maintenance
+icon: https://raw.githubusercontent.com/jekyo/templates/main/forgejo/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Forgejo instance
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:8
+    env:
+      FORGEJO__server__ROOT_URL: https://${DOMAIN}
+      FORGEJO__migrations__ALLOW_LOCALNETWORKS: "false"
+      USER_UID: "1000"
+      USER_GID: "1000"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

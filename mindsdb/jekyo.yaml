@@ -1,0 +1,55 @@
+app: mindsdb
+description: MindsDB — the platform for building AI from enterprise data, enabling smarter organizations
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mindsdb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for MindsDB
+  OPENAI_API_KEY:
+    kind: string
+    prompt: OpenAI API key (optional)
+    default: ""
+    required: false
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  mindsdb:
+    image: mindsdb/mindsdb:latest
+    env:
+      MINDSDB_DOCKER_ENV: "true"
+      MINDSDB_STORAGE_DIR: /mindsdb/var
+      FLASK_DEBUG: "1"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      MINDSDB_DB_CON: postgresql://mindsdb:${POSTGRES_PASSWORD}@postgresql/mindsdb-db
+    ports:
+      - 47334
+      - 47335
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/util/ping
+      port: 47334
+    volumes:
+      data:
+        path: /mindsdb/var
+        subpath: mindsdb
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: mindsdb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mindsdb-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U mindsdb -d mindsdb-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

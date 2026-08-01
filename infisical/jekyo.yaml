@@ -1,0 +1,92 @@
+app: infisical
+description: Infisical — open source secret management platform for application configuration and secrets
+icon: https://raw.githubusercontent.com/jekyo/templates/main/infisical/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Infisical
+  ENCRYPTION_KEY:
+    kind: secret
+  AUTH_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  SMTP_HOST:
+    kind: string
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    required: false
+    prompt: SMTP password (optional)
+  SMTP_FROM_ADDRESS:
+    kind: string
+    required: false
+    prompt: Mail from address (optional)
+  SMTP_FROM_NAME:
+    kind: string
+    default: Infisical
+    required: false
+    prompt: Mail from name
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  backend:
+    image: infisical/infisical:v0.154.6
+    env:
+      SITE_URL: https://${DOMAIN}
+      NODE_ENV: production
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      AUTH_SECRET: ${AUTH_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME}
+      DB_CONNECTION_URI: postgres://infisical:${POSTGRES_PASSWORD}@db:5432/infisical
+      REDIS_URL: redis://redis:6379
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/status
+      port: 8080
+  redis:
+    image: redis:7
+    env:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    port: 6379
+    health:
+      command: ["sh", "-c", "redis-cli -h localhost -p 6379 ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+  db:
+    image: postgres:14-alpine
+    env:
+      POSTGRES_USER: infisical
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: infisical
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -h localhost -U infisical -d infisical"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,58 @@
+app: observium
+description: Observium — comprehensive network monitoring platform with an elegant, intuitive interface
+icon: https://raw.githubusercontent.com/jekyo/templates/main/observium/logo.webp
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Observium
+  ADMIN_PASSWORD:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  observium:
+    image: mbixtech/observium:latest
+    env:
+      OBSERVIUM_ADMIN_USER: "admin"
+      OBSERVIUM_ADMIN_PASS: ${ADMIN_PASSWORD}
+      OBSERVIUM_DB_HOST: "mariadb"
+      OBSERVIUM_DB_NAME: "observium"
+      OBSERVIUM_DB_USER: "observium"
+      OBSERVIUM_DB_PASS: ${MARIADB_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /opt/observium/rrd
+        subpath: rrd
+      data-logs:
+        path: /opt/observium/logs
+  mariadb:
+    image: mariadb:lts
+    env:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_USER: "observium"
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: "observium"
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-logs:
+    size: 2Gi

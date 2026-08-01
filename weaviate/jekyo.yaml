@@ -1,0 +1,49 @@
+app: weaviate
+description: Weaviate is an open-source vector database that stores both objects and vectors, allowing for combining vector search with structured filtering.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/weaviate/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Weaviate
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin user email
+  API_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.26.4
+    args: ["--host", "0.0.0.0", "--port", "8080", "--scheme", "http"]
+    env:
+      DISABLE_TELEMETRY: "true"
+      QUERY_DEFAULTS_LIMIT: "1000"
+      LOG_LEVEL: info
+      GOMEMLIMIT: 1024MiB
+      GOMAXPROCS: "2"
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "false"
+      AUTHORIZATION_ADMINLIST_USERS: ${ADMIN_EMAIL}
+      AUTHENTICATION_APIKEY_USERS: ${ADMIN_EMAIL}
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: ${API_KEY}
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      ENABLE_MODULES: text2vec-openai,generative-openai,qna-openai
+      CLUSTER_HOSTNAME: node1
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /v1/.well-known/ready
+      port: 8080
+    volumes:
+      data:
+        path: /var/lib/weaviate
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,50 @@
+app: orangehrm
+description: OrangeHRM — open source HR management software
+icon: https://raw.githubusercontent.com/jekyo/templates/main/orangehrm/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for OrangeHRM
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  orangehrm:
+    image: orangehrm/orangehrm:latest
+    env:
+      ORANGEHRM_DATABASE_HOST: "mariadb"
+      ORANGEHRM_DATABASE_USER: "orangehrm"
+      ORANGEHRM_DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+      ORANGEHRM_DATABASE_NAME: "orangehrm-db"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /orangehrm
+        subpath: orangehrm
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: "orangehrm-db"
+      MYSQL_USER: "orangehrm"
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,30 @@
+app: silverbullet
+description: SilverBullet is a tool to develop, organize, and structure your personal knowledge and to make it universally accessible across all your devices.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/silverbullet/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for SilverBullet
+  SILVERBULLET_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  silverbullet:
+    image: ghcr.io/silverbulletmd/silverbullet:v2
+    env:
+      SB_USER: "silverbullet:${SILVERBULLET_PASSWORD}"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /space
+volumes:
+  data:
+    size: ${DATA_SIZE}

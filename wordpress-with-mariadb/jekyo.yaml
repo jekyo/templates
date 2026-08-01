@@ -1,0 +1,49 @@
+app: wordpress-with-mariadb
+description: WordPress is open source software you can use to create a beautiful website, blog, or app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/wordpress-with-mariadb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your WordPress site
+  WORDPRESS_DB_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  wordpress:
+    image: wordpress:latest
+    env:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: wordpress
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["curl", "-f", "http://127.0.0.1"]
+    volumes:
+      data:
+        path: /var/www/html
+        subpath: wordpress
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

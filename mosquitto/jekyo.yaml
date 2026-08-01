@@ -1,0 +1,48 @@
+app: mosquitto
+description: Mosquitto is lightweight and suitable for use on all devices, from low-power single-board computers to full servers.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mosquitto/logo.svg
+inputs:
+  MQTT_PASSWORD:
+    kind: secret
+  ALLOW_ANONYMOUS:
+    kind: string
+    default: "true"
+    required: false
+    prompt: Allow anonymous MQTT connections (true/false)
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    command:
+      - sh
+      - -c
+      - >-
+        echo 'listener 1883' > /mosquitto/config/mosquitto.conf &&
+        echo 'require_certificate false' >> /mosquitto/config/mosquitto.conf &&
+        echo "allow_anonymous $ALLOW_ANONYMOUS" >> /mosquitto/config/mosquitto.conf &&
+        echo 'password_file /mosquitto/config/passwords' >> /mosquitto/config/mosquitto.conf &&
+        touch /mosquitto/config/passwords &&
+        chmod 0700 /mosquitto/config/passwords &&
+        chown root:root /mosquitto/config/passwords &&
+        mosquitto_passwd -b -c /mosquitto/config/passwords "$MQTT_USERNAME" "$MQTT_PASSWORD" &&
+        chown mosquitto:mosquitto /mosquitto/config/passwords &&
+        exec mosquitto -c /mosquitto/config/mosquitto.conf
+    env:
+      MQTT_USERNAME: mosquitto
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
+      ALLOW_ANONYMOUS: ${ALLOW_ANONYMOUS}
+    port: 1883
+    expose:
+      - port: 1883
+        node: 31883
+        protocol: tcp
+    volumes:
+      data:
+        path: /mosquitto/config
+        subpath: config
+volumes:
+  data:
+    size: ${DATA_SIZE}

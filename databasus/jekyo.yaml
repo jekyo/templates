@@ -1,0 +1,26 @@
+app: databasus
+description: Databasus — free, open source, self-hosted tool to backup PostgreSQL, MySQL, and MongoDB
+icon: https://raw.githubusercontent.com/jekyo/templates/main/databasus/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Databasus
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  databasus:
+    image: databasus/databasus:v3.16.2
+    port: 4005
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/v1/system/health
+      port: 4005
+    volumes:
+      data:
+        path: /databasus-data
+volumes:
+  data:
+    size: ${DATA_SIZE}

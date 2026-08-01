@@ -1,0 +1,39 @@
+app: libretranslate
+description: Free and open-source machine translation API, entirely self-hosted.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/libretranslate/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for LibreTranslate
+  LOAD_ONLY:
+    kind: string
+    default: en,es,fr,de,ja
+    required: false
+    prompt: Comma-separated language codes to load
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for translation models
+services:
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    env:
+      LT_SSL: "true"
+      LT_UPDATE_MODELS: "true"
+      LT_LOAD_ONLY: ${LOAD_ONLY}
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "./venv/bin/python scripts/healthcheck.py"]
+    volumes:
+      data:
+        path: /home/libretranslate/.local
+        subpath: models
+      data-keys:
+        path: /app/db
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-keys:
+    size: 1Gi

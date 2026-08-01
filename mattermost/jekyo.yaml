@@ -1,0 +1,60 @@
+app: mattermost
+description: Mattermost — open source, self-hosted Slack-alternative
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mattermost/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Mattermost
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for file uploads and database
+services:
+  mattermost:
+    image: mattermost/mattermost-team-edition:release-10
+    env:
+      MM_SERVICESETTINGS_SITEURL: https://${DOMAIN}
+      TZ: UTC
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: "postgres://mattermost:${POSTGRES_PASSWORD}@postgres:5432/mattermost?sslmode=disable&connect_timeout=10"
+      MM_BLEVESETTINGS_INDEXDIR: /mattermost/bleve-indexes
+    port: 8065
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /mattermost/data
+        subpath: mattermost
+      data-config: /mattermost/config
+      data-logs: /mattermost/logs
+      data-plugins: /mattermost/plugins
+      data-client-plugins: /mattermost/client/plugins
+      data-bleve: /mattermost/bleve-indexes
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: mattermost
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mattermost
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "mattermost", "-d", "mattermost"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-config:
+    size: 1Gi
+  data-logs:
+    size: 1Gi
+  data-plugins:
+    size: 2Gi
+  data-client-plugins:
+    size: 1Gi
+  data-bleve:
+    size: 2Gi

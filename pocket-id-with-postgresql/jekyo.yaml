@@ -1,0 +1,93 @@
+app: pocket-id-with-postgresql
+description: A simple and secure OIDC provider with passkey authentication
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pocket-id-with-postgresql/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Pocket ID
+  POSTGRES_PASSWORD:
+    kind: secret
+  ENCRYPTION_KEY:
+    kind: secret
+  MAXMIND_LICENSE_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: MaxMind license key for GeoIP lookups (optional)
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_FROM:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP from address (optional)
+  SMTP_USER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP user (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v1.13
+    env:
+      APP_URL: https://${DOMAIN}
+      TRUST_PROXY: "true"
+      DB_PROVIDER: postgres
+      DB_CONNECTION_STRING: postgresql://pocketid:${POSTGRES_PASSWORD}@postgresql:5432/pocketid
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      KEYS_STORAGE: database
+      MAXMIND_LICENSE_KEY: ${MAXMIND_LICENSE_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_TLS: starttls
+      SMTP_SKIP_CERT_VERIFY: "false"
+      EMAIL_LOGIN_NOTIFICATION_ENABLED: "false"
+      EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED: "false"
+      EMAIL_API_KEY_EXPIRATION_ENABLED: "false"
+      PUID: "1000"
+      PGID: "1000"
+    port: 1411
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/app/pocket-id", "healthcheck"]
+    volumes:
+      data:
+        path: /app/data
+        subpath: pocket-id
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: pocketid
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: pocketid
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U pocketid -d pocketid"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,36 @@
+app: convertx
+description: A self-hosted online file converter. Supports over a thousand different formats.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/convertx/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for ConvertX
+  JWT_SECRET:
+    kind: secret
+  ACCOUNT_REGISTRATION:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Allow account registration (true/false)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  convertx:
+    image: ghcr.io/c4illin/convertx:latest
+    env:
+      ACCOUNT_REGISTRATION: ${ACCOUNT_REGISTRATION}
+      HTTP_ALLOWED: "true"
+      ALLOW_UNAUTHENTICATED: "false"
+      AUTO_DELETE_EVERY_N_HOURS: "24"
+      JWT_SECRET: ${JWT_SECRET}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

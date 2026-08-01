@@ -1,0 +1,36 @@
+app: sonarr
+description: Sonarr — PVR for usenet and bittorrent users that monitors RSS feeds and grabs, sorts and renames TV episodes
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sonarr/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Sonarr
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    env:
+      _APP_URL: https://${DOMAIN}
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 8989
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 8989
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

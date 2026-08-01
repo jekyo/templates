@@ -1,0 +1,26 @@
+app: nocodb
+description: NocoDB is an open source Airtable alternative. Turns any MySQL, PostgreSQL, SQL Server, SQLite & MariaDB into a smart-spreadsheet.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nocodb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your NocoDB instance
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  nocodb:
+    image: nocodb/nocodb
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/v1/health
+      port: 8080
+    volumes:
+      data:
+        path: /usr/app/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

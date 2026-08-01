@@ -1,0 +1,71 @@
+app: pocket-id
+description: A simple and secure OIDC provider with passkey authentication
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pocket-id/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Pocket ID
+  MAXMIND_LICENSE_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: MaxMind license key for GeoIP lookups (optional)
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_FROM:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP from address (optional)
+  SMTP_USER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP user (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v1.13
+    env:
+      APP_URL: https://${DOMAIN}
+      TRUST_PROXY: "true"
+      MAXMIND_LICENSE_KEY: ${MAXMIND_LICENSE_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_TLS: starttls
+      SMTP_SKIP_CERT_VERIFY: "false"
+      EMAIL_LOGIN_NOTIFICATION_ENABLED: "false"
+      EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED: "false"
+      EMAIL_API_KEY_EXPIRATION_ENABLED: "false"
+      PUID: "1000"
+      PGID: "1000"
+    port: 1411
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/app/pocket-id", "healthcheck"]
+    volumes:
+      data:
+        path: /app/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

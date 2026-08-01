@@ -1,0 +1,20 @@
+app: unstructured
+description: Unstructured provides a platform and tools to ingest and process unstructured documents for Retrieval Augmented Generation (RAG) and model fine-tuning.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/unstructured/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Unstructured API
+  UNSTRUCTURED_API_KEY:
+    kind: secret
+services:
+  unstructured:
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:latest
+    env:
+      UNSTRUCTURED_API_KEY: ${UNSTRUCTURED_API_KEY}
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /healthcheck
+      port: 8000

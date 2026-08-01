@@ -1,0 +1,28 @@
+app: organizr
+description: Organizr — homelab services organizer
+icon: https://raw.githubusercontent.com/jekyo/templates/main/organizr/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Organizr
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  organizr:
+    image: organizr/organizr:latest
+    env:
+      branch: "v2-master"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

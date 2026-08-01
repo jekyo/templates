@@ -1,0 +1,114 @@
+app: argilla
+description: Argilla is a collaboration tool for AI engineers and domain experts who need to build high-quality datasets for their projects.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/argilla/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Argilla
+  POSTGRES_PASSWORD:
+    kind: secret
+  AUTH_SECRET_KEY:
+    kind: secret
+  ARGILLA_PASSWORD:
+    kind: secret
+  API_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  argilla:
+    image: argilla/argilla-server:v2.2.0
+    env:
+      ARGILLA_HOME_PATH: /var/lib/argilla
+      ARGILLA_ELASTICSEARCH: http://elasticsearch:9200
+      ARGILLA_DATABASE_URL: postgresql+asyncpg://argilla:${POSTGRES_PASSWORD}@postgres:5432/argilla
+      ARGILLA_REDIS_URL: redis://redis:6379/0
+      ARGILLA_AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      ARGILLA_ENABLE_TELEMETRY: "0"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      REINDEX_DATASETS: "1"
+      DEFAULT_USER_ENABLED: "true"
+      USERNAME: argilla
+      PASSWORD: ${ARGILLA_PASSWORD}
+      API_KEY: ${API_KEY}
+      DEFAULT_USER_PASSWORD: ${ARGILLA_PASSWORD}
+      DEFAULT_USER_API_KEY: ${API_KEY}
+      WORKSPACE: default
+    port: 6900
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/_status
+      port: 6900
+    volumes:
+      data:
+        path: /var/lib/argilla
+        subpath: argilla
+  worker:
+    image: argilla/argilla-server:v2.2.0
+    args: ["sh", "-c", "python -m argilla_server worker --num-workers 1"]
+    env:
+      ARGILLA_HOME_PATH: /var/lib/argilla
+      ARGILLA_ELASTICSEARCH: http://elasticsearch:9200
+      ARGILLA_DATABASE_URL: postgresql+asyncpg://argilla:${POSTGRES_PASSWORD}@postgres:5432/argilla
+      ARGILLA_REDIS_URL: redis://redis:6379/0
+      ARGILLA_AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      ARGILLA_ENABLE_TELEMETRY: "0"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      REINDEX_DATASETS: "1"
+      DEFAULT_USER_ENABLED: "true"
+      USERNAME: argilla
+      PASSWORD: ${ARGILLA_PASSWORD}
+      API_KEY: ${API_KEY}
+      DEFAULT_USER_PASSWORD: ${ARGILLA_PASSWORD}
+      DEFAULT_USER_API_KEY: ${API_KEY}
+      BACKGROUND_NUM_WORKERS: "1"
+      WORKSPACE: default
+    volumes:
+      data:
+        path: /var/lib/argilla
+        subpath: argilla
+  postgres:
+    image: postgres:14
+    env:
+      POSTGRES_USER: argilla
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: argilla
+    port: 5432
+    health:
+      command: ["pg_isready", "-h", "localhost", "-U", "argilla", "-d", "argilla"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7
+    port: 6379
+    health:
+      command: ["redis-cli", "-h", "localhost", "-p", "6379", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    env:
+      node.name: elasticsearch
+      cluster.name: es-argilla-local
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+      xpack.security.enabled: "false"
+    port: 9200
+    health:
+      path: /
+      port: 9200
+    volumes:
+      data:
+        path: /usr/share/elasticsearch/data
+        subpath: elasticsearch
+volumes:
+  data:
+    size: ${DATA_SIZE}

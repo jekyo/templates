@@ -1,0 +1,42 @@
+app: code-server
+description: Code-Server is a web-based code editor that enables remote coding and collaboration from any device, anywhere.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/code-server/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for code-server
+  PASSWORD:
+    kind: secret
+  SUDO_PASSWORD:
+    kind: secret
+  TZ:
+    kind: string
+    default: Etc/UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      PASSWORD: ${PASSWORD}
+      SUDO_PASSWORD: ${SUDO_PASSWORD}
+      DEFAULT_WORKSPACE: /config/workspace
+    port: 8443
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8443
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

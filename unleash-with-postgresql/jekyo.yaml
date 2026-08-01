@@ -1,0 +1,48 @@
+app: unleash-with-postgresql
+description: Open source feature flag management for enterprises.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/unleash-with-postgresql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Unleash
+  UNLEASH_ADMIN_PASSWORD:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  unleash:
+    image: unleashorg/unleash-server:latest
+    env:
+      UNLEASH_URL: https://${DOMAIN}
+      UNLEASH_DEFAULT_ADMIN_PASSWORD: ${UNLEASH_ADMIN_PASSWORD}
+      DATABASE_URL: postgres://unleash:${POSTGRES_PASSWORD}@postgres/db
+      DATABASE_SSL: "false"
+      LOG_LEVEL: warn
+      INIT_FRONTEND_API_TOKENS: default:default:development.unleash-insecure-frontend-api-token
+      INIT_CLIENT_API_TOKENS: default:development.unleash-insecure-api-token
+    port: 4242
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 4242
+  postgres:
+    image: postgres:15
+    env:
+      POSTGRES_USER: unleash
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: db
+    port: 5432
+    health:
+      command: ["pg_isready", "--username=unleash", "--host=127.0.0.1", "--port=5432", "--dbname=db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

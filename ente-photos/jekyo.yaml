@@ -1,0 +1,136 @@
+app: ente-photos
+description: Ente Photos is a fully open source, End to End Encrypted alternative to Google Photos and Apple Photos.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/ente-photos/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Ente API (museum)
+  WEB_DOMAIN:
+    kind: domain
+    prompt: Domain for the Ente web app
+  POSTGRES_PASSWORD:
+    kind: secret
+  ENCRYPTION_KEY:
+    kind: secret
+  KEY_HASH:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  S3_STORAGE_KEY:
+    kind: string
+    prompt: S3 access key for photo storage
+  S3_STORAGE_SECRET:
+    kind: string
+    prompt: S3 secret key for photo storage
+  S3_STORAGE_ENDPOINT:
+    kind: string
+    prompt: S3 endpoint for photo storage
+  S3_STORAGE_BUCKET:
+    kind: string
+    prompt: S3 bucket for photo storage
+  S3_STORAGE_REGION:
+    kind: string
+    default: us-east-1
+    required: false
+    prompt: S3 region
+  SMTP_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  SMTP_PORT:
+    kind: string
+    default: "587"
+    required: false
+    prompt: SMTP port
+  SMTP_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  SMTP_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  SMTP_EMAIL:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP sender email (optional)
+  SMTP_SENDER_NAME:
+    kind: string
+    default: Ente
+    required: false
+    prompt: SMTP sender name
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  museum:
+    image: ghcr.io/ente-io/server:latest
+    env:
+      ENTE_HTTP_USE_TLS: "false"
+      ENTE_PHOTOS_ORIGIN: https://${WEB_DOMAIN}
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: ente
+      ENTE_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      ENTE_KEY_ENCRYPTION: ${ENCRYPTION_KEY}
+      ENTE_KEY_HASH: ${KEY_HASH}
+      ENTE_JWT_SECRET: ${JWT_SECRET}
+      ENTE_INTERNAL_ADMIN: "1580559962386438"
+      ENTE_INTERNAL_DISABLE_REGISTRATION: "false"
+      ENTE_S3_B2_EU_CEN_ARE_LOCAL_BUCKETS: "false"
+      ENTE_S3_B2_EU_CEN_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: ${S3_STORAGE_KEY}
+      ENTE_S3_B2_EU_CEN_SECRET: ${S3_STORAGE_SECRET}
+      ENTE_S3_B2_EU_CEN_ENDPOINT: ${S3_STORAGE_ENDPOINT}
+      ENTE_S3_B2_EU_CEN_REGION: ${S3_STORAGE_REGION}
+      ENTE_S3_B2_EU_CEN_BUCKET: ${S3_STORAGE_BUCKET}
+      ENTE_SMTP_HOST: ${SMTP_HOST}
+      ENTE_SMTP_PORT: ${SMTP_PORT}
+      ENTE_SMTP_USERNAME: ${SMTP_USERNAME}
+      ENTE_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      ENTE_SMTP_EMAIL: ${SMTP_EMAIL}
+      ENTE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
+      ENTE_SMTP_ENCRYPTION: tls
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 8080
+    volumes:
+      data:
+        path: /data
+        subpath: museum-data
+  web:
+    image: ghcr.io/ente-io/web
+    env:
+      ENTE_API_ORIGIN: https://${DOMAIN}
+      ENTE_ALBUMS_ORIGIN: https://${WEB_DOMAIN}
+    port: 3000
+    http:
+      domain: ${WEB_DOMAIN}
+    health:
+      path: /
+      port: 3000
+  postgres:
+    image: postgres:15
+    env:
+      POSTGRES_USER: ente
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ente_db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U ente -d ente_db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

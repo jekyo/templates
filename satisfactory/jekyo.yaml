@@ -1,0 +1,49 @@
+app: satisfactory
+description: Satisfactory Dedicated Server for hosting your own Satisfactory game sessions
+inputs:
+  MAX_PLAYERS:
+    kind: string
+    default: "4"
+    required: false
+    prompt: Maximum players
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  satisfactory:
+    image: wolveix/satisfactory-server:v1.9.10
+    env:
+      AUTOSAVENUM: "5"
+      DEBUG: "false"
+      DISABLESEASONALEVENTS: "false"
+      LOG: "false"
+      MAXOBJECTS: "2162688"
+      MAXPLAYERS: ${MAX_PLAYERS}
+      MAXTICKRATE: "30"
+      MULTIHOME: "::"
+      PGID: "1000"
+      PUID: "1000"
+      SERVERGAMEPORT: "7777"
+      SERVERMESSAGINGPORT: "8888"
+      SERVERSTREAMING: "true"
+      SKIPUPDATE: "false"
+      STEAMBETA: "false"
+      TIMEOUT: "30"
+    ports: [7777, 8888]
+    expose:
+      - port: 7777
+        node: 30777
+        protocol: tcp
+      - port: 7777
+        node: 30777
+        protocol: udp
+      - port: 8888
+        node: 30888
+        protocol: tcp
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

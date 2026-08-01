@@ -1,0 +1,47 @@
+app: supertokens-with-mysql
+description: An open-source authentication solution that simplifies the implementation of secure user authentication and session management for web and mobile applications.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/supertokens-with-mysql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the SuperTokens core
+  MYSQL_PASSWORD:
+    kind: secret
+  API_KEYS:
+    kind: string
+    default: ""
+    required: false
+    prompt: API keys to protect the core (comma-separated, optional)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-mysql:latest
+    env:
+      API_KEYS: ${API_KEYS}
+      MYSQL_CONNECTION_URI: mysql://supertokens:${MYSQL_PASSWORD}@mysql:3306/supertokens
+    port: 3567
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /hello
+      port: 3567
+  mysql:
+    image: mysql:latest
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_USER: supertokens
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: supertokens
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "localhost"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

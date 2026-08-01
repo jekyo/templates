@@ -1,0 +1,54 @@
+app: yamtrack
+description: Yamtrack is a self hosted media tracker for movies, tv shows, anime, manga, video games and books.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/yamtrack/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Yamtrack
+  SECRET:
+    kind: secret
+  TZ:
+    kind: string
+    default: Europe/Berlin
+    required: false
+    prompt: Timezone
+  REGISTRATION:
+    kind: string
+    default: "true"
+    required: false
+    prompt: Enable user registration (true/false)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  yamtrack:
+    image: ghcr.io/fuzzygrim/yamtrack
+    env:
+      URLS: https://${DOMAIN}
+      TZ: ${TZ}
+      SECRET: ${SECRET}
+      REGISTRATION: ${REGISTRATION}
+      REDIS_URL: redis://redis:6379
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health/
+      port: 8000
+    volumes:
+      data:
+        path: /yamtrack/db
+        subpath: yamtrack
+  redis:
+    image: redis:7-alpine
+    port: 6379
+    health:
+      command: ["redis-cli", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

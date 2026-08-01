@@ -1,0 +1,30 @@
+app: budge
+description: A budgeting personal finance app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/budge/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for BudgE
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  budge:
+    image: lscr.io/linuxserver/budge:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: UTC
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

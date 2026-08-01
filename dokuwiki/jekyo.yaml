@@ -1,0 +1,30 @@
+app: dokuwiki
+description: A lightweight and easy-to-use wiki platform for creating and managing documentation and knowledge bases.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/dokuwiki/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your wiki
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  dokuwiki:
+    image: lscr.io/linuxserver/dokuwiki:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

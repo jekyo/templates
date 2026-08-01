@@ -1,0 +1,29 @@
+app: grocy
+description: Grocy is a web-based household management and grocery list application.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/grocy/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Grocy
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  grocy:
+    image: lscr.io/linuxserver/grocy:4.6.0
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: UTC
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

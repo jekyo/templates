@@ -1,0 +1,32 @@
+app: typesense
+description: Cutting-edge, in-memory search engine for mere mortals. Knowledge of rocket science optional.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/typesense/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Typesense API
+  TYPESENSE_API_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  typesense:
+    image: typesense/typesense:28.0
+    env:
+      TYPESENSE_ENABLE_CORS: "true"
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+    port: 8108
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8108
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

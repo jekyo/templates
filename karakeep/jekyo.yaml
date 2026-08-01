@@ -1,0 +1,65 @@
+app: karakeep
+description: A self-hostable bookmark-everything app (links, notes and images) with AI-based automatic tagging and full text search
+icon: https://raw.githubusercontent.com/jekyo/templates/main/karakeep/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Karakeep instance
+  NEXTAUTH_SECRET:
+    kind: secret
+  MEILI_MASTER_KEY:
+    kind: secret
+  OPENAI_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenAI API key for AI tagging (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  web:
+    image: ghcr.io/karakeep-app/karakeep:release
+    env:
+      NEXTAUTH_URL: https://${DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DISABLE_SIGNUPS: "false"
+      DATA_DIR: /data
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /data
+        subpath: web
+  chrome:
+    image: gcr.io/zenika-hub/alpine-chrome:124
+    args:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+      - --hide-scrollbars
+    port: 9222
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    env:
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    port: 7700
+    health:
+      path: /health
+      port: 7700
+    volumes:
+      data:
+        path: /meili_data
+        subpath: meilisearch
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,71 @@
+app: palworld
+description: Palworld — dedicated game server for the multiplayer monster-catching survival game
+icon: https://raw.githubusercontent.com/jekyo/templates/main/palworld/logo.svg
+inputs:
+  SERVER_NAME:
+    kind: string
+    default: Palworld Server powered by JEKYO
+    required: false
+    prompt: Server name
+  SERVER_DESCRIPTION:
+    kind: string
+    default: Palworld dedicated server
+    required: false
+    prompt: Server description
+  MAX_PLAYERS:
+    kind: string
+    default: "16"
+    required: false
+    prompt: Maximum number of players
+  SERVER_PASSWORD:
+    kind: secret
+  ADMIN_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 25Gi
+    prompt: Storage size
+services:
+  palworld:
+    image: thijsvanloef/palworld-server-docker:v1.4.6
+    env:
+      TZ: UTC
+      PUID: "1000"
+      PGID: "1000"
+      MULTITHREADING: "false"
+      MAX_PLAYERS: ${MAX_PLAYERS}
+      SERVER_NAME: ${SERVER_NAME}
+      SERVER_DESCRIPTION: ${SERVER_DESCRIPTION}
+      SERVER_PASSWORD: ${SERVER_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      COMMUNITY: "false"
+      PORT: "8211"
+      PUBLIC_PORT: "30211"
+      QUERY_PORT: "27015"
+      UPDATE_ON_BOOT: "true"
+      RCON_ENABLED: "true"
+      RCON_PORT: "25575"
+      BACKUP_ENABLED: "true"
+      DELETE_OLD_BACKUPS: "false"
+      OLD_BACKUP_DAYS: "30"
+      BACKUP_CRON_EXPRESSION: "0 0 * * *"
+      AUTO_UPDATE_ENABLED: "false"
+      AUTO_REBOOT_ENABLED: "false"
+      AUTO_PAUSE_ENABLED: "false"
+      USE_BACKUP_SAVE_DATA: "True"
+      USEAUTH: "True"
+      CROSSPLAY_PLATFORMS: "(Steam,Xbox,PS5,Mac)"
+    ports: [8211, 27015]
+    expose:
+      - port: 8211
+        node: 30211
+        protocol: udp
+      - port: 27015
+        node: 30015
+        protocol: udp
+    volumes:
+      data:
+        path: /palworld
+volumes:
+  data:
+    size: ${DATA_SIZE}

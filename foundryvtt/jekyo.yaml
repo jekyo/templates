@@ -1,0 +1,47 @@
+app: foundryvtt
+description: Foundry Virtual Tabletop — a self-hosted & modern roleplaying platform
+icon: https://raw.githubusercontent.com/jekyo/templates/main/foundryvtt/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Foundry VTT
+  FOUNDRY_USERNAME:
+    kind: string
+    prompt: foundryvtt.com account username or email (used to download Foundry)
+  FOUNDRY_PASSWORD:
+    kind: string
+    prompt: foundryvtt.com account password
+  FOUNDRY_ADMIN_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  foundryvtt:
+    image: felddy/foundryvtt:release
+    env:
+      FOUNDRY_USERNAME: ${FOUNDRY_USERNAME}
+      FOUNDRY_PASSWORD: ${FOUNDRY_PASSWORD}
+      FOUNDRY_ADMIN_KEY: ${FOUNDRY_ADMIN_KEY}
+      FOUNDRY_HOSTNAME: ${DOMAIN}
+      FOUNDRY_PROXY_PORT: "443"
+      FOUNDRY_PROXY_SSL: "true"
+      FOUNDRY_LANGUAGE: en.core
+      FOUNDRY_CSS_THEME: foundry
+      FOUNDRY_MINIFY_STATIC_FILES: "true"
+      FOUNDRY_TELEMETRY: "false"
+      TIMEZONE: UTC
+      CONTAINER_CACHE: /data/container_cache
+    port: 30000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 30000
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

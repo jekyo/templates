@@ -1,0 +1,26 @@
+app: open-webui
+description: User-friendly AI Interface (Supports Ollama, OpenAI API, ...)
+icon: https://raw.githubusercontent.com/jekyo/templates/main/open-webui/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Open WebUI
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /app/backend/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

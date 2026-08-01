@@ -1,0 +1,58 @@
+app: faraday
+description: Faraday — open-source, web-based vulnerability management tool
+icon: https://raw.githubusercontent.com/jekyo/templates/main/faraday/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Faraday
+  POSTGRESQL_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  faraday:
+    image: faradaysec/faraday:latest
+    command: ["/entrypoint.sh"]
+    env:
+      PGSQL_USER: faraday
+      PGSQL_PASSWD: ${POSTGRESQL_PASSWORD}
+      PGSQL_DBNAME: faraday
+      PGSQL_HOST: postgresql
+      REDIS_SERVER: redis
+    port: 5985
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["nc", "-z", "localhost", "5985"]
+    volumes:
+      data:
+        path: /home/faraday/.faraday
+        subpath: faraday
+  postgresql:
+    image: postgres:latest
+    env:
+      POSTGRES_USER: faraday
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRES_DB: faraday
+    port: 5432
+    health:
+      command: ["pg_isready", "-d", "faraday", "-U", "faraday"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+  redis:
+    image: redis:alpine
+    args: ["--save", "60", "1", "--loglevel", "warning"]
+    port: 6379
+    health:
+      command: ["sh", "-c", "redis-cli ping | grep PONG"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

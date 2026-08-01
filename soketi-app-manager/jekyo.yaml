@@ -1,0 +1,89 @@
+app: soketi-app-manager
+description: Manage soketi websocket server and apps with ease
+icon: https://raw.githubusercontent.com/jekyo/templates/main/soketi-app-manager/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Soketi App Manager
+  APP_KEY:
+    kind: secret
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  PUSHER_HOST:
+    kind: string
+    prompt: Soketi server host (e.g. soketi.example.com)
+  PUSHER_PORT:
+    kind: string
+    default: "443"
+    required: false
+    prompt: Soketi server port
+  PUSHER_SCHEME:
+    kind: string
+    default: https
+    required: false
+    prompt: Soketi server scheme (http/https)
+  METRICS_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: Soketi metrics host (optional)
+  SOKETI_DB_REDIS_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: Redis username used by soketi (optional)
+  SOKETI_DB_REDIS_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: Redis password used by soketi (optional)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  soketi-app-manager:
+    image: ghcr.io/rahulhaque/soketi-app-manager-filament-alpine:latest
+    env:
+      AUTORUN_ENABLED: "true"
+      AUTORUN_LARAVEL_MIGRATION: "true"
+      APP_DEBUG: "false"
+      APP_URL: https://${DOMAIN}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: soketi_app_manager
+      DB_USERNAME: soketi
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      PUSHER_HOST: ${PUSHER_HOST}
+      PUSHER_PORT: ${PUSHER_PORT}
+      PUSHER_SCHEME: ${PUSHER_SCHEME}
+      PUSHER_APP_CLUSTER: mt1
+      SOKETI_DB_REDIS_USERNAME: ${SOKETI_DB_REDIS_USERNAME}
+      SOKETI_DB_REDIS_PASSWORD: ${SOKETI_DB_REDIS_PASSWORD}
+      METRICS_HOST: ${METRICS_HOST}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["php-fpm-healthcheck"]
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_USER: soketi
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: soketi_app_manager
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

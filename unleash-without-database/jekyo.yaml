@@ -1,0 +1,35 @@
+app: unleash-without-database
+description: Open source feature flag management for enterprises.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/unleash-without-database/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Unleash
+  UNLEASH_ADMIN_PASSWORD:
+    kind: secret
+  DATABASE_URL:
+    kind: string
+    prompt: PostgreSQL connection URL (e.g. postgres://user:pass@host:5432/db)
+  DATABASE_SSL:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Use SSL for the database connection (true/false)
+services:
+  unleash:
+    image: unleashorg/unleash-server:latest
+    args: ["node", "index.js"]
+    env:
+      UNLEASH_URL: https://${DOMAIN}
+      UNLEASH_DEFAULT_ADMIN_PASSWORD: ${UNLEASH_ADMIN_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_SSL: ${DATABASE_SSL}
+      LOG_LEVEL: warn
+      INIT_FRONTEND_API_TOKENS: default:default:development.unleash-insecure-frontend-api-token
+      INIT_CLIENT_API_TOKENS: default:development.unleash-insecure-api-token
+    port: 4242
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 4242

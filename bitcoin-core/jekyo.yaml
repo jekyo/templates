@@ -1,0 +1,35 @@
+app: bitcoin-core
+description: A self-hosted Bitcoin Core full node.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/bitcoin-core/logo.svg
+inputs:
+  BITCOIN_RPCPASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 700Gi
+    prompt: Storage size (a full node with txindex needs ~700Gi)
+services:
+  bitcoin-core:
+    image: ruimarinho/bitcoin-core:latest
+    env:
+      BITCOIN_RPCUSER: bitcoinuser
+      BITCOIN_RPCPASSWORD: ${BITCOIN_RPCPASSWORD}
+      BITCOIN_PRINTTOCONSOLE: "1"
+      BITCOIN_TXINDEX: "1"
+      BITCOIN_SERVER: "1"
+    args:
+      - "-datadir=/home/bitcoin/.bitcoin"
+      - "-rpcbind=127.0.0.1"
+      - "-rpcallowip=127.0.0.1"
+      - "-rpcuser=bitcoinuser"
+      - "-rpcpassword=$(BITCOIN_RPCPASSWORD)"
+      - "-printtoconsole=1"
+      - "-txindex=1"
+      - "-server=1"
+    port: 8333
+    volumes:
+      data:
+        path: /home/bitcoin/.bitcoin
+volumes:
+  data:
+    size: ${DATA_SIZE}

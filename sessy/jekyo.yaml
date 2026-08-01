@@ -1,0 +1,34 @@
+app: sessy
+description: Email observability platform for monitoring and analyzing email systems.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sessy/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Sessy
+  SECRET_KEY_BASE:
+    kind: secret
+  HTTP_AUTH_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  sessy:
+    image: ghcr.io/marckohlbrugge/sessy:main
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      HTTP_AUTH_USERNAME: sessy
+      HTTP_AUTH_PASSWORD: ${HTTP_AUTH_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "curl -sf http://127.0.0.1:80 || [ $? -eq 22 ]"]
+    volumes:
+      data:
+        path: /rails/storage
+        subpath: sessy
+volumes:
+  data:
+    size: ${DATA_SIZE}

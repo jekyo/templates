@@ -1,0 +1,35 @@
+app: prowlarr
+description: Prowlarr — indexer manager/proxy that integrates with your various PVR apps
+icon: https://raw.githubusercontent.com/jekyo/templates/main/prowlarr/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Prowlarr
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "${TZ}"
+    port: 9696
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 9696
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,27 @@
+app: pocketbase
+description: Open Source backend for your next SaaS and Mobile app in 1 file
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pocketbase/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for PocketBase
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  pocketbase:
+    image: ghcr.io/coollabsio/pocketbase:latest
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/pb_data
+      data-hooks:
+        path: /app/pb_hooks
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-hooks:
+    size: 1Gi

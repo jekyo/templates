@@ -1,0 +1,72 @@
+app: postiz
+description: Postiz — open source social media scheduling tool
+icon: https://raw.githubusercontent.com/jekyo/templates/main/postiz/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Postiz
+  JWT_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  postiz:
+    image: ghcr.io/gitroomhq/postiz-app:v2.10.1
+    env:
+      MAIN_URL: "https://${DOMAIN}"
+      FRONTEND_URL: "https://${DOMAIN}"
+      NEXT_PUBLIC_BACKEND_URL: "https://${DOMAIN}/api"
+      JWT_SECRET: "${JWT_SECRET}"
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postiz-db"
+      REDIS_URL: "redis://default:${REDIS_PASSWORD}@redis:6379"
+      BACKEND_INTERNAL_URL: "http://localhost:3000"
+      STORAGE_PROVIDER: "local"
+      UPLOAD_DIRECTORY: "/uploads"
+      NEXT_PUBLIC_UPLOAD_DIRECTORY: "/uploads"
+      IS_GENERAL: "true"
+      NX_ADD_PLUGINS: "false"
+      NOT_SECURED: "false"
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5000
+    volumes:
+      data:
+        path: /uploads
+        subpath: uploads
+  postgres:
+    image: postgres:14.5
+    env:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "postiz-db"
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U postgres -d postiz-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:7.2
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    env:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+    port: 6379
+    health:
+      command: ["sh", "-c", "redis-cli -a $REDIS_PASSWORD ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

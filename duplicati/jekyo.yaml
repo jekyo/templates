@@ -1,0 +1,43 @@
+app: duplicati
+description: Duplicati is a backup solution, allowing you to make scheduled backups with encryption.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/duplicati/logo.webp
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Duplicati web UI
+  ENCRYPTION_KEY:
+    kind: secret
+  WEB_PASSWORD:
+    kind: secret
+  TZ:
+    kind: string
+    default: Europe/London
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for backups
+services:
+  duplicati:
+    image: lscr.io/linuxserver/duplicati:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      SETTINGS_ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      DUPLICATI__WEBSERVICE_PASSWORD: ${WEB_PASSWORD}
+    port: 8200
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8200
+    volumes:
+      config: /config
+      data: /backups
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 1Gi

@@ -1,0 +1,69 @@
+app: dolibarr
+description: Dolibarr is a modern software package to manage your organization's activity (contacts, quotes, invoices, orders, stocks, agenda, hr, expense reports, accountancy, ecm, manufacturing, ...).
+icon: https://raw.githubusercontent.com/jekyo/templates/main/dolibarr/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Dolibarr
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DOLIBARR_ADMIN_PASSWORD:
+    kind: secret
+  DOLI_COMPANY_NAME:
+    kind: string
+    default: "MyBigCompany"
+    required: false
+    prompt: Company name
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  dolibarr:
+    image: dolibarr/dolibarr:latest
+    env:
+      WWW_USER_ID: "1000"
+      WWW_GROUP_ID: "1000"
+      DOLI_DB_HOST: mariadb
+      DOLI_DB_NAME: dolibarr
+      DOLI_DB_USER: dolibarr
+      DOLI_DB_PASSWORD: ${MYSQL_PASSWORD}
+      DOLI_URL_ROOT: https://${DOMAIN}
+      DOLI_ADMIN_LOGIN: admin
+      DOLI_ADMIN_PASSWORD: ${DOLIBARR_ADMIN_PASSWORD}
+      DOLI_CRON: "0"
+      DOLI_INIT_DEMO: "0"
+      DOLI_COMPANY_NAME: ${DOLI_COMPANY_NAME}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/documents
+        subpath: documents
+      data-custom:
+        path: /var/www/html/custom
+  mariadb:
+    image: mariadb:latest
+    env:
+      MYSQL_DATABASE: dolibarr
+      MYSQL_USER: dolibarr
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-custom:
+    size: 1Gi

@@ -1,0 +1,34 @@
+app: next-image-transformation
+description: Drop-in replacement for Vercel's Nextjs image optimization service.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/next-image-transformation/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the image transformation service
+  ALLOWED_REMOTE_DOMAINS:
+    kind: string
+    default: "*"
+    required: false
+    prompt: Comma-separated list of domains allowed as image sources
+services:
+  next-image-transformation:
+    image: ghcr.io/coollabsio/next-image-transformation:latest
+    env:
+      NODE_ENV: production
+      ALLOWED_REMOTE_DOMAINS: "${ALLOWED_REMOTE_DOMAINS}"
+      IMGPROXY_URL: "http://imgproxy:8080"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 3000
+  imgproxy:
+    image: darthsim/imgproxy
+    env:
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+      IMGPROXY_JPEG_PROGRESSIVE: "true"
+      IMGPROXY_USE_ETAG: "true"
+    port: 8080
+    health:
+      command: ["imgproxy", "health"]

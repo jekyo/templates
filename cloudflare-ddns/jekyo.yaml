@@ -1,0 +1,23 @@
+app: cloudflare-ddns
+description: A small, feature-rich, and robust Cloudflare DDNS updater.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cloudflare-ddns/logo.svg
+inputs:
+  CLOUDFLARE_API_TOKEN:
+    kind: string
+    prompt: Cloudflare API token with DNS edit permissions
+  DOMAINS:
+    kind: string
+    prompt: Comma-separated list of domains to keep updated
+  PROXIED:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Proxy the DNS records through Cloudflare (true/false)
+services:
+  cloudflare-ddns:
+    image: favonia/cloudflare-ddns:1.16.2
+    env:
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      DOMAINS: ${DOMAINS}
+      PROXIED: ${PROXIED}
+      IP6_PROVIDER: none

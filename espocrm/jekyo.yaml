@@ -1,0 +1,89 @@
+app: espocrm
+description: EspoCRM is a free and open-source CRM platform.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/espocrm/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for EspoCRM
+  WEBSOCKET_DOMAIN:
+    kind: domain
+    prompt: Domain for the EspoCRM websocket
+  ADMIN_USERNAME:
+    kind: string
+    default: admin
+    required: false
+    prompt: Admin username
+  ADMIN_PASSWORD:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  espocrm:
+    image: espocrm/espocrm:10
+    env:
+      ESPOCRM_ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ESPOCRM_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_HOST: espocrm-db
+      ESPOCRM_DATABASE_NAME: espocrm
+      ESPOCRM_DATABASE_USER: espocrm
+      ESPOCRM_DATABASE_PASSWORD: ${MARIADB_PASSWORD}
+      ESPOCRM_SITE_URL: https://${DOMAIN}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["bin/command", "app-check"]
+    volumes:
+      data:
+        path: /var/www/html/data
+        subpath: espocrm-data
+  espocrm-daemon:
+    image: espocrm/espocrm:10
+    command: ["docker-daemon.sh"]
+    health:
+      command: ["bin/command", "app-check"]
+    volumes:
+      data:
+        path: /var/www/html/data
+        subpath: espocrm-data
+  espocrm-websocket:
+    image: espocrm/espocrm:10
+    command: ["docker-websocket.sh"]
+    env:
+      ESPOCRM_CONFIG_USE_WEB_SOCKET: "true"
+      ESPOCRM_CONFIG_WEB_SOCKET_URL: wss://${WEBSOCKET_DOMAIN}
+      ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN: tcp://*:7777
+      ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN: tcp://espocrm-websocket:7777
+    port: 8080
+    http:
+      domain: ${WEBSOCKET_DOMAIN}
+    health:
+      command: ["bin/command", "app-check"]
+    volumes:
+      data:
+        path: /var/www/html/data
+        subpath: espocrm-data
+  espocrm-db:
+    image: mariadb:12.3
+    env:
+      MARIADB_DATABASE: espocrm
+      MARIADB_USER: espocrm
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

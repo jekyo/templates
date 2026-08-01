@@ -1,0 +1,88 @@
+app: cap
+description: Cap is the open source alternative to Loom. Lightweight, powerful, and cross-platform. Record and share in seconds.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cap/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Cap
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATABASE_ENCRYPTION_KEY:
+    kind: secret
+  NEXTAUTH_SECRET:
+    kind: secret
+  CAP_AWS_ACCESS_KEY:
+    kind: string
+    prompt: S3/R2/MinIO access key
+  CAP_AWS_SECRET_KEY:
+    kind: string
+    prompt: S3/R2/MinIO secret key
+  CAP_AWS_BUCKET:
+    kind: string
+    prompt: S3 bucket name
+  CAP_AWS_REGION:
+    kind: string
+    default: us-east-1
+    required: false
+    prompt: S3 region (use auto for R2)
+  CAP_AWS_ENDPOINT:
+    kind: string
+    prompt: S3 endpoint URL
+  S3_PUBLIC_ENDPOINT:
+    kind: string
+    prompt: Public endpoint for the bucket (usually same as the S3 endpoint)
+  S3_INTERNAL_ENDPOINT:
+    kind: string
+    prompt: Internal endpoint for the bucket (usually same as the S3 endpoint)
+  S3_PATH_STYLE:
+    kind: string
+    default: "true"
+    required: false
+    prompt: Use path-style S3 addressing (true for R2/MinIO, false for AWS S3)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  cap-web:
+    image: ghcr.io/capsoftware/cap-web:latest
+    env:
+      DATABASE_URL: mysql://cap:${MYSQL_PASSWORD}@cap-db:3306/planetscale
+      WEB_URL: https://${DOMAIN}
+      NEXTAUTH_URL: https://${DOMAIN}
+      DATABASE_ENCRYPTION_KEY: ${DATABASE_ENCRYPTION_KEY}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      CAP_AWS_ACCESS_KEY: ${CAP_AWS_ACCESS_KEY}
+      CAP_AWS_SECRET_KEY: ${CAP_AWS_SECRET_KEY}
+      CAP_AWS_BUCKET: ${CAP_AWS_BUCKET}
+      CAP_AWS_REGION: ${CAP_AWS_REGION}
+      CAP_AWS_ENDPOINT: ${CAP_AWS_ENDPOINT}
+      S3_PUBLIC_ENDPOINT: ${S3_PUBLIC_ENDPOINT}
+      S3_INTERNAL_ENDPOINT: ${S3_INTERNAL_ENDPOINT}
+      S3_PATH_STYLE: ${S3_PATH_STYLE}
+      NEXT_RUNTIME: nodejs
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+  cap-db:
+    image: mysql:8.0
+    args:
+      - --max_connections=1000
+      - --default-authentication-plugin=mysql_native_password
+    env:
+      MYSQL_USER: cap
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: planetscale
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

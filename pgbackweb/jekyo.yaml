@@ -1,0 +1,50 @@
+app: pgbackweb
+description: Effortless PostgreSQL backups with a user-friendly web interface!
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pgbackweb/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for PG Back Web
+  PGBACKWEB_ENCRYPTION_KEY:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  TIME_ZONE:
+    kind: string
+    default: UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  pgbackweb:
+    image: eduardolat/pgbackweb:latest
+    env:
+      PBW_ENCRYPTION_KEY: ${PGBACKWEB_ENCRYPTION_KEY}
+      PBW_POSTGRES_CONN_STRING: postgresql://pgbackweb:${POSTGRES_PASSWORD}@postgres:5432/pgbackweb-db?sslmode=disable
+      TZ: ${TIME_ZONE}
+    port: 8085
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /backups
+        subpath: backups
+  postgres:
+    image: postgres:17
+    env:
+      POSTGRES_USER: pgbackweb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: pgbackweb-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U pgbackweb -d pgbackweb-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

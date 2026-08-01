@@ -1,0 +1,55 @@
+app: prefect
+description: Prefect — orchestration and observability platform for building and scaling workflows
+icon: https://raw.githubusercontent.com/jekyo/templates/main/prefect/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Prefect server
+  POSTGRES_PASSWORD:
+    kind: secret
+  PREFECT_API_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  prefect:
+    image: prefecthq/prefect:3-latest
+    args: ["prefect", "server", "start", "--host", "0.0.0.0", "--port", "4200"]
+    env:
+      PREFECT_API_URL: "https://${DOMAIN}/api"
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:${POSTGRES_PASSWORD}@postgresql:5432/prefect"
+      PREFECT_API_KEY: "${PREFECT_API_KEY}"
+      PREFECT_EXPERIMENTAL_WARN: "false"
+      PREFECT_EXPERIMENTAL_ENABLE_SCHEDULE_CONCURRENCY: "false"
+      PREFECT_RUNNER_SERVER_ENABLE: "false"
+      PREFECT_DEFAULT_WORK_POOL_NAME: "default"
+    port: 4200
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 4200
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: "prefect"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "prefect"
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U prefect -d prefect"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  agent:
+    image: prefecthq/prefect:3-python3.12
+    command: ["/opt/prefect/entrypoint.sh", "prefect", "worker", "start", "--pool=default", "--with-healthcheck", "--name=worker1", "--limit=1"]
+    env:
+      PREFECT_API_URL: "http://prefect:4200/api"
+      PREFECT_API_KEY: "${PREFECT_API_KEY}"
+volumes:
+  data:
+    size: ${DATA_SIZE}

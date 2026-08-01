@@ -1,0 +1,58 @@
+app: rocketchat
+description: Self-hosted, secure and highly customizable open-source communication platform for organizations with sophisticated security and privacy concerns.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/rocketchat/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Rocket.Chat
+  REG_TOKEN:
+    kind: string
+    default: ""
+    required: false
+    prompt: Rocket.Chat cloud registration token (optional)
+  MAIL_URL:
+    kind: string
+    default: test@example.com
+    required: false
+    prompt: Mail URL (SMTP connection string)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  rocketchat:
+    image: registry.rocket.chat/rocketchat/rocket.chat:8.0.1
+    env:
+      MONGO_URL: mongodb://mongodb:27017/rocketchat?replicaSet=rs0
+      MONGO_OPLOG_URL: mongodb://mongodb:27017/local?replicaSet=rs0
+      ROOT_URL: https://${DOMAIN}
+      DEPLOY_METHOD: docker
+      REG_TOKEN: ${REG_TOKEN}
+      MAIL_URL: ${MAIL_URL}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 3000
+  mongodb:
+    image: mongo:7
+    command:
+      - sh
+      - -c
+      - |
+        mongod --replSet rs0 --bind_ip_all &
+        sleep 5 &&
+        mongosh --eval 'rs.initiate({_id:"rs0", members:[{_id:0, host:"mongodb:27017"}]})' ||
+        true &&
+        wait
+    port: 27017
+    health:
+      command: ["mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+    volumes:
+      data:
+        path: /data/db
+        subpath: mongodb
+volumes:
+  data:
+    size: ${DATA_SIZE}

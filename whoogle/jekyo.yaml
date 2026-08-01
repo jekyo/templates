@@ -1,0 +1,16 @@
+app: whoogle
+description: Whoogle is a self-hosted, privacy-focused search engine front-end for accessing Google search results without tracking and data collection.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/whoogle/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Whoogle
+services:
+  whoogle:
+    image: benbusby/whoogle-search:latest
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5000

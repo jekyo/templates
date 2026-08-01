@@ -1,0 +1,37 @@
+app: radarr
+description: Radarr — a fork of Sonarr to work with movies à la Couchpotato.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/radarr/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Radarr
+  TZ:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    env:
+      _APP_URL: https://${DOMAIN}
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 7878
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 7878
+    volumes:
+      data:
+        path: /config
+        subpath: config
+volumes:
+  data:
+    size: ${DATA_SIZE}

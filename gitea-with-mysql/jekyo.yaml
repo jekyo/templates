@@ -1,0 +1,54 @@
+app: gitea-with-mysql
+description: Gitea — self-hosted, lightweight Git service for version control, collaboration, and code hosting, backed by MySQL
+icon: https://raw.githubusercontent.com/jekyo/templates/main/gitea-with-mysql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Gitea instance
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  gitea:
+    image: gitea/gitea:latest
+    env:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      GITEA__server__ROOT_URL: https://${DOMAIN}
+      GITEA__database__DB_TYPE: mysql
+      GITEA__database__HOST: mysql
+      GITEA__database__NAME: gitea
+      GITEA__database__USER: gitea
+      GITEA__database__PASSWD: ${MYSQL_PASSWORD}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+        subpath: gitea
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_USER: gitea
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: gitea
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

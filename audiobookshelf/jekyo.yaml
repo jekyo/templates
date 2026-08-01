@@ -1,0 +1,35 @@
+app: audiobookshelf
+description: Self-hosted audiobook, ebook, and podcast server
+icon: https://raw.githubusercontent.com/jekyo/templates/main/audiobookshelf/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Audiobookshelf
+  TIMEZONE:
+    kind: string
+    default: America/Toronto
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.34.0
+    env:
+      TZ: ${TIMEZONE}
+      CONFIG_PATH: /data/config
+      METADATA_PATH: /data/metadata
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /ping
+      port: 80
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

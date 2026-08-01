@@ -1,0 +1,33 @@
+app: cryptgeon
+description: Cryptgeon — secure note / file sharing service inspired by PrivNote
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cryptgeon/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Cryptgeon
+  SIZE_LIMIT:
+    kind: string
+    default: "4 MiB"
+    required: false
+    prompt: Maximum note/file size
+services:
+  app:
+    image: cupcakearmy/cryptgeon:latest
+    env:
+      SIZE_LIMIT: ${SIZE_LIMIT}
+      MAX_VIEWS: "100"
+      MAX_EXPIRATION: "360"
+      ALLOW_ADVANCED: "true"
+      ALLOW_FILES: "true"
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/live/
+      port: 8000
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server", "--maxmemory", "200mb", "--maxmemory-policy", "allkeys-lru"]
+    port: 6379
+    health:
+      command: ["redis-cli", "PING"]

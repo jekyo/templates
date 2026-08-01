@@ -1,0 +1,32 @@
+app: grafana
+description: Grafana is the open source analytics & monitoring solution for every database.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/grafana/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Grafana
+  GRAFANA_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  grafana:
+    image: grafana/grafana-oss
+    env:
+      GF_SERVER_ROOT_URL: https://${DOMAIN}
+      GF_SERVER_DOMAIN: ${DOMAIN}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 3000
+    volumes:
+      data:
+        path: /var/lib/grafana
+volumes:
+  data:
+    size: ${DATA_SIZE}

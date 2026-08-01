@@ -1,0 +1,74 @@
+app: moodle
+description: Moodle is the world's most customisable and trusted eLearning solution that empowers educators to improve our world.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/moodle/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Moodle
+  MOODLE_USERNAME:
+    kind: string
+    default: user
+    required: false
+    prompt: Moodle admin username
+  MOODLE_SITE_NAME:
+    kind: string
+    default: New Site
+    required: false
+    prompt: Moodle site name
+  MOODLE_PASSWORD:
+    kind: secret
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  moodle:
+    image: docker.io/bitnamilegacy/moodle:4.3
+    env:
+      MOODLE_DATABASE_HOST: mariadb
+      MOODLE_DATABASE_PORT_NUMBER: "3306"
+      MOODLE_DATABASE_USER: moodle
+      MOODLE_DATABASE_NAME: bitnami_moodle
+      MOODLE_DATABASE_PASSWORD: ${MARIADB_PASSWORD}
+      ALLOW_EMPTY_PASSWORD: "no"
+      MOODLE_USERNAME: ${MOODLE_USERNAME}
+      MOODLE_PASSWORD: ${MOODLE_PASSWORD}
+      MOODLE_EMAIL: user@example.com
+      MOODLE_SITE_NAME: ${MOODLE_SITE_NAME}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["php", "-r", "exit(file_exists('/opt/bitnami/moodle/config.php') ? 0 : 1);"]
+    volumes:
+      data:
+        path: /bitnami/moodle
+        subpath: moodle
+      data-moodledata:
+        path: /bitnami/moodledata
+  mariadb:
+    image: mariadb:11.1
+    env:
+      ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: bitnami_moodle
+      MYSQL_USER: moodle
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_CHARACTER_SET: utf8mb4
+      MARIADB_COLLATE: utf8mb4_unicode_ci
+    port: 3306
+    health:
+      command: ["sh", "-c", "bash -c '</dev/tcp/localhost/3306'"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-moodledata:
+    size: ${DATA_SIZE}

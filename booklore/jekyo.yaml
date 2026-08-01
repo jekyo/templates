@@ -1,0 +1,67 @@
+app: booklore
+description: Booklore is an open-source library management system for your digital book collection.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/booklore/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Booklore
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size for app data and database
+  BOOKS_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size for your book library
+services:
+  booklore:
+    image: booklore/booklore:v1.16.5
+    env:
+      USER_ID: "0"
+      GROUP_ID: "0"
+      TZ: UTC
+      DATABASE_URL: jdbc:mariadb://mariadb:3306/booklore-db
+      DATABASE_USERNAME: booklore
+      DATABASE_PASSWORD: ${MARIADB_PASSWORD}
+      BOOKLORE_PORT: "80"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /login
+      port: 80
+    volumes:
+      data:
+        path: /app/data
+        subpath: appdata
+      data-books:
+        path: /books
+        subpath: books
+      data-bookdrop:
+        path: /bookdrop
+        subpath: bookdrop
+  mariadb:
+    image: mariadb:12
+    env:
+      MARIADB_USER: booklore
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: booklore-db
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-books:
+    size: ${BOOKS_SIZE}
+  data-bookdrop:
+    size: 5Gi

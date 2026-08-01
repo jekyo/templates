@@ -1,0 +1,63 @@
+app: directus
+description: Directus wraps databases with a dynamic API, and provides an intuitive app for managing its content.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/directus/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Directus
+  KEY:
+    kind: secret
+  SECRET:
+    kind: secret
+  ADMIN_PASSWORD:
+    kind: secret
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin email address
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size (uploads)
+services:
+  directus:
+    image: directus/directus:11
+    env:
+      PUBLIC_URL: https://${DOMAIN}
+      KEY: ${KEY}
+      SECRET: ${SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_CLIENT: sqlite3
+      DB_FILENAME: /directus/database/data.db
+      WEBSOCKETS_ENABLED: "true"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+      CORS_METHODS: GET,POST,PATCH,DELETE,OPTIONS
+      CORS_ALLOWED_HEADERS: Content-Type,Authorization
+      CORS_CREDENTIALS: "true"
+    port: 8055
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /admin/login
+      port: 8055
+    volumes:
+      data:
+        path: /directus/uploads
+      data-database:
+        path: /directus/database
+      data-extensions:
+        path: /directus/extensions
+      data-templates:
+        path: /directus/templates
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-database:
+    size: 2Gi
+  data-extensions:
+    size: 1Gi
+  data-templates:
+    size: 1Gi

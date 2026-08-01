@@ -1,0 +1,30 @@
+app: apprise-api
+description: Push Notifications API
+icon: https://raw.githubusercontent.com/jekyo/templates/main/apprise-api/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Apprise API
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  apprise-api:
+    image: linuxserver/apprise-api:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "UTC"
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8000
+    volumes:
+      data:
+        path: /config
+volumes:
+  data:
+    size: ${DATA_SIZE}

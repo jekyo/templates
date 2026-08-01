@@ -1,0 +1,33 @@
+app: triliumnext
+description: Build your personal knowledge base with TriliumNext Notes.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/triliumnext/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for TriliumNext
+  TZ:
+    kind: string
+    default: "Europe/Berlin"
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  triliumnext:
+    image: ghcr.io/triliumnext/trilium:stable
+    env:
+      TZ: ${TZ}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health-check
+      port: 8080
+    volumes:
+      data:
+        path: /home/node/trilium-data
+volumes:
+  data:
+    size: ${DATA_SIZE}

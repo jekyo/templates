@@ -1,0 +1,43 @@
+app: emby
+description: A media server software that allows you to organize, stream, and access your multimedia content effortlessly.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/emby/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Emby
+  TZ:
+    kind: string
+    default: Europe/Madrid
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Config storage size
+  MEDIA_SIZE:
+    kind: size
+    default: 100Gi
+    prompt: Media storage size
+services:
+  emby:
+    image: lscr.io/linuxserver/emby:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+    port: 8096
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8096
+    volumes:
+      data:
+        path: /config
+      media:
+        path: /media
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  media:
+    size: ${MEDIA_SIZE}

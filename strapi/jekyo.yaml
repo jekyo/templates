@@ -1,0 +1,94 @@
+app: strapi
+description: Open-source headless CMS to build powerful APIs with built-in content management.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/strapi/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Strapi
+  POSTGRESQL_PASSWORD:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  APP_KEYS:
+    kind: secret
+  STRAPI_LICENSE:
+    kind: string
+    default: ""
+    required: false
+    prompt: Strapi license key (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  strapi:
+    image: elestio/strapi-production:v5.33.4
+    command: ["/bin/sh"]
+    args:
+      - -c
+      - |
+        cat > /opt/app/src/admin/vite.config.js << 'EOFVITE'
+        const { mergeConfig } = require('vite');
+        module.exports = (config) => {
+          return mergeConfig(config, {
+            resolve: {
+              alias: {
+                '@': '/src',
+              },
+            },
+            server: {
+              allowedHosts: ['${DOMAIN}']
+            }
+          });
+        };
+        EOFVITE
+        exec npm run develop
+    env:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgresql
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_JWT_SECRET: ${JWT_SECRET}
+      APP_KEYS: ${APP_KEYS}
+      STRAPI_TELEMETRY_DISABLED: "true"
+      STRAPI_LICENSE: ${STRAPI_LICENSE}
+      NODE_ENV: development
+      BROWSER: "true"
+      STRAPI_PLUGIN_I18N_INIT_LOCALE_CODE: en
+      STRAPI_ENFORCE_SOURCEMAPS: "false"
+      FAST_REFRESH: "true"
+    port: 1337
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["wget", "-q", "--spider", "http://127.0.0.1:1337/"]
+    volumes:
+      data:
+        path: /opt/app/public/uploads
+        subpath: uploads
+      src: /opt/app/src
+      config: /opt/app/config
+  postgresql:
+    image: elestio/postgres:latest
+    env:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U strapi -d strapi"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  src:
+    size: 1Gi
+  config:
+    size: 1Gi

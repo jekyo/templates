@@ -1,0 +1,26 @@
+app: slash
+description: An open source, self-hosted links shortener and sharing platform.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/slash/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Slash
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  slash:
+    image: yourselfhosted/slash
+    port: 5231
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5231
+    volumes:
+      data:
+        path: /var/opt/slash
+volumes:
+  data:
+    size: ${DATA_SIZE}

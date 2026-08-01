@@ -1,0 +1,90 @@
+app: bookstack
+description: BookStack is a simple, self-hosted, easy-to-use platform for organising and storing information
+icon: https://raw.githubusercontent.com/jekyo/templates/main/bookstack/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for BookStack
+  APP_KEY:
+    kind: secret
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  MAIL_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP server host (optional)
+  MAIL_USERNAME:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  MAIL_PASSWORD:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  MAIL_FROM:
+    kind: string
+    default: ""
+    required: false
+    prompt: Mail from address (optional)
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    env:
+      APP_URL: https://${DOMAIN}
+      APP_KEY: ${APP_KEY}
+      PUID: "1000"
+      PGID: "1000"
+      TZ: UTC
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_USERNAME: bookstack
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_DATABASE: bookstackapp
+      QUEUE_CONNECTION: sync
+      MAIL_DRIVER: smtp
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: "587"
+      MAIL_ENCRYPTION: tls
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_FROM_NAME: BookStack
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+        subpath: app
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: UTC
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: bookstackapp
+      MYSQL_USER: bookstack
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /config
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,70 @@
+app: healthchecks
+description: Healthchecks is a cron job monitoring service. It listens for HTTP requests and email messages from your cron jobs and scheduled tasks.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/healthchecks/logo.webp
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Healthchecks
+  SECRET_KEY:
+    kind: secret
+  REGISTRATION_OPEN:
+    kind: string
+    default: "True"
+    required: false
+    prompt: Allow new user registration (True/False)
+  DEFAULT_FROM_EMAIL:
+    kind: string
+    default: "fixme-email-address-here"
+    required: false
+    prompt: From address for notification emails
+  EMAIL_HOST:
+    kind: string
+    default: "my-smtp-server-here.com"
+    required: false
+    prompt: SMTP server host
+  EMAIL_PORT:
+    kind: string
+    default: "465"
+    required: false
+    prompt: SMTP server port
+  EMAIL_HOST_USER:
+    kind: string
+    default: "my_username"
+    required: false
+    prompt: SMTP username
+  EMAIL_HOST_PASSWORD:
+    kind: string
+    default: "mypassword"
+    required: false
+    prompt: SMTP password
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  healthchecks:
+    image: healthchecks/healthchecks:v4.2
+    env:
+      DB: "sqlite"
+      DB_NAME: "/data/hc.sqlite"
+      ALLOWED_HOSTS: "*"
+      REGISTRATION_OPEN: "${REGISTRATION_OPEN}"
+      DEBUG: "False"
+      SECRET_KEY: "${SECRET_KEY}"
+      SITE_ROOT: "https://${DOMAIN}"
+      DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL}"
+      EMAIL_HOST: "${EMAIL_HOST}"
+      EMAIL_PORT: "${EMAIL_PORT}"
+      EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
+      EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+      EMAIL_USE_SSL: "True"
+      EMAIL_USE_TLS: "False"
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

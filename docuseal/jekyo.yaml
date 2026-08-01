@@ -1,0 +1,28 @@
+app: docuseal
+description: DocuSeal — open-source document signing, alternative to DocuSign
+icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for DocuSeal
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  docuseal:
+    image: docuseal/docuseal:latest
+    env:
+      HOST: ${DOMAIN}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

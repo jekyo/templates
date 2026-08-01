@@ -1,0 +1,83 @@
+app: minecraft
+description: Minecraft Server that will automatically download selected version at startup
+icon: https://raw.githubusercontent.com/jekyo/templates/main/minecraft/logo.svg
+inputs:
+  MINECRAFT_VERSION:
+    kind: string
+    default: latest
+    required: false
+    prompt: Minecraft version
+  MINECRAFT_TYPE:
+    kind: string
+    default: VANILLA
+    required: false
+    prompt: Server type (VANILLA, PAPER, FORGE, FABRIC, ...)
+  MINECRAFT_DIFFICULTY:
+    kind: string
+    default: normal
+    required: false
+    prompt: Difficulty (peaceful, easy, normal, hard)
+  MINECRAFT_MAX_PLAYERS:
+    kind: string
+    default: "10"
+    required: false
+    prompt: Maximum number of players
+  MINECRAFT_MAX_MEMORY:
+    kind: string
+    default: 1G
+    required: false
+    prompt: Maximum JVM memory
+  RCON_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  mc:
+    image: itzg/minecraft-server
+    env:
+      EULA: "true"
+      VERSION: ${MINECRAFT_VERSION}
+      TYPE: ${MINECRAFT_TYPE}
+      SERVER_NAME: Minecraft Server
+      MOTD: Minecraft Server powered by JEKYO
+      DIFFICULTY: ${MINECRAFT_DIFFICULTY}
+      MAX_PLAYERS: ${MINECRAFT_MAX_PLAYERS}
+      MAX_WORLD_SIZE: "10000"
+      VIEW_DISTANCE: "10"
+      MAX_BUILD_HEIGHT: "256"
+      MAX_TICK_TIME: "60000"
+      ALLOW_NETHER: "true"
+      ANNOUNCE_PLAYER_ACHIEVEMENTS: "true"
+      GENERATE_STRUCTURES: "true"
+      PVP: "true"
+      MODE: survival
+      FORCE_GAMEMODE: "false"
+      HARDCORE: "false"
+      ENABLE_COMMAND_BLOCK: "false"
+      SPAWN_ANIMALS: "true"
+      SPAWN_MONSTERS: "true"
+      SPAWN_NPCS: "true"
+      SNOOPER_ENABLED: "false"
+      ONLINE_MODE: "true"
+      PLAYER_IDLE_TIMEOUT: "0"
+      INIT_MEMORY: 256M
+      MAX_MEMORY: ${MINECRAFT_MAX_MEMORY}
+      GUI: "false"
+      ENABLE_AUTOPAUSE: "false"
+      RCON_PASSWORD: ${RCON_PASSWORD}
+      PORT: "25565"
+    port: 25565
+    expose:
+      - port: 25565
+        node: 31565
+        protocol: tcp
+    health:
+      command: ["/usr/local/bin/mc-monitor", "status", "--host", "localhost"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

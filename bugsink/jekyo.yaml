@@ -1,0 +1,49 @@
+app: bugsink
+description: Self-hosted Error Tracking.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/bugsink/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Bugsink
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  BUGSINK_PASSWORD:
+    kind: secret
+  SECRET_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  mysql:
+    image: mysql:latest
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: bugsink
+      MYSQL_USER: bugsink
+      MYSQL_PASSWORD: ${BUGSINK_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+  web:
+    image: bugsink/bugsink
+    env:
+      SECRET_KEY: ${SECRET_KEY}
+      CREATE_SUPERUSER: admin:${BUGSINK_PASSWORD}
+      BASE_URL: https://${DOMAIN}
+      DATABASE_URL: mysql://bugsink:${BUGSINK_PASSWORD}@mysql:3306/bugsink
+      BEHIND_HTTPS_PROXY: "True"
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8000
+volumes:
+  data:
+    size: ${DATA_SIZE}

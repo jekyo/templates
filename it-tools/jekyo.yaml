@@ -1,0 +1,26 @@
+app: it-tools
+description: IT Tools is a self-hosted solution for managing various IT tasks.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/it-tools/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for IT Tools
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  it-tools:
+    image: corentinth/it-tools:latest
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /app/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

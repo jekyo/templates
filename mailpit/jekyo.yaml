@@ -1,0 +1,34 @@
+app: mailpit
+description: Email & SMTP testing tool with API for developers
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mailpit/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Mailpit web UI
+  DATA_SIZE:
+    kind: size
+    default: 1Gi
+    prompt: Storage size
+services:
+  mailpit:
+    image: axllent/mailpit
+    env:
+      MP_MAX_MESSAGES: "5000"
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports: [8025, 1025]
+    http:
+      domain: ${DOMAIN}
+    expose:
+      - port: 1025
+        node: 31025
+        protocol: tcp
+    health:
+      command: ["/mailpit", "readyz"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

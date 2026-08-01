@@ -1,0 +1,81 @@
+app: gramps-web
+description: Gramps Web — open source online genealogy system
+icon: https://raw.githubusercontent.com/jekyo/templates/main/gramps-web/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Gramps Web
+  GRAMPSWEB_TREE:
+    kind: string
+    default: Gramps Web
+    required: false
+    prompt: Family tree name (created on first start)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size for media files
+services:
+  grampsweb:
+    image: ghcr.io/gramps-project/grampsweb:25.9.0
+    env:
+      GRAMPSWEB_TREE: ${GRAMPSWEB_TREE}
+      GRAMPSWEB_CELERY_CONFIG__broker_url: redis://redis:6379/0
+      GRAMPSWEB_CELERY_CONFIG__result_backend: redis://redis:6379/0
+      GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://redis:6379/1
+      GUNICORN_NUM_WORKERS: "2"
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5000
+    volumes:
+      data: /app/media
+      data-db: /root/.gramps/grampsdb
+      data-users: /app/users
+      data-index: /app/indexdir
+      data-thumbs: /app/thumbnail_cache
+      data-cache: /app/cache
+      data-secret: /app/secret
+      data-tmp: /tmp
+  celery:
+    image: ghcr.io/gramps-project/grampsweb:25.9.0
+    args: ["celery", "-A", "gramps_webapi.celery", "worker", "--loglevel=INFO", "--concurrency=2"]
+    env:
+      GRAMPSWEB_TREE: ${GRAMPSWEB_TREE}
+      GRAMPSWEB_CELERY_CONFIG__broker_url: redis://redis:6379/0
+      GRAMPSWEB_CELERY_CONFIG__result_backend: redis://redis:6379/0
+      GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://redis:6379/1
+    health:
+      command: ["sh", "-c", "SECRET_KEY=\"$(cat /app/secret/secret)\" celery -A gramps_webapi.celery status || exit 1"]
+    volumes:
+      data: /app/media
+      data-db: /root/.gramps/grampsdb
+      data-users: /app/users
+      data-index: /app/indexdir
+      data-thumbs: /app/thumbnail_cache
+      data-cache: /app/cache
+      data-secret: /app/secret
+      data-tmp: /tmp
+  redis:
+    image: redis:7.2.4-alpine
+    port: 6379
+    health:
+      command: ["sh", "-c", "redis-cli ping | grep PONG"]
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-db:
+    size: 2Gi
+  data-users:
+    size: 1Gi
+  data-index:
+    size: 2Gi
+  data-thumbs:
+    size: 2Gi
+  data-cache:
+    size: 2Gi
+  data-secret:
+    size: 1Gi
+  data-tmp:
+    size: 2Gi

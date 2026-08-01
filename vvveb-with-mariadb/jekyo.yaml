@@ -1,0 +1,51 @@
+app: vvveb-with-mariadb
+description: Powerful and easy to use cms to build websites, blogs or ecommerce stores.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/vvveb-with-mariadb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Vvveb
+  VVVEB_DB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  vvveb:
+    image: vvveb/vvvebcms:latest
+    env:
+      DB_ENGINE: mysqli
+      DB_HOST: mariadb
+      DB_USER: vvveb
+      DB_PASSWORD: ${VVVEB_DB_PASSWORD}
+      DB_NAME: vvveb
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/html
+        subpath: vvveb
+  mariadb:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: vvveb
+      MYSQL_USER: vvveb
+      MYSQL_PASSWORD: ${VVVEB_DB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mariadb
+volumes:
+  data:
+    size: ${DATA_SIZE}

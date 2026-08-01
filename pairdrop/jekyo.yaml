@@ -1,0 +1,26 @@
+app: pairdrop
+description: PairDrop — self-hosted local file sharing in your browser, send files between devices securely
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pairdrop/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for PairDrop
+  TZ:
+    kind: string
+    default: Europe/Madrid
+    required: false
+    prompt: Timezone
+services:
+  pairdrop:
+    image: lscr.io/linuxserver/pairdrop:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      DEBUG_MODE: "false"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000

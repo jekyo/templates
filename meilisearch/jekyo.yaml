@@ -1,0 +1,32 @@
+app: meilisearch
+description: MeiliSearch is a powerful, fast, easy to use and deploy search engine.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/meilisearch/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your search engine
+  MEILI_MASTER_KEY:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    env:
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_ENV: "production"
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+    port: 7700
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 7700
+    volumes:
+      data:
+        path: /meili_data
+volumes:
+  data:
+    size: ${DATA_SIZE}

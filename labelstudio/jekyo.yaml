@@ -1,0 +1,64 @@
+app: labelstudio
+description: Label Studio is a multi-type data labeling and annotation tool with standardized output format
+icon: https://raw.githubusercontent.com/jekyo/templates/main/labelstudio/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Label Studio
+  POSTGRES_PASSWORD:
+    kind: secret
+  LABEL_STUDIO_PASSWORD:
+    kind: secret
+  LABEL_STUDIO_USERNAME:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin user email
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  labelstudio:
+    image: heartexlabs/label-studio:latest
+    env:
+      CSRF_TRUSTED_ORIGINS: https://${DOMAIN}
+      EXPERIMENTAL_FEATURES: "false"
+      DJANGO_DB: default
+      POSTGRE_NAME: labelstudio
+      POSTGRE_USER: labelstudio
+      POSTGRE_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRE_PORT: "5432"
+      POSTGRE_HOST: postgres
+      LABEL_STUDIO_HOST: https://${DOMAIN}
+      SSRF_PROTECTION_ENABLED: "true"
+      LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK: "true"
+      DATA_UPLOAD_MAX_NUMBER_FILES: "10000"
+      LABEL_STUDIO_USERNAME: ${LABEL_STUDIO_USERNAME}
+      LABEL_STUDIO_PASSWORD: ${LABEL_STUDIO_PASSWORD}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8080
+    volumes:
+      data:
+        path: /label-studio/data
+        subpath: labelstudio
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: labelstudio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: labelstudio
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -h localhost -U labelstudio -d labelstudio"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

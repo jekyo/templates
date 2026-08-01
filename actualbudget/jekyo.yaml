@@ -1,0 +1,27 @@
+app: actualbudget
+description: A local-first personal finance app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/actualbudget/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Actual Budget
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  actual:
+    image: actualbudget/actual-server:latest
+    env:
+      ACTUAL_LOGIN_METHOD: password
+    port: 5006
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/5006' || exit 1"]
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

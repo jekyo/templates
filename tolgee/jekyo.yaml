@@ -1,0 +1,56 @@
+app: tolgee
+description: Tolgee is a localization management platform for developers and translators
+icon: https://raw.githubusercontent.com/jekyo/templates/main/tolgee/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Tolgee
+  TOLGEE_ADMIN_PASSWORD:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  tolgee:
+    image: tolgee/tolgee
+    env:
+      TOLGEE_FRONTEND_URL: https://${DOMAIN}
+      TOLGEE_AUTHENTICATION_ENABLED: "true"
+      TOLGEE_AUTHENTICATION_INITIAL_USERNAME: admin
+      TOLGEE_AUTHENTICATION_INITIAL_PASSWORD: ${TOLGEE_ADMIN_PASSWORD}
+      TOLGEE_AUTHENTICATION_JWT_SECRET: ${JWT_SECRET}
+      TOLGEE_POSTGRES_AUTOSTART_ENABLED: "false"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/tolgee
+      SPRING_DATASOURCE_USERNAME: tolgee
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8080
+    volumes:
+      data:
+        path: /data
+        subpath: tolgee
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: tolgee
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: tolgee
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "tolgee", "-d", "tolgee"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

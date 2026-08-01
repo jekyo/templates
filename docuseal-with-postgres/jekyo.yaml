@@ -1,0 +1,45 @@
+app: docuseal-with-postgres
+description: DocuSeal — open-source document signing, backed by PostgreSQL
+icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal-with-postgres/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for DocuSeal
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  docuseal:
+    image: docuseal/docuseal:latest
+    env:
+      HOST: ${DOMAIN}
+      DATABASE_URL: postgresql://docuseal:${POSTGRES_PASSWORD}@postgresql:5432/docuseal
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /data
+        subpath: docuseal
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: docuseal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: docuseal
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "docuseal", "-d", "docuseal"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

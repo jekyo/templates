@@ -1,0 +1,30 @@
+app: appsmith
+description: A low-code application platform for building internal tools.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/appsmith/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Appsmith
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  appsmith:
+    image: index.docker.io/appsmith/appsmith-ce:latest
+    env:
+      APPSMITH_MAIL_ENABLED: "false"
+      APPSMITH_DISABLE_TELEMETRY: "false"
+      APPSMITH_DISABLE_INTERCOM: "true"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /appsmith-stacks
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,48 @@
+app: anythingllm
+description: AnythingLLM is the easiest to use, all-in-one AI application that can do RAG, AI Agents, and much more with no code or infrastructure headaches.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/anythingllm/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for AnythingLLM
+  SIG_KEY:
+    kind: secret
+  SIG_SALT:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  AUTH_TOKEN:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm
+    env:
+      STORAGE_DIR: /app/server/storage
+      DISABLE_TELEMETRY: "true"
+      PASSWORDLOWERCASE: "1"
+      PASSWORDMAXCHAR: "250"
+      PASSWORDMINCHAR: "6"
+      PASSWORDNUMERIC: "1"
+      PASSWORDREQUIREMENTS: "1"
+      PASSWORDSYMBOL: "1"
+      PASSWORDUPPERCASE: "1"
+      SIG_KEY: ${SIG_KEY}
+      SIG_SALT: ${SIG_SALT}
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH_TOKEN: ${AUTH_TOKEN}
+      SERVER_PORT: "3001"
+      VECTOR_DB: lancedb
+    port: 3001
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/server/storage
+        subpath: storage
+volumes:
+  data:
+    size: ${DATA_SIZE}

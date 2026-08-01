@@ -1,0 +1,53 @@
+app: freshrss-with-mariadb
+description: FreshRSS — a free, self-hostable feed aggregator (MariaDB backend)
+icon: https://raw.githubusercontent.com/jekyo/templates/main/freshrss-with-mariadb/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for FreshRSS
+  MARIADB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    env:
+      CRON_MIN: "1,31"
+      MARIADB_DB: freshrss
+      MARIADB_USER: freshrss
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/80' || exit 1"]
+    volumes:
+      data:
+        path: /var/www/FreshRSS/data
+        subpath: freshrss
+      data-extensions:
+        path: /var/www/FreshRSS/extensions
+  freshrss-db:
+    image: mariadb:11
+    env:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_DATABASE: freshrss
+      MYSQL_USER: freshrss
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-extensions:
+    size: 1Gi

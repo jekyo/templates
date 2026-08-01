@@ -1,0 +1,176 @@
+app: langfuse
+description: Langfuse is an open-source LLM engineering platform that helps teams collaboratively debug, analyze, and iterate on their LLM applications.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/langfuse/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Langfuse
+  POSTGRES_PASSWORD:
+    kind: secret
+  CLICKHOUSE_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  SALT:
+    kind: secret
+  ENCRYPTION_KEY:
+    kind: secret
+  NEXTAUTH_SECRET:
+    kind: secret
+  LANGFUSE_PASSWORD:
+    kind: secret
+  LANGFUSE_INIT_USER_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Initial admin user email
+  EMAIL_FROM_ADDRESS:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Mail sender address
+  SMTP_CONNECTION_URL:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP connection URL (optional)
+  S3_ENDPOINT:
+    kind: string
+    default: ""
+    required: false
+    prompt: S3 endpoint for event/media uploads (optional)
+  S3_BUCKET:
+    kind: string
+    default: langfuse
+    required: false
+    prompt: S3 bucket name
+  S3_REGION:
+    kind: string
+    default: auto
+    required: false
+    prompt: S3 region
+  S3_ACCESS_KEY_ID:
+    kind: string
+    default: ""
+    required: false
+    prompt: S3 access key id (optional)
+  S3_SECRET_ACCESS_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: S3 secret access key (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  langfuse:
+    image: langfuse/langfuse:3
+    env: &app-env
+      NEXTAUTH_URL: https://${DOMAIN}
+      DATABASE_URL: postgresql://langfuse:${POSTGRES_PASSWORD}@postgres:5432/langfuse-db
+      SALT: ${SALT}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "false"
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+      LANGFUSE_USE_AZURE_BLOB: "false"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: ${S3_BUCKET}
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: ${S3_REGION}
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: ${S3_ENDPOINT}
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+      LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: ${S3_BUCKET}
+      LANGFUSE_S3_MEDIA_UPLOAD_REGION: ${S3_REGION}
+      LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: ${S3_ENDPOINT}
+      LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
+      LANGFUSE_S3_BATCH_EXPORT_ENABLED: "false"
+      LANGFUSE_S3_BATCH_EXPORT_BUCKET: ${S3_BUCKET}
+      LANGFUSE_S3_BATCH_EXPORT_PREFIX: exports/
+      LANGFUSE_S3_BATCH_EXPORT_REGION: ${S3_REGION}
+      LANGFUSE_S3_BATCH_EXPORT_ENDPOINT: ${S3_ENDPOINT}
+      LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT: ${S3_ENDPOINT}
+      LANGFUSE_S3_BATCH_EXPORT_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      LANGFUSE_S3_BATCH_EXPORT_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      LANGFUSE_S3_BATCH_EXPORT_FORCE_PATH_STYLE: "true"
+      LANGFUSE_INGESTION_QUEUE_DELAY_MS: "1"
+      LANGFUSE_INGESTION_CLICKHOUSE_WRITE_INTERVAL_MS: "1000"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_AUTH: ${REDIS_PASSWORD}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
+      SMTP_CONNECTION_URL: ${SMTP_CONNECTION_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_DISABLE_SIGNUP: "true"
+      HOSTNAME: 0.0.0.0
+      LANGFUSE_INIT_ORG_ID: my-org
+      LANGFUSE_INIT_ORG_NAME: My Org
+      LANGFUSE_INIT_PROJECT_ID: my-project
+      LANGFUSE_INIT_PROJECT_NAME: My Project
+      LANGFUSE_INIT_USER_EMAIL: ${LANGFUSE_INIT_USER_EMAIL}
+      LANGFUSE_INIT_USER_NAME: langfuse
+      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_PASSWORD}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/public/health
+      port: 3000
+  langfuse-worker:
+    image: langfuse/langfuse-worker:3
+    env: *app-env
+    port: 3030
+    health:
+      path: /api/health
+      port: 3030
+  postgres:
+    image: postgres:17-alpine
+    env:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: langfuse-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -h localhost -U langfuse -d langfuse-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  redis:
+    image: redis:8
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    env:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+  clickhouse:
+    image: clickhouse/clickhouse-server:26.2.4.23
+    env:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    port: 8123
+    health:
+      path: /ping
+      port: 8123
+    volumes:
+      data:
+        path: /var/lib/clickhouse
+        subpath: clickhouse
+volumes:
+  data:
+    size: ${DATA_SIZE}

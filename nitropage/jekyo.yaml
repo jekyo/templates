@@ -1,0 +1,34 @@
+app: nitropage
+description: Nitropage is an extensible, visual website builder, offering a growing library of versatile building blocks, focal-point image cropping and sovereign font management.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nitropage/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Nitropage site
+  AUTH_SALT:
+    kind: secret
+  SESSION_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  nitropage:
+    image: nitropage/nitropage:sqlite
+    env:
+      NP_AUTH_SALT: ${AUTH_SALT}
+      NP_AUTH_PASSWORD: ${SESSION_PASSWORD}
+      DATABASE_URL: file:../.data/dev.db
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /admin
+      port: 3000
+    volumes:
+      data:
+        path: /app/.data
+volumes:
+  data:
+    size: ${DATA_SIZE}

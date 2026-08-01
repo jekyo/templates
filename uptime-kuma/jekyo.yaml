@@ -1,0 +1,25 @@
+app: uptime-kuma
+description: Uptime Kuma is a monitoring tool for tracking the status and performance of your applications in real-time.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/uptime-kuma/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Uptime Kuma
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    port: 3001
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "extra/healthcheck"]
+    volumes:
+      data:
+        path: /app/data
+volumes:
+  data:
+    size: ${DATA_SIZE}

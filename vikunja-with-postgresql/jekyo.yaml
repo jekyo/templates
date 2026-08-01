@@ -1,0 +1,50 @@
+app: vikunja
+description: The open-source, self-hostable to-do app. Organize everything, on all platforms.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/vikunja-with-postgresql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Vikunja
+  JWT_SECRET:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  vikunja:
+    image: vikunja/vikunja
+    env:
+      VIKUNJA_SERVICE_PUBLICURL: https://${DOMAIN}
+      VIKUNJA_SERVICE_JWTSECRET: ${JWT_SECRET}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: "true"
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_HOST: postgresql
+      VIKUNJA_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_DATABASE: vikunja
+    port: 3456
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /app/vikunja/
+        subpath: vikunja
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: vikunja
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: vikunja
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

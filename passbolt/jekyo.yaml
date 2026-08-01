@@ -1,0 +1,62 @@
+app: passbolt
+description: Passbolt Community Edition (CE) API. The JSON API for the open source password manager for teams!
+icon: https://raw.githubusercontent.com/jekyo/templates/main/passbolt/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Passbolt
+  PASSBOLT_DB_PASSWORD:
+    kind: secret
+  MARIADB_ROOT_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  passbolt:
+    image: passbolt/passbolt:latest-ce
+    args:
+      - /usr/bin/wait-for.sh
+      - "-t"
+      - "0"
+      - "mariadb:3306"
+      - "--"
+      - /docker-entrypoint.sh
+    env:
+      APP_FULL_BASE_URL: https://${DOMAIN}
+      DATASOURCES_DEFAULT_HOST: mariadb
+      DATASOURCES_DEFAULT_USERNAME: passbolt
+      DATASOURCES_DEFAULT_PASSWORD: ${PASSBOLT_DB_PASSWORD}
+      DATASOURCES_DEFAULT_DATABASE: passbolt-db
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /etc/passbolt/gpg
+        subpath: gpg
+      data-jwt:
+        path: /etc/passbolt/jwt
+  mariadb:
+    image: mariadb:11
+    env:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: passbolt-db
+      MARIADB_USER: passbolt
+      MARIADB_PASSWORD: ${PASSBOLT_DB_PASSWORD}
+    port: 3306
+    health:
+      command: ["healthcheck.sh", "--connect", "--innodb_initialized"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-jwt:
+    size: 1Gi

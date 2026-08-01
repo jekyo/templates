@@ -1,0 +1,28 @@
+app: beszel
+description: A lightweight server resource monitoring hub with historical data, docker stats, and alerts.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/beszel/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Beszel hub
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  beszel:
+    image: henrygd/beszel:0.18.7
+    env:
+      CONTAINER_DETAILS: "true"
+      SHARE_ALL_SYSTEMS: "false"
+    port: 8090
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["/beszel", "health", "--url", "http://localhost:8090"]
+    volumes:
+      data:
+        path: /beszel_data
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,79 @@
+app: spacebot
+description: Spacebot — an agentic AI system with specialized processes for thinking, working, and remembering
+icon: https://raw.githubusercontent.com/jekyo/templates/main/spacebot/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Spacebot
+  ANTHROPIC_API_KEY:
+    kind: string
+    prompt: Anthropic API key
+  OPENAI_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenAI API key
+  OPENROUTER_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: OpenRouter API key
+  DISCORD_BOT_TOKEN:
+    kind: string
+    default: ""
+    required: false
+    prompt: Discord bot token
+  SLACK_BOT_TOKEN:
+    kind: string
+    default: ""
+    required: false
+    prompt: Slack bot token
+  SLACK_APP_TOKEN:
+    kind: string
+    default: ""
+    required: false
+    prompt: Slack app token
+  BRAVE_SEARCH_API_KEY:
+    kind: string
+    default: ""
+    required: false
+    prompt: Brave Search API key
+  SPACEBOT_CHANNEL_MODEL:
+    kind: string
+    default: ""
+    required: false
+    prompt: Model used for channel responses
+  SPACEBOT_WORKER_MODEL:
+    kind: string
+    default: ""
+    required: false
+    prompt: Model used for worker processes
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  spacebot:
+    image: ghcr.io/spacedriveapp/spacebot:full
+    env:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN}
+      BRAVE_SEARCH_API_KEY: ${BRAVE_SEARCH_API_KEY}
+      SPACEBOT_CHANNEL_MODEL: ${SPACEBOT_CHANNEL_MODEL}
+      SPACEBOT_WORKER_MODEL: ${SPACEBOT_WORKER_MODEL}
+    port: 19898
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 19898
+    volumes:
+      data:
+        path: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}

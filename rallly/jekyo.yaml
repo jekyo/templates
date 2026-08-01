@@ -1,0 +1,74 @@
+app: rallly
+description: Rallly is an open-source scheduling and collaboration tool designed to make organizing events and meetings easier.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/rallly/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Rallly
+  POSTGRES_PASSWORD:
+    kind: secret
+  RALLLY_SECRET:
+    kind: secret
+  ALLOWED_EMAILS:
+    kind: string
+    prompt: Comma-separated list of emails allowed to log in
+  SUPPORT_EMAIL:
+    kind: string
+    default: support@example.com
+    required: false
+    prompt: Support email address
+  SMTP_HOST:
+    kind: string
+    prompt: SMTP server host
+  SMTP_PORT:
+    kind: string
+    prompt: SMTP server port
+  SMTP_SECURE:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Use TLS for SMTP (true/false)
+  SMTP_USER:
+    kind: string
+    prompt: SMTP username
+  SMTP_PWD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  rallly:
+    image: lukevella/rallly:latest
+    env:
+      DATABASE_URL: postgres://rallly:${POSTGRES_PASSWORD}@rallly-db:5432/rallly
+      SECRET_PASSWORD: ${RALLLY_SECRET}
+      NEXT_PUBLIC_BASE_URL: https://${DOMAIN}
+      ALLOWED_EMAILS: ${ALLOWED_EMAILS}
+      SUPPORT_EMAIL: ${SUPPORT_EMAIL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PWD: ${SMTP_PWD}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "bash -c ':> /dev/tcp/127.0.0.1/3000' || exit 1"]
+  rallly-db:
+    image: postgres:14.2
+    env:
+      POSTGRES_USER: rallly
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: rallly
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -d rallly -U rallly"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

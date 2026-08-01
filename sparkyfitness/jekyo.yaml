@@ -1,0 +1,67 @@
+app: sparkyfitness
+description: SparkyFitness — comprehensive fitness tracking app for nutrition, exercise and body measurements with goals and reports
+icon: https://raw.githubusercontent.com/jekyo/templates/main/sparkyfitness/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for SparkyFitness
+  POSTGRES_PASSWORD:
+    kind: secret
+  API_ENCRYPTION_KEY:
+    kind: secret
+  JWT_SECRET:
+    kind: secret
+  ADMIN_EMAIL:
+    kind: string
+    default: admin@example.com
+    required: false
+    prompt: Admin email address
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  sparkyfitness-frontend:
+    image: codewithcj/sparkyfitness:v0.15.7.3
+    port: 80
+    http:
+      domain: ${DOMAIN}
+  sparkyfitness-server:
+    image: codewithcj/sparkyfitness_server:v0.15.7.3
+    env:
+      SPARKY_FITNESS_LOG_LEVEL: info
+      SPARKY_FITNESS_DB_USER: sparkyfitness
+      SPARKY_FITNESS_DB_HOST: sparkyfitness-db
+      SPARKY_FITNESS_DB_NAME: sparkyfitness
+      SPARKY_FITNESS_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPARKY_FITNESS_DB_PORT: "5432"
+      SPARKY_FITNESS_API_ENCRYPTION_KEY: ${API_ENCRYPTION_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      SPARKY_FITNESS_FRONTEND_URL: https://${DOMAIN}
+      SPARKY_FITNESS_DISABLE_SIGNUP: "false"
+      SPARKY_FITNESS_ADMIN_EMAIL: ${ADMIN_EMAIL}
+    port: 3010
+    volumes:
+      data:
+        path: /app/SparkyFitnessServer/backup
+        subpath: server-backup
+      data-uploads:
+        path: /app/SparkyFitnessServer/uploads
+  sparkyfitness-db:
+    image: postgres:15-alpine
+    env:
+      POSTGRES_DB: sparkyfitness
+      POSTGRES_USER: sparkyfitness
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U sparkyfitness -d sparkyfitness"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-uploads:
+    size: 2Gi

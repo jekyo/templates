@@ -1,0 +1,73 @@
+app: kimai
+description: Open source time-tracking app.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/kimai/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Kimai
+  MYSQL_PASSWORD:
+    kind: secret
+  MYSQL_ROOT_PASSWORD:
+    kind: secret
+  APP_SECRET:
+    kind: secret
+  ADMIN_PASSWORD:
+    kind: secret
+  ADMIN_MAIL:
+    kind: string
+    default: admin@kimai.local
+    required: false
+    prompt: Admin user email
+  MAILER_FROM:
+    kind: string
+    default: kimai@example.com
+    required: false
+    prompt: Mail sender address
+  MAILER_URL:
+    kind: string
+    default: null://null
+    required: false
+    prompt: Mailer URL (e.g. smtp://user:pass@host:port)
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  kimai:
+    image: kimai/kimai2:apache
+    env:
+      APP_SECRET: ${APP_SECRET}
+      MAILER_FROM: ${MAILER_FROM}
+      MAILER_URL: ${MAILER_URL}
+      ADMINMAIL: ${ADMIN_MAIL}
+      ADMINPASS: ${ADMIN_PASSWORD}
+      DATABASE_URL: mysql://kimai:${MYSQL_PASSWORD}@mysql/kimai?charset=utf8mb4&serverVersion=8.3.0
+      TRUSTED_HOSTS: ${DOMAIN}|localhost|127.0.0.1
+    port: 8001
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8001
+    volumes:
+      data:
+        path: /opt/kimai/var/data
+        subpath: kimai
+  mysql:
+    image: mysql:8
+    args: ["--default-storage-engine", "innodb"]
+    env:
+      MYSQL_DATABASE: kimai
+      MYSQL_USER: kimai
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    port: 3306
+    health:
+      command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+    volumes:
+      data:
+        path: /var/lib/mysql
+        subpath: mysql
+volumes:
+  data:
+    size: ${DATA_SIZE}

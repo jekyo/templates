@@ -1,0 +1,30 @@
+app: mediawiki
+description: MediaWiki is a collaboration and documentation platform brought to you by a vibrant community.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/mediawiki/logo.ico
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your wiki
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  mediawiki:
+    image: mediawiki:latest
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /var/www/html/data
+      images:
+        path: /var/www/html/images
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  images:
+    size: ${DATA_SIZE}

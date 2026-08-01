@@ -1,0 +1,23 @@
+app: memos
+description: An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/memos/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your notes
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  memos:
+    image: neosmemo/memos:stable
+    port: 5230
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /var/opt/memos
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,53 @@
+app: grafana-with-postgresql
+description: Grafana is the open source analytics & monitoring solution for every database.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/grafana-with-postgresql/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Grafana
+  GRAFANA_PASSWORD:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  grafana:
+    image: grafana/grafana-oss
+    env:
+      GF_SERVER_ROOT_URL: https://${DOMAIN}
+      GF_SERVER_DOMAIN: ${DOMAIN}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresql
+      GF_DATABASE_USER: grafana
+      GF_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      GF_DATABASE_NAME: grafana
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 3000
+    volumes:
+      data:
+        path: /var/lib/grafana
+        subpath: grafana
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: grafana
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: grafana
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "grafana", "-d", "grafana"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

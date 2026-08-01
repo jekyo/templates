@@ -1,0 +1,100 @@
+app: teable
+description: Teable — a powerful visual interface built on relational databases (PostgreSQL)
+icon: https://raw.githubusercontent.com/jekyo/templates/main/teable/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Teable
+  SECRET_KEY:
+    kind: secret
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  BACKEND_MAIL_HOST:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP host (optional)
+  BACKEND_MAIL_PORT:
+    kind: string
+    default: "465"
+    required: false
+    prompt: SMTP port
+  BACKEND_MAIL_SENDER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP sender address (optional)
+  BACKEND_MAIL_AUTH_USER:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP username (optional)
+  BACKEND_MAIL_AUTH_PASS:
+    kind: string
+    default: ""
+    required: false
+    prompt: SMTP password (optional)
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  teable:
+    image: ghcr.io/teableio/teable:latest
+    env:
+      PUBLIC_ORIGIN: https://${DOMAIN}
+      SECRET_KEY: ${SECRET_KEY}
+      TZ: Etc/UTC
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PRISMA_DATABASE_URL: postgresql://teable:${POSTGRES_PASSWORD}@teable-db:5432/teable
+      NEXT_ENV_IMAGES_ALL_REMOTE: "true"
+      PORT: "3000"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      BACKEND_CACHE_PROVIDER: redis
+      BACKEND_CACHE_REDIS_URI: redis://default:${REDIS_PASSWORD}@teable-cache:6379/0
+      BACKEND_MAIL_HOST: ${BACKEND_MAIL_HOST}
+      BACKEND_MAIL_PORT: ${BACKEND_MAIL_PORT}
+      BACKEND_MAIL_SECURE: "true"
+      BACKEND_MAIL_SENDER: ${BACKEND_MAIL_SENDER}
+      BACKEND_MAIL_SENDER_NAME: Teable
+      BACKEND_MAIL_AUTH_USER: ${BACKEND_MAIL_AUTH_USER}
+      BACKEND_MAIL_AUTH_PASS: ${BACKEND_MAIL_AUTH_PASS}
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+    volumes:
+      data:
+        path: /app/.assets
+        subpath: assets
+  teable-db:
+    image: postgres:15.4
+    env:
+      TZ: Etc/UTC
+      POSTGRES_DB: teable
+      POSTGRES_USER: teable
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U teable -d teable"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+  teable-cache:
+    image: redis:7.2.4
+    args: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "--raw", "incr", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

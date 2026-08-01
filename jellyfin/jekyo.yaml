@@ -1,0 +1,38 @@
+app: jellyfin
+description: Jellyfin is a media server for hosting and streaming your media collection.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/jellyfin/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Jellyfin
+  TZ:
+    kind: string
+    default: Etc/UTC
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 50Gi
+    prompt: Storage size for your media library
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:10.11.8
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: ${TZ}
+      JELLYFIN_PublishedServerUrl: https://${DOMAIN}
+    port: 8096
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 8096
+    volumes:
+      config: /config
+      data: /data
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  config:
+    size: 2Gi

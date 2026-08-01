@@ -1,0 +1,28 @@
+app: nexus-arm
+description: Open source Universal Repository Manager (ARM version, community edition), default credentials admin/admin123.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nexus-arm/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your Nexus repository manager
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  nexus:
+    image: sonatypecommunity/nexus3
+    env:
+      NEXUS_SECURITY_RANDOMPASSWORD: "false"
+      INSTALL4J_ADD_VM_PARAMS: -Xms2703m -Xmx2703m -XX:MaxDirectMemorySize=2703m -Djava.util.prefs.userRoot=/nexus-data/javaprefs
+    port: 8081
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /service/rest/v1/status
+      port: 8081
+    volumes:
+      data: /nexus-data
+volumes:
+  data:
+    size: ${DATA_SIZE}

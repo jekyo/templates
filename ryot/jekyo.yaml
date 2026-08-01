@@ -1,0 +1,50 @@
+app: ryot
+description: Ryot — self-hosted platform for tracking media consumption, fitness activities, and more
+icon: https://raw.githubusercontent.com/jekyo/templates/main/ryot/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Ryot
+  POSTGRES_PASSWORD:
+    kind: secret
+  ADMIN_ACCESS_TOKEN:
+    kind: secret
+  TZ:
+    kind: string
+    default: Europe/Amsterdam
+    required: false
+    prompt: Timezone
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  ryot:
+    image: ignisda/ryot:v10.3.0
+    env:
+      DATABASE_URL: postgres://ryot:${POSTGRES_PASSWORD}@postgresql:5432/ryot-db
+      SERVER_ADMIN_ACCESS_TOKEN: ${ADMIN_ACCESS_TOKEN}
+      TZ: ${TZ}
+    port: 8000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /health
+      port: 8000
+  postgresql:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: ryot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ryot-db
+      TZ: ${TZ}
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "ryot", "-d", "ryot-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

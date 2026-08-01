@@ -1,0 +1,35 @@
+app: pingvinshare-with-clamav
+description: A self-hosted file sharing platform that combines lightness and beauty, perfect for seamless and efficient file sharing.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/pingvinshare-with-clamav/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Pingvin Share
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  pingvinshare:
+    image: ghcr.io/stonith404/pingvin-share
+    env:
+      TRUST_PROXY: "true"
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /api/health
+      port: 3000
+    volumes:
+      data:
+        path: /opt/app/backend/data
+      images:
+        path: /opt/app/frontend/public/img
+  clamav:
+    image: clamav/clamav
+    port: 3310
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  images:
+    size: 1Gi

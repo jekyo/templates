@@ -1,0 +1,57 @@
+app: onedev
+description: OneDev — Git server with CI/CD, kanban, and packages
+icon: https://raw.githubusercontent.com/jekyo/templates/main/onedev/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for OneDev
+  ADMIN_PASSWORD:
+    kind: secret
+  DATABASE_PASSWORD:
+    kind: secret
+  ADMIN_EMAIL:
+    kind: string
+    default: mail@example.com
+    required: false
+    prompt: Admin email address
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size
+services:
+  onedev:
+    image: 1dev/server:latest
+    env:
+      hibernate_dialect: "io.onedev.server.persistence.PostgreSQLDialect"
+      hibernate_connection_driver_class: "org.postgresql.Driver"
+      hibernate_connection_url: "jdbc:postgresql://postgres:5432/onedev"
+      hibernate_connection_username: "onedev"
+      hibernate_connection_password: ${DATABASE_PASSWORD}
+      initial_user: "admin"
+      initial_password: ${ADMIN_PASSWORD}
+      initial_email: ${ADMIN_EMAIL}
+      initial_server_url: https://${DOMAIN}
+      initial_ssh_root_url: ssh://${DOMAIN}
+    port: 6610
+    http:
+      domain: ${DOMAIN}
+    volumes:
+      data:
+        path: /opt/onedev
+        subpath: onedev
+  postgres:
+    image: postgres:16-alpine
+    env:
+      POSTGRES_USER: "onedev"
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: "onedev"
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U onedev -d onedev"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}

@@ -1,0 +1,33 @@
+app: once-campfire
+description: Campfire — super simple group chat, without a subscription
+icon: https://raw.githubusercontent.com/jekyo/templates/main/once-campfire/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Campfire
+  SECRET_KEY_BASE:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  campfire:
+    image: ghcr.io/basecamp/once-campfire:main
+    env:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      DISABLE_SSL: "true"
+      SSL_DOMAIN: "false"
+      SKIP_TELEMETRY: "true"
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /up
+      port: 80
+    volumes:
+      data:
+        path: /rails/storage
+volumes:
+  data:
+    size: ${DATA_SIZE}

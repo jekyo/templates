@@ -1,0 +1,68 @@
+app: nodebb
+description: A next-generation discussion platform.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/nodebb/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for your NodeBB forum
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  nodebb:
+    image: ghcr.io/nodebb/nodebb:latest
+    env:
+      url: https://${DOMAIN}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    args:
+      - /bin/bash
+      - -c
+      - |
+        cat > /usr/src/app/setup.json <<EOL
+        {
+            "defaults": {
+                "postgres": {
+                    "host": "postgres",
+                    "port": 5432,
+                    "database": "nodebb",
+                    "username": "nodebb",
+                    "password": "$POSTGRES_PASSWORD"
+                }
+            }
+        }
+        EOL
+        exec tini -- entrypoint.sh
+    port: 4567
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["bash", "-c", ":> /dev/tcp/127.0.0.1/4567 || exit 1"]
+    volumes:
+      data:
+        path: /usr/src/app/public/uploads
+        subpath: uploads
+      build: /usr/src/app/build
+      config: /opt/config
+  postgres:
+    image: postgres:17.2-alpine
+    env:
+      POSTGRES_USER: nodebb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nodebb
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "nodebb", "-d", "nodebb"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgres
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  build:
+    size: 2Gi
+  config:
+    size: 1Gi

@@ -1,0 +1,44 @@
+app: transmission
+description: Fast, easy, and free BitTorrent client
+icon: https://raw.githubusercontent.com/jekyo/templates/main/transmission/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Transmission web UI
+  ADMIN_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size for configuration
+  DOWNLOADS_SIZE:
+    kind: size
+    default: 50Gi
+    prompt: Storage size for downloads
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      USER: admin
+      PASS: ${ADMIN_PASSWORD}
+    port: 9091
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["sh", "-c", "curl -s -o /dev/null http://localhost:9091/"]
+    volumes:
+      data:
+        path: /config
+      data-downloads:
+        path: /downloads
+      data-watch:
+        path: /watch
+volumes:
+  data:
+    size: ${DATA_SIZE}
+  data-downloads:
+    size: ${DOWNLOADS_SIZE}
+  data-watch:
+    size: 1Gi

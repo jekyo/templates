@@ -1,0 +1,62 @@
+app: cloudreve
+description: A self-hosted file management and sharing system.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/cloudreve/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Cloudreve
+  POSTGRES_PASSWORD:
+    kind: secret
+  REDIS_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 10Gi
+    prompt: Storage size
+services:
+  cloudreve:
+    image: cloudreve/cloudreve:4.10.1
+    env:
+      CR_CONF_Database.Type: postgres
+      CR_CONF_Database.Host: postgres
+      CR_CONF_Database.User: cloudreve
+      CR_CONF_Database.Password: ${POSTGRES_PASSWORD}
+      CR_CONF_Database.Name: cloudreve-db
+      CR_CONF_Database.Port: "5432"
+      CR_CONF_Redis.Server: redis:6379
+      CR_CONF_Redis.Password: ${REDIS_PASSWORD}
+    port: 5212
+    http:
+      domain: ${DOMAIN}
+    health:
+      command: ["nc", "-z", "localhost", "5212"]
+    volumes:
+      data:
+        path: /cloudreve/data
+        subpath: cloudreve
+  postgres:
+    image: postgres:18-alpine
+    env:
+      POSTGRES_USER: cloudreve
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: cloudreve-db
+    port: 5432
+    health:
+      command: ["pg_isready", "-U", "cloudreve", "-d", "cloudreve-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql
+        subpath: postgres
+  redis:
+    image: redis:7-alpine
+    args: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    port: 6379
+    health:
+      command: ["redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+    volumes:
+      data:
+        path: /data
+        subpath: redis
+volumes:
+  data:
+    size: ${DATA_SIZE}

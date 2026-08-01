@@ -1,0 +1,124 @@
+app: jitsi
+description: Self-hosted Jitsi Meet — open-source video conferencing platform
+icon: https://raw.githubusercontent.com/jekyo/templates/main/jitsi/logo.svg
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Jitsi Meet
+  JICOFO_AUTH_PASSWORD:
+    kind: secret
+  JVB_AUTH_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 2Gi
+    prompt: Storage size
+services:
+  jitsi-web:
+    image: jitsi/web:stable-10888
+    env:
+      PUBLIC_URL: https://${DOMAIN}
+      ENABLE_AUTH: "0"
+      ENABLE_GUESTS: "1"
+      ENABLE_LETSENCRYPT: "0"
+      ENABLE_HTTP_REDIRECT: "0"
+      DISABLE_HTTPS: "1"
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_GUEST_DOMAIN: guest.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_BOSH_URL_BASE: http://prosody:5280
+      JVB_BREWERY_MUC: jvbbrewery
+      JICOFO_COMPONENT_SECRET: ${JICOFO_AUTH_PASSWORD}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      TZ: UTC
+    port: 80
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 80
+    volumes:
+      data:
+        path: /config
+        subpath: web
+  prosody:
+    image: jitsi/prosody:stable-10888
+    env:
+      AUTH_TYPE: internal
+      ENABLE_AUTH: "0"
+      ENABLE_GUESTS: "1"
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_GUEST_DOMAIN: guest.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      JICOFO_COMPONENT_SECRET: ${JICOFO_AUTH_PASSWORD}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      PUBLIC_URL: https://${DOMAIN}
+      TZ: UTC
+      LOG_LEVEL: info
+    ports: [5222, 5280, 5347]
+    health:
+      path: /http-bind
+      port: 5280
+    volumes:
+      data:
+        path: /config
+        subpath: prosody
+  jicofo:
+    image: jitsi/jicofo:stable-10888
+    env:
+      AUTH_TYPE: internal
+      ENABLE_AUTH: "0"
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_SERVER: prosody
+      JICOFO_COMPONENT_SECRET: ${JICOFO_AUTH_PASSWORD}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_BREWERY_MUC: jvbbrewery
+      JICOFO_ENABLE_HEALTH_CHECKS: "1"
+      TZ: UTC
+    port: 8888
+    health:
+      path: /about/health
+      port: 8888
+    volumes:
+      data:
+        path: /config
+        subpath: jicofo
+  jvb:
+    image: jitsi/jvb:stable-10888
+    env:
+      XMPP_SERVER: prosody
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      JVB_AUTH_USER: jvb
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      JVB_BREWERY_MUC: jvbbrewery
+      JVB_PORT: "30000"
+      JVB_STUN_SERVERS: stun.l.google.com:19302
+      PUBLIC_URL: https://${DOMAIN}
+      TZ: UTC
+    port: 8080
+    expose:
+      - port: 30000
+        node: 30000
+        protocol: udp
+    health:
+      path: /about/health
+      port: 8080
+    volumes:
+      data:
+        path: /config
+        subpath: jvb
+volumes:
+  data:
+    size: ${DATA_SIZE}

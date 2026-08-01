@@ -1,0 +1,41 @@
+app: martin
+description: Martin is a tile server able to generate and serve vector tiles on the fly from large PostGIS databases, PMTiles (local or remote), and MBTiles files.
+icon: https://raw.githubusercontent.com/jekyo/templates/main/martin/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for Martin
+  POSTGRES_PASSWORD:
+    kind: secret
+  DATA_SIZE:
+    kind: size
+    default: 5Gi
+    prompt: Storage size
+services:
+  martin:
+    image: ghcr.io/maplibre/martin:v0.13.0
+    env:
+      HOST: https://${DOMAIN}
+      DATABASE_URL: postgresql://martin:${POSTGRES_PASSWORD}@postgresql:5432/martin-db
+    port: 3000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 3000
+  postgresql:
+    image: postgis/postgis:16-3.4-alpine
+    env:
+      POSTGRES_USER: martin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: martin-db
+    port: 5432
+    health:
+      command: ["sh", "-c", "pg_isready -U martin -d martin-db"]
+    volumes:
+      data:
+        path: /var/lib/postgresql/data
+        subpath: postgresql
+volumes:
+  data:
+    size: ${DATA_SIZE}

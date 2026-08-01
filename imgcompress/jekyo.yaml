@@ -1,0 +1,29 @@
+app: imgcompress
+description: Offline image compression, conversion, and AI background removal for Docker homelabs
+icon: https://raw.githubusercontent.com/jekyo/templates/main/imgcompress/logo.png
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for imgcompress
+  DISABLE_LOGO:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Disable the imgcompress logo in the UI
+  DISABLE_STORAGE_MANAGEMENT:
+    kind: string
+    default: "false"
+    required: false
+    prompt: Disable the storage management UI
+services:
+  imgcompress:
+    image: karimz1/imgcompress:0.6.0
+    env:
+      DISABLE_LOGO: ${DISABLE_LOGO}
+      DISABLE_STORAGE_MANAGEMENT: ${DISABLE_STORAGE_MANAGEMENT}
+    port: 5000
+    http:
+      domain: ${DOMAIN}
+    health:
+      path: /
+      port: 5000
