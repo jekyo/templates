@@ -1,0 +1,101 @@
+app: sluice
+description: Self-hosted rotating egress proxy with a dial-time guard and an audit log.
+inputs:
+  DOMAIN:
+    kind: domain
+    prompt: Domain for the Sluice dashboard and API
+  SLUICE_ADMIN_EMAIL:
+    kind: string
+    prompt: Admin login email
+  SLUICE_ADMIN_PASSWORD:
+    kind: secret
+    prompt: Admin login password
+  PUBLIC_IP:
+    kind: string
+    prompt: Public IP clients connect to for the proxy and SOCKS ports
+  ADDR_BLOCKS:
+    kind: string
+    prompt: "Egress address blocks, e.g. 203.0.113.0/24,gw=203.0.113.1,dev=eth0 (';'-separate for more)"
+  DATA_SIZE:
+    kind: size
+    default: 20Gi
+    prompt: Storage size for the address and audit database
+
+services:
+  sluice:
+    image: ghcr.io/jekyo/sluice:v0.1.0
+    port: 8080
+    http:
+      domain: ${DOMAIN}
+
+    # Host networking, so outbound sockets can bind addresses on the node's
+    # NIC. This is what local-IP routes need, and the reason the proxy binds
+    # :3128 and :1080 on the node directly rather than through expose:.
+    network:
+      host: true
+
+    security:
+      run-as: 10001
+      no-new-privileges: true
+
+    # Headroom for the browser engine; harmless before it exists.
+    shm: 512Mi
+
+    # Long enough to drain in-flight CONNECT tunnels rather than SIGKILL them.
+    stop-grace: 120
+
+    env:
+      SLUICE_DB: /data/sluice.db
+      SLUICE_ADDR: ":8080"
+      SLUICE_PROXY_ADDR: ":3128"
+      SLUICE_SOCKS_ADDR: ":1080"
+      SLUICE_PUBLIC_PROXY: "${PUBLIC_IP}:3128"
+      SLUICE_PUBLIC_SOCKS: "${PUBLIC_IP}:1080"
+      SLUICE_API_HOST: ${DOMAIN}
+      SLUICE_VERSION: "v0.1.0"
+      SLUICE_ADMIN_EMAIL: ${SLUICE_ADMIN_EMAIL}
+
+    secrets:
+      SLUICE_ADMIN_PASSWORD: ${SLUICE_ADMIN_PASSWORD}
+
+    health:
+      path: /healthz
+
+    metrics:
+      path: /metrics
+      port: 8080
+
+    resources:
+      cpu: 200m
+      memory: 256Mi
+      memory-max: 1Gi
+
+    volumes:
+      data: /data
+
+    # Adding an address needs NET_ADMIN, and a capability does not survive
+    # execve for a non-root UID, so the privilege lives in its own container:
+    # same image, no listener, root, holding the only NET_ADMIN in the pod.
+    # Per-container caps (jekyo 0.22+) are what make this expressible without
+    # running the proxy itself as root.
+    sidecars:
+      addrd:
+        image: ghcr.io/jekyo/sluice:v0.1.0
+        command: ["sluice", "addrd"]
+        caps: [NET_ADMIN]
+        security:
+          run-as: 0
+        env:
+          # The mask, gateway and device come from here rather than being
+          # inferred. ';'-separate to declare more blocks.
+          SLUICE_ADDR_BLOCKS: ${ADDR_BLOCKS}
+          SLUICE_DB: /data/sluice.db
+        resources:
+          cpu: 50m
+          memory: 64Mi
+        volumes:
+          data: /data
+
+volumes:
+  data:
+    size: ${DATA_SIZE}

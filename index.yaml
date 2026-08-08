@@ -1073,6 +1073,10 @@ templates:
     description: "An open source, self-hosted links shortener and sharing platform."
     category: productivity
     docs: "https://github.com/yourselfhosted/slash"
+  - name: "sluice"
+    description: "Self-hosted rotating egress proxy: routes traffic through addresses you control, refuses internal destinations at dial time, logs every request."
+    category: networking
+    docs: "https://github.com/jekyo/sluice"
   - name: "snapdrop"
     description: "Snapdrop \u2014 self-hosted file sharing for secure and convenient transfers on a local network or the internet"
     category: productivity
