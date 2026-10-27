@@ -1,5 +1,5 @@
 app: matrix-synapse-with-postgresql
-description: Chat securely with your family, friends, community, or build great apps with Matrix!
+description: "Chat securely with your family, friends, community, or build great apps with Matrix!"
 icon: https://raw.githubusercontent.com/jekyo/templates/main/matrix-synapse-with-postgresql/logo.svg
 inputs:
   DOMAIN:
@@ -7,7 +7,7 @@ inputs:
     prompt: Domain Synapse is served on (e.g. matrix.example.org)
   SYNAPSE_SERVER_NAME:
     kind: string
-    prompt: Matrix server name: permanent, cannot be changed later (e.g. example.org)
+    prompt: "Matrix server name: permanent, cannot be changed later (e.g. example.org)"
   ENABLE_REGISTRATION:
     kind: string
     default: "false"
