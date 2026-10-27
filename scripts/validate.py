@@ -37,10 +37,12 @@ def main():
             continue  # secrets stay as ${NAME}, provided via --env-file
         val = spec["default"]
         if not val:
-            val = {
-                "domain": "valid.example.com",
-                "size": "1Gi",
-            }.get(spec["kind"], "dummy-value")
+            if spec["kind"] == "domain":
+                # Distinct host per input: templates that publish several
+                # services reject two of them sharing one domain.
+                val = name.lower().replace("_", "-") + ".example.com"
+            else:
+                val = {"size": "1Gi"}.get(spec["kind"], "dummy-value")
         out = out.replace("${" + name + "}", val)
 
     out = re.sub(r"^inputs:\n(?:[ \t].*\n|\n)*", "", out, count=1, flags=re.M)
