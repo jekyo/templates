@@ -1,6 +1,6 @@
 app: docuseal
-description: DocuSeal: open-source document signing, alternative to DocuSign
-icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal/logo.png
+description: "DocuSeal: open-source document signing, alternative to DocuSign"
+icon: https://raw.githubusercontent.com/jekyo/templates/main/docuseal/logo.svg
 inputs:
   DOMAIN:
     kind: domain
@@ -14,15 +14,28 @@ services:
     image: docuseal/docuseal:latest
     env:
       HOST: ${DOMAIN}
+      # Upstream compose sets FORCE_SSL to the public host; the ingress
+      # terminates TLS and forwards X-Forwarded-Proto, so Rails only
+      # redirects plain-HTTP callers.
+      FORCE_SSL: ${DOMAIN}
     port: 3000
     http:
       domain: ${DOMAIN}
     health:
       path: /
       port: 3000
+      # First boot runs migrations before the app answers.
+      grace: 180
+    resources:
+      cpu: 250m
+      memory: 512Mi
+      cpu-max: "2"
+      memory-max: 2Gi
+    # Let in-flight signing requests finish on a rollout.
+    stop-grace: 60
     volumes:
-      data:
-        path: /data
+      # SQLite database and uploaded documents both live under /data.
+      data: /data
 volumes:
   data:
     size: ${DATA_SIZE}
