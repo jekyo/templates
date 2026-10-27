@@ -13,16 +13,17 @@ services:
   docuseal:
     image: docuseal/docuseal:latest
     env:
-      HOST: ${DOMAIN}
-      # Upstream compose sets FORCE_SSL to the public host; the ingress
-      # terminates TLS and forwards X-Forwarded-Proto, so Rails only
-      # redirects plain-HTTP callers.
-      FORCE_SSL: ${DOMAIN}
+      # The ingress terminates TLS, so the app itself serves plain HTTP.
+      # APP_URL is what DocuSeal reads to build the absolute links it
+      # emails to signers (upstream's $HOST is a compose variable for
+      # Caddy, not a container env var — DocuSeal never reads HOST).
+      APP_URL: https://${DOMAIN}
     port: 3000
     http:
       domain: ${DOMAIN}
     health:
-      path: /
+      # Rails' own endpoint: 200 without a redirect.
+      path: /up
       port: 3000
       # First boot runs migrations before the app answers.
       grace: 180
