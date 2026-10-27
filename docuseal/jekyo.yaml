@@ -21,6 +21,9 @@ services:
     port: 3000
     http:
       domain: ${DOMAIN}
+      # Signing sessions must not be served in the clear: the ingress
+      # answers plain HTTP with a 301 to https (needs jekyo 0.26.0).
+      force-https: true
     health:
       # Rails' own endpoint: 200 without a redirect.
       path: /up
